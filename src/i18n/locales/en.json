@@ -1,0 +1,22 @@
+{
+  "nav": { "menu": "Menu", "reviews": "Reviews", "visit": "Info and Map", "book": "Book" },
+  "hero": {
+    "eyebrow": "Trattoria and Delivery - Rue dOran, Rabat",
+    "title_pre": "A table that ",
+    "title_em": "unfolds",
+    "title_post": " for you.",
+    "lede": "Wood-fired pizza, Italian-Moroccan specialties and Friday couscous. Book a table or order delivery, open every day from 8am to 11pm.",
+    "cta_book": "Book a table",
+    "cta_delivery": "Order delivery"
+  },
+  "dock": {
+    "book": "Book", "book_sub": "A table in the dining room",
+    "delivery": "Delivery", "delivery_sub": "At your door in 20 min",
+    "menu": "Menu", "menu_sub": "Pizza, meat, fish",
+    "directions": "Directions", "directions_sub": "Rue dOran, Rabat"
+  },
+  "visit": {
+    "address": "Address", "phone": "Phone", "hours": "Hours",
+    "avg_price": "Average price", "couscous": "Couscous", "couscous_value": "Fridays only"
+  }
+}

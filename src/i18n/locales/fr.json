@@ -1,0 +1,22 @@
+{
+  "nav": { "menu": "Menu", "reviews": "Avis", "visit": "Infos et Carte", "book": "Reserver" },
+  "hero": {
+    "eyebrow": "Trattoria et Livraison - Rue dOran, Rabat",
+    "title_pre": "Une table qui se ",
+    "title_em": "deplie",
+    "title_post": " pour vous.",
+    "lede": "Pizza au feu de bois, specialites italo-marocaines et couscous du vendredi. Reservez une table ou faites-vous livrer, ouvert tous les jours de 8h a 23h.",
+    "cta_book": "Reserver une table",
+    "cta_delivery": "Commander la livraison"
+  },
+  "dock": {
+    "book": "Reserver", "book_sub": "Une table en salle",
+    "delivery": "Livraison", "delivery_sub": "Chez vous en 20 min",
+    "menu": "Menu", "menu_sub": "Pizzas, viandes, poissons",
+    "directions": "Itineraire", "directions_sub": "Rue dOran, Rabat"
+  },
+  "visit": {
+    "address": "Adresse", "phone": "Telephone", "hours": "Horaires",
+    "avg_price": "Prix moyen", "couscous": "Couscous", "couscous_value": "Vendredi uniquement"
+  }
+}

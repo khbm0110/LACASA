@@ -1,0 +1,86 @@
+import { useEffect, useState } from "react"
+import { supabase } from "../../lib/supabaseClient"
+
+const EMPTY = { category: "", name: "", price: "", description: "", is_featured: false, available_for_delivery: true }
+
+export default function MenuManager() {
+  const [items, setItems] = useState([])
+  const [form, setForm] = useState(EMPTY)
+  const [editingId, setEditingId] = useState(null)
+
+  const load = async () => {
+    const { data } = await supabase.from("menu_items").select("*").order("category")
+    setItems(data || [])
+  }
+  useEffect(() => { load() }, [])
+
+  const update = (key) => (e) => {
+    const value = e.target.type === "checkbox" ? e.target.checked : e.target.value
+    setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  const submit = async (e) => {
+    e.preventDefault()
+    if (editingId) {
+      await supabase.from("menu_items").update(form).eq("id", editingId)
+    } else {
+      await supabase.from("menu_items").insert([form])
+    }
+    setForm(EMPTY)
+    setEditingId(null)
+    load()
+  }
+
+  const edit = (item) => { setForm(item); setEditingId(item.id) }
+  const remove = async (id) => { await supabase.from("menu_items").delete().eq("id", id); load() }
+
+  return (
+    <div>
+      <h1 className="font-serif text-3xl mb-8">Gestion du menu</h1>
+
+      <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-6 grid sm:grid-cols-2 gap-3 mb-10">
+        <input required placeholder="Categorie (ex: Pizzas)" value={form.category} onChange={update("category")}
+          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <input required placeholder="Nom du plat" value={form.name} onChange={update("name")}
+          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <input required type="number" placeholder="Prix (MAD)" value={form.price} onChange={update("price")}
+          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <input placeholder="Description" value={form.description} onChange={update("description")}
+          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <label className="flex items-center gap-2 text-sm text-inkdim">
+          <input type="checkbox" checked={!!form.is_featured} onChange={update("is_featured")} /> Mis en avant sur l accueil
+        </label>
+        <label className="flex items-center gap-2 text-sm text-inkdim">
+          <input type="checkbox" checked={!!form.available_for_delivery} onChange={update("available_for_delivery")} /> Disponible en livraison
+        </label>
+        <div className="sm:col-span-2 flex gap-3">
+          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+            {editingId ? "Mettre a jour" : "Ajouter au menu"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={() => { setForm(EMPTY); setEditingId(null) }} className="px-5 py-2.5 rounded-full text-sm border border-line">
+              Annuler
+            </button>
+          )}
+        </div>
+      </form>
+
+      <div className="grid gap-2">
+        {items.map((item) => (
+          <div key={item.id} className="bg-bgsoft border border-line rounded-xl px-4 py-3 flex items-center justify-between text-sm">
+            <div>
+              <span className="text-inkdim font-mono text-xs mr-2">{item.category}</span>
+              <span className="font-medium">{item.name}</span>
+              <span className="text-gold ml-2 font-mono">{item.price} MAD</span>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => edit(item)} className="text-inkdim hover:text-ink">Modifier</button>
+              <button onClick={() => remove(item.id)} className="text-red-400 hover:text-red-300">Supprimer</button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-inkdim text-sm">Aucun plat pour le moment.</p>}
+      </div>
+    </div>
+  )
+}

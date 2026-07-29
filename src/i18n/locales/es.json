@@ -1,0 +1,22 @@
+{
+  "nav": { "menu": "Menu", "reviews": "Resenas", "visit": "Info y Mapa", "book": "Reservar" },
+  "hero": {
+    "eyebrow": "Trattoria y Reparto - Rue dOran, Rabat",
+    "title_pre": "Una mesa que se ",
+    "title_em": "despliega",
+    "title_post": " para ti.",
+    "lede": "Pizza al horno de lena, especialidades italo-marroquies y cuscus los viernes. Reserva una mesa o pide reparto a domicilio, abierto todos los dias de 8h a 23h.",
+    "cta_book": "Reservar una mesa",
+    "cta_delivery": "Pedir reparto"
+  },
+  "dock": {
+    "book": "Reservar", "book_sub": "Una mesa en el salon",
+    "delivery": "Reparto", "delivery_sub": "En tu casa en 20 min",
+    "menu": "Menu", "menu_sub": "Pizzas, carnes, pescados",
+    "directions": "Como llegar", "directions_sub": "Rue dOran, Rabat"
+  },
+  "visit": {
+    "address": "Direccion", "phone": "Telefono", "hours": "Horario",
+    "avg_price": "Precio medio", "couscous": "Cuscus", "couscous_value": "Solo los viernes"
+  }
+}

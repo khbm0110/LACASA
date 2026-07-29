@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Remplacez VOTRE-DOMAINE.com par votre vrai nom de domaine une fois deploye.
+     Pour un site avec un blog qui grandit, generez ce fichier dynamiquement
+     cote serveur plutot que de le maintenir a la main. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://VOTRE-DOMAINE.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/menu</loc><priority>0.9</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/reserver</loc><priority>0.8</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/livraison</loc><priority>0.8</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/galerie</loc><priority>0.5</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/evenements</loc><priority>0.5</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/blog</loc><priority>0.5</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/avis</loc><priority>0.5</priority></url>
+  <url><loc>https://VOTRE-DOMAINE.com/a-propos</loc><priority>0.7</priority></url>
+</urlset>
