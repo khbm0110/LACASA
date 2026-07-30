@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom"
 import Header from "./components/Header.jsx"
 import Footer from "./components/Footer.jsx"
 import WhatsAppButton from "./components/WhatsAppButton.jsx"
+import ConnectionStatus from "./components/ConnectionStatus.jsx"
 import { usePageView } from "./lib/usePageView"
 import Home from "./pages/Home.jsx"
 import Menu from "./pages/Menu.jsx"
@@ -48,6 +49,7 @@ export default function App() {
             <Home />
             <Footer />
             <WhatsAppButton />
+            <ConnectionStatus />
             <ViewLogger />
           </div>
         }
@@ -103,6 +105,7 @@ function PublicPage({ children }) {
       {children}
       <Footer />
       <WhatsAppButton />
+      <ConnectionStatus />
       <ViewLogger />
     </div>
   )

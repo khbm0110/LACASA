@@ -5,6 +5,45 @@ site public avec reservation, livraison, menu, avis, carte, PWA installable,
 et un espace d administration relie a Supabase pour tout gerer sans code.
 
 ## Ce qui est deja fait
+
+### Corrections recentes
+- **Menu admin invisible sur mobile** (corrige) : la barre laterale etait
+  completement cachee sous la largeur `md` sans aucune alternative. Une
+  barre superieure avec un bouton "Menu" deroulant a ete ajoutee pour mobile.
+- **Traductions incompletes** (partiellement corrige) : seuls `Header` et la
+  page d accueil (`Home`) utilisaient le systeme de traduction au depart.
+  Desormais **Footer, Menu, Reserver, Livraison et Infos/Carte** sont aussi
+  traduits (fr/ar/es/en). Pages encore en francais uniquement : Galerie,
+  Evenements, Blog, Contact, Mon compte, Suivi de commande, Avis, Table (QR).
+  **Limite importante** : les plats du menu, articles de blog et evenements
+  viennent de la base de donnees et restent dans la langue ou vous les avez
+  saisis (pas de traduction automatique du contenu) - seuls les libelles
+  d interface (boutons, titres fixes) sont traduits.
+- **Colonne `notes` manquante sur `orders`** (corrige) : la page livraison
+  envoyait un champ `notes` que la table ne definissait pas, ce qui faisait
+  echouer toute commande avec le message generique "Une erreur est survenue".
+  Si vous avez deja execute `schema.sql` avant cette correction, executez
+  directement dans Supabase > SQL Editor :
+  `alter table orders add column if not exists notes text;`
+- **Double reservation de la meme table** (corrige) : rien n empechait deux
+  clients de reserver la meme table sur le meme creneau. Desormais :
+  - cote formulaire, les tables deja prises a moins de 2h de l heure choisie
+    apparaissent desactivees dans la liste
+  - cote base de donnees, un index unique bloque en dur toute deuxieme
+    reservation active (pending/confirmed) sur la meme table + date + heure,
+    meme en cas de double-clic simultane de deux clients differents
+- **Son d alerte trop faible + pas de rappel** (corrige) : le son est
+  desormais un carillon a trois notes nettement plus audible, et se
+  repete automatiquement toutes les 20 secondes tant qu au moins une
+  alerte n a pas ete fermee dans le tableau de bord (bouton "Tout marquer
+  comme vu" disponible). Note navigateur : le son peut rester bloque tant
+  qu aucune interaction (clic) n a eu lieu sur la page depuis son chargement -
+  c est une restriction standard des navigateurs, pas un bug.
+- **Aucune indication de perte de connexion** (corrige) : un bandeau rouge
+  apparait desormais en haut de l ecran (site public et admin) des que le
+  navigateur perd la connexion internet, et disparait automatiquement au
+  retour de la connexion. Supabase Realtime se reconnecte alors de lui-meme.
+
 - **Page d accueil complete** (`/`) : hero 3D, acces rapide (reserver/livraison/menu/itineraire),
   plats mis en avant, **avis Google**, **carte + infos pratiques**, et un
   **formulaire de reservation rapide** — tout est sur la meme page, en plus

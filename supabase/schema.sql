@@ -3,6 +3,31 @@
 
 create extension if not exists "uuid-ossp";
 
+-- Table "staff" : distingue l equipe (admin/manager/cuisine/staff) des
+-- simples clients qui ont un compte. Definie ici (pas dans policies.sql)
+-- pour garantir qu elle existe avant toute fonction ou politique qui en
+-- depend, puisque schema.sql s execute AVANT policies.sql.
+create table if not exists staff (
+  id uuid primary key references auth.users(id) on delete cascade,
+  role text not null default 'staff', -- 'admin' | 'manager' | 'cuisine' | 'staff'
+  created_at timestamptz default now()
+);
+
+create or replace function is_staff()
+returns boolean as $$
+  select exists (select 1 from staff where id = auth.uid());
+$$ language sql security definer stable;
+
+create or replace function is_admin()
+returns boolean as $$
+  select exists (select 1 from staff where id = auth.uid() and role = 'admin');
+$$ language sql security definer stable;
+
+-- Apres avoir cree votre premier compte admin dans Supabase Auth, ajoutez-le
+-- manuellement a cette table (SQL Editor) pour debloquer l acces admin :
+--   insert into staff (id, role) values ('UUID-DU-COMPTE', 'admin');
+
+
 -- Menu -----------------------------------------------------------
 create table if not exists menu_items (
   id uuid primary key default uuid_generate_v4(),
@@ -34,6 +59,7 @@ create table if not exists orders (
   id uuid primary key default uuid_generate_v4(),
   phone text not null,
   address text not null,
+  notes text,
   items jsonb not null default '[]',
   total numeric not null default 0,
   status text not null default 'new', -- new | out_for_delivery | delivered | cancelled
@@ -80,6 +106,7 @@ create table if not exists restaurant_tables (
 alter table reservations add column if not exists table_id uuid references restaurant_tables(id);
 alter table orders add column if not exists table_id uuid references restaurant_tables(id);
 alter table orders add column if not exists order_type text not null default 'delivery'; -- delivery | dine_in
+alter table orders add column if not exists notes text;
 
 
 -- Avis Google mis en cache localement (synchronises via une Edge Function,
@@ -150,6 +177,15 @@ alter table orders add column if not exists status_history jsonb default '[]';
 
 alter table reservations add column if not exists customer_id uuid references auth.users(id);
 
+-- Filet de securite au niveau base de donnees : empeche deux reservations
+-- actives (pending/confirmed) sur la MEME table, MEME date, MEME heure -
+-- utile si deux personnes valident en meme temps (la verification cote
+-- application, avec une marge de 2h, reste la premiere ligne de defense
+-- mais ne peut pas a elle seule eviter toutes les conditions de course).
+create unique index if not exists uniq_active_table_slot
+on reservations (table_id, date, time)
+where table_id is not null and status in ('pending', 'confirmed');
+
 -- Points de fidelite attribues automatiquement a la livraison (1 point / 10 MAD)
 create or replace function award_loyalty_points()
 returns trigger as $$
@@ -171,11 +207,7 @@ create trigger on_order_delivered
 -- Lot "Cuisine & operations" : suivi cuisine (KDS), roles equipe, CRM
 -- ============================================================
 
--- Distingue un administrateur (peut gerer l equipe) d un simple membre
-create or replace function is_admin()
-returns boolean as $$
-  select exists (select 1 from staff where id = auth.uid() and role = 'admin');
-$$ language sql security definer stable;
+-- (is_admin() est defini plus haut, avec la table staff)
 
 -- ============================================================
 -- Lot "Contenu & marketing" : galerie photo, evenements/offres, blog

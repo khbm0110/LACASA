@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
+import { useSEO } from "../lib/useSEO"
 
-// Categories de secours affichees si Supabase n est pas encore configure
-// ou si la table menu_items est vide (premier lancement du projet).
+// NOTE traduction : les noms/descriptions des plats viennent de la base de
+// donnees (menu_items) et sont donc dans une seule langue (celle saisie
+// dans l admin) - seuls les libelles de l interface sont traduits ici.
+// Pour des fiches plats multilingues, il faudrait des colonnes JSONB comme
+// pour site_content (evolution possible plus tard).
 const FALLBACK = [
   { id: "f1", category: "Pizzas", name: "Margherita", price: 55, description: "Tomate San Marzano, mozzarella, basilic." },
   { id: "f2", category: "Pizzas", name: "Diavola", price: 65, description: "Salami piquant, mozzarella, piment frais." },
@@ -11,6 +16,8 @@ const FALLBACK = [
 ]
 
 export default function Menu() {
+  const { t } = useTranslation()
+  useSEO({ title: t("menu_page.title") })
   const [items, setItems] = useState(FALLBACK)
   const [loading, setLoading] = useState(true)
 
@@ -30,10 +37,8 @@ export default function Menu() {
 
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
-      <h1 className="font-serif text-4xl md:text-5xl mb-2">Notre Menu</h1>
-      <p className="text-inkdim mb-12">
-        {loading ? "Chargement..." : "Prix indicatifs, geres depuis le panneau d administration."}
-      </p>
+      <h1 className="font-serif text-4xl md:text-5xl mb-2">{t("menu_page.title")}</h1>
+      <p className="text-inkdim mb-12">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
 
       {categories.map((cat) => (
         <div key={cat} className="mb-14">

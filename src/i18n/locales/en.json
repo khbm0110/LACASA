@@ -1,5 +1,10 @@
 {
-  "nav": { "menu": "Menu", "reviews": "Reviews", "visit": "Info and Map", "book": "Book" },
+  "nav": {
+    "menu": "Menu",
+    "reviews": "Reviews",
+    "visit": "Info and Map",
+    "book": "Book"
+  },
   "hero": {
     "eyebrow": "Trattoria and Delivery - Rue dOran, Rabat",
     "title_pre": "A table that ",
@@ -10,13 +15,82 @@
     "cta_delivery": "Order delivery"
   },
   "dock": {
-    "book": "Book", "book_sub": "A table in the dining room",
-    "delivery": "Delivery", "delivery_sub": "At your door in 20 min",
-    "menu": "Menu", "menu_sub": "Pizza, meat, fish",
-    "directions": "Directions", "directions_sub": "Rue dOran, Rabat"
+    "book": "Book",
+    "book_sub": "A table in the dining room",
+    "delivery": "Delivery",
+    "delivery_sub": "At your door in 20 min",
+    "menu": "Menu",
+    "menu_sub": "Pizza, meat, fish",
+    "directions": "Directions",
+    "directions_sub": "Rue dOran, Rabat"
   },
   "visit": {
-    "address": "Address", "phone": "Phone", "hours": "Hours",
-    "avg_price": "Average price", "couscous": "Couscous", "couscous_value": "Fridays only"
+    "address": "Address",
+    "phone": "Phone",
+    "hours": "Hours",
+    "avg_price": "Average price",
+    "couscous": "Couscous",
+    "couscous_value": "Fridays only"
+  },
+  "footer": {
+    "tagline": "We'll be waiting for you at the table.",
+    "contact": "Contact",
+    "hours_label": "Hours",
+    "days": "Mon - Sun",
+    "hours_value": "8am - 11pm",
+    "copyright": "(c) 2026 La Casa Di Carta",
+    "note": "Data to be verified before going live"
+  },
+  "about": {
+    "title": "Hours & Address",
+    "subtitle": "Come visit us in Rabat.",
+    "address": "Address",
+    "phone": "Phone",
+    "hours": "Hours",
+    "hours_value": "Every day, 8am - 11pm",
+    "avg_price": "Average price",
+    "avg_price_value": "150 - 250 MAD / person",
+    "couscous": "Couscous",
+    "couscous_value": "Fridays only"
+  },
+  "menu_page": {
+    "title": "Our Menu",
+    "loading": "Loading...",
+    "note": "Indicative prices, managed from the admin panel."
+  },
+  "booking_page": {
+    "title": "Book a table",
+    "subtitle": "We'll confirm your reservation by phone shortly.",
+    "name": "Full name",
+    "phone": "Phone",
+    "guests": "Number of guests",
+    "table_any": "Any table",
+    "notes": "Notes (allergies, occasion...)",
+    "submit": "Confirm request",
+    "submitting": "Sending...",
+    "success_title": "Thank you!",
+    "success_text": "Your request has been received, we'll call you to confirm.",
+    "error": "An error occurred. Check that Supabase is properly configured."
+  },
+  "delivery_page": {
+    "title": "Order delivery",
+    "search": "Search a dish...",
+    "empty_cart": "Your cart is empty - add dishes on the left.",
+    "subtotal": "Subtotal",
+    "delivery_fee": "Delivery",
+    "free": "Free",
+    "discount": "Discount",
+    "total": "Total",
+    "promo_placeholder": "Promo code",
+    "apply": "Apply",
+    "points_note": "You'll earn ~{{points}} loyalty points on this order.",
+    "address_placeholder": "Delivery address",
+    "phone_placeholder": "Phone",
+    "notes_placeholder": "Instructions (floor, door code...)",
+    "submit": "Order",
+    "submitting": "Sending...",
+    "login_hint": "Log in to earn loyalty points on this order.",
+    "subtitle": "Estimated delivery 15 to 20 minutes depending on your area - minimum order {{min}} MAD, free delivery from {{threshold}} MAD.",
+    "min_order_hint": "Add {{amount}} MAD to reach the minimum order."
   }
 }

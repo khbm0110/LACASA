@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabaseClient"
 
 export default function Reservations() {
   const [rows, setRows] = useState([])
+  const [error, setError] = useState(null)
 
   const load = async () => {
     const { data } = await supabase.from("reservations").select("*").order("created_at", { ascending: false })
@@ -11,13 +12,20 @@ export default function Reservations() {
   useEffect(() => { load() }, [])
 
   const setStatus = async (id, status) => {
-    await supabase.from("reservations").update({ status }).eq("id", id)
+    setError(null)
+    const { error } = await supabase.from("reservations").update({ status }).eq("id", id)
+    if (error?.code === "23505") {
+      setError("Impossible : une autre reservation active occupe deja cette table sur ce creneau.")
+    } else if (error) {
+      setError("Une erreur est survenue.")
+    }
     load()
   }
 
   return (
     <div>
       <h1 className="font-serif text-3xl mb-8">Reservations</h1>
+      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
       <div className="grid gap-2">
         {rows.map((r) => (
           <div key={r.id} className="bg-bgsoft border border-line rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">

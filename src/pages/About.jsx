@@ -1,16 +1,22 @@
+import { useTranslation } from "react-i18next"
+import { useSEO } from "../lib/useSEO"
+
 export default function About() {
+  const { t } = useTranslation()
+  useSEO({ title: t("about.title"), description: t("about.subtitle") })
+
   return (
     <section className="max-w-4xl mx-auto px-6 md:px-8 py-20">
-      <h1 className="font-serif text-4xl mb-2">Horaires et Adresse</h1>
-      <p className="text-inkdim mb-10">Venez nous rendre visite a Rabat.</p>
+      <h1 className="font-serif text-4xl mb-2">{t("about.title")}</h1>
+      <p className="text-inkdim mb-10">{t("about.subtitle")}</p>
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-bgsoft border border-line rounded-2xl p-8">
-          <Row label="Adresse" value="Rue d Oran, Rabat" />
-          <Row label="Telephone" value="+212 5 37 26 26 58" />
-          <Row label="Horaires" value="Tous les jours, 8h - 23h" />
-          <Row label="Prix moyen" value="150 - 250 MAD / pers." />
-          <Row label="Couscous" value="Vendredi uniquement" last />
+          <Row label={t("about.address")} value="Rue d Oran, Rabat" />
+          <Row label={t("about.phone")} value="+212 5 37 26 26 58" />
+          <Row label={t("about.hours")} value={t("about.hours_value")} />
+          <Row label={t("about.avg_price")} value={t("about.avg_price_value")} />
+          <Row label={t("about.couscous")} value={t("about.couscous_value")} last />
         </div>
         <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3.6]">
           <iframe

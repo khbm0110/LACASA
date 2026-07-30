@@ -1,31 +1,13 @@
 -- Politiques RLS (Row Level Security) - a adapter selon vos besoins.
 -- Active RLS sur toutes les tables sensibles.
 
--- IMPORTANT : maintenant que le site a des comptes CLIENTS en plus du
--- compte admin, on ne peut plus utiliser auth.role() = 'authenticated'
--- pour reconnaitre l equipe (un client connecte a aussi ce role). On
--- utilise donc une vraie table "staff" + une fonction is_staff().
--- Voir aussi src/admin/pages/StaffManager.jsx pour gerer cette table
--- depuis l interface (lot "Cuisine & operations").
-
-create table if not exists staff (
-  id uuid primary key references auth.users(id) on delete cascade,
-  role text not null default 'staff', -- 'admin' | 'manager' | 'staff'
-  created_at timestamptz default now()
-);
-
-create or replace function is_staff()
-returns boolean as $$
-  select exists (select 1 from staff where id = auth.uid());
-$$ language sql security definer stable;
+-- IMPORTANT : la table "staff" et les fonctions is_staff()/is_admin() sont
+-- maintenant definies dans schema.sql (executez-le en premier). Ici on ne
+-- fait qu activer la RLS et poser les politiques d acces.
 
 alter table staff enable row level security;
 create policy "staff read own row" on staff for select using (auth.uid() = id);
 create policy "admin manage staff" on staff for all using (is_admin());
-
--- Apres avoir cree votre premier compte admin dans Supabase Auth, ajoutez-le
--- manuellement a cette table (SQL Editor) pour debloquer l acces admin :
---   insert into staff (id, role) values ('UUID-DU-COMPTE', 'admin');
 
 alter table menu_items enable row level security;
 alter table reservations enable row level security;
