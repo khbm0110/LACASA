@@ -4,14 +4,11 @@ import { supabase } from "../../lib/supabaseClient"
 const REPEAT_EVERY_MS = 20000 // relance le son toutes les 20s tant qu une alerte n est pas fermee
 
 // Ecoute en temps reel les nouvelles reservations et commandes via
-// Supabase Realtime (aucune cle API externe necessaire - fonctionne
-// des que Supabase est configure). Tant que le tableau de bord admin
-// reste ouvert dans un onglet, chaque nouvel evenement declenche :
-//  - un son d alerte (nettement audible, et qui se repete tant que
-//    personne n a ferme l alerte - pour ne pas rater une commande si
-//    l equipe est occupee en cuisine)
-//  - une notification systeme (si l utilisateur a autorise les notifications)
-//  - un badge visible dans le menu de gauche
+// Supabase Realtime. Chaque alerte est liee a l id de son enregistrement
+// (recordId) : si la reservation/commande est confirmee ou annulee avant
+// que quelqu un ne ferme manuellement l alerte, elle disparait et arrete
+// de sonner automatiquement - sinon le carillon continuerait de sonner
+// pour une demande deja traitee, ce qui n a pas de sens.
 export function useLiveAlerts() {
   const [alerts, setAlerts] = useState([])
   const alertsRef = useRef(alerts)
@@ -29,12 +26,19 @@ export function useLiveAlerts() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "reservations" }, (payload) => {
         pushAlert({
           type: "reservation",
+          recordId: payload.new.id,
           message: `Nouvelle reservation - ${payload.new.name} (${payload.new.guests} pers.)`
         })
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "reservations" }, (payload) => {
+        if (payload.new.status !== "pending") clearAlertFor(payload.new.id)
+      })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload) => {
         const label = payload.new.order_type === "dine_in" ? "Nouvelle commande a table" : "Nouvelle commande livraison"
-        pushAlert({ type: "order", message: `${label} - ${payload.new.total} MAD` })
+        pushAlert({ type: "order", recordId: payload.new.id, message: `${label} - ${payload.new.total} MAD` })
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
+        if (payload.new.status !== "awaiting_confirmation") clearAlertFor(payload.new.id)
       })
       .subscribe()
 
@@ -43,8 +47,8 @@ export function useLiveAlerts() {
   }, [])
 
   // Relance le son toutes les 20s tant qu il reste au moins une alerte non
-  // fermee, pour etre sur que personne ne la rate meme si l equipe est
-  // occupee ailleurs (en cuisine, au telephone...).
+  // fermee (et donc pas encore traitee), pour etre sur que personne ne la
+  // rate meme si l equipe est occupee ailleurs (en cuisine, au telephone...).
   useEffect(() => {
     const interval = setInterval(() => {
       if (alertsRef.current.length > 0) playChime()
@@ -52,13 +56,17 @@ export function useLiveAlerts() {
     return () => clearInterval(interval)
   }, [])
 
-  function pushAlert({ type, message }) {
-    setAlerts((prev) => [{ id: Date.now(), type, message }, ...prev].slice(0, 20))
+  function pushAlert({ type, recordId, message }) {
+    setAlerts((prev) => [{ id: Date.now(), recordId, type, message }, ...prev].slice(0, 20))
     playChime()
 
     if (typeof Notification !== "undefined" && Notification.permission === "granted") {
       new Notification("La Casa Di Carta", { body: message })
     }
+  }
+
+  function clearAlertFor(recordId) {
+    setAlerts((prev) => prev.filter((a) => a.recordId !== recordId))
   }
 
   const dismiss = (id) => setAlerts((prev) => prev.filter((a) => a.id !== id))

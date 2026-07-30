@@ -62,7 +62,13 @@ create table if not exists orders (
   notes text,
   items jsonb not null default '[]',
   total numeric not null default 0,
-  status text not null default 'new', -- new | out_for_delivery | delivered | cancelled
+  status text not null default 'new', -- awaiting_confirmation | new | preparing | ready | out_for_delivery | delivered | cancelled
+  -- Les commandes livraison (order_type = 'delivery') sont inserees avec le
+  -- statut "awaiting_confirmation" par le site public - elles ne passent a
+  -- "new" (et donc n apparaissent sur l ecran cuisine) qu apres validation
+  -- par un admin dans Admin > Confirmation des commandes. Les commandes
+  -- sur place (order_type = 'dine_in', via QR code table) sont inserees
+  -- directement avec le statut "new" car le client est deja au restaurant.
   created_at timestamptz default now()
 );
 

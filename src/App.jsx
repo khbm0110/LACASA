@@ -37,6 +37,7 @@ import BlogManager from "./admin/pages/BlogManager.jsx"
 import Customers from "./admin/pages/Customers.jsx"
 import ContactMessages from "./admin/pages/ContactMessages.jsx"
 import Analytics from "./admin/pages/Analytics.jsx"
+import OrderConfirmation from "./admin/pages/OrderConfirmation.jsx"
 
 export default function App() {
   return (
@@ -91,6 +92,7 @@ export default function App() {
         <Route path="blog" element={<BlogManager />} />
         <Route path="messages" element={<ContactMessages />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="confirmation" element={<OrderConfirmation />} />
         <Route path="contenu" element={<ContentEditor />} />
         <Route path="traductions" element={<Translations />} />
       </Route>

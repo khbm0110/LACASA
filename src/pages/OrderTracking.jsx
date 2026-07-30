@@ -6,15 +6,14 @@ import { supabase } from "../lib/supabaseClient"
 // via le lien recu apres validation d une commande : /suivi/{id}
 const STEPS = {
   delivery: [
-    { key: "new", label: "Recue" },
-    { key: "preparing", label: "En preparation" },
-    { key: "out_for_delivery", label: "En livraison" },
-    { key: "delivered", label: "Livree" }
+    { keys: ["awaiting_confirmation"], label: "En cours de confirmation" },
+    { keys: ["new", "preparing"], label: "En preparation" },
+    { keys: ["out_for_delivery"], label: "En livraison" },
+    { keys: ["delivered"], label: "Livree" }
   ],
   dine_in: [
-    { key: "new", label: "Recue" },
-    { key: "preparing", label: "En preparation" },
-    { key: "delivered", label: "Servie" }
+    { keys: ["new", "preparing"], label: "En preparation" },
+    { keys: ["delivered"], label: "Servie" }
   ]
 }
 
@@ -53,7 +52,7 @@ export default function OrderTracking() {
   }
 
   const steps = STEPS[order.order_type === "dine_in" ? "dine_in" : "delivery"]
-  const currentIndex = steps.findIndex((s) => s.key === order.status)
+  const currentIndex = steps.findIndex((s) => s.keys.includes(order.status))
 
   return (
     <section className="max-w-md mx-auto px-6 py-20">
@@ -62,7 +61,7 @@ export default function OrderTracking() {
 
       <div className="grid gap-0 mb-10">
         {steps.map((s, i) => (
-          <div key={s.key} className="flex items-center gap-3">
+          <div key={s.keys[0]} className="flex items-center gap-3">
             <div className="flex flex-col items-center">
               <div className={`w-4 h-4 rounded-full ${i <= currentIndex ? "bg-tomato" : "bg-line"}`} />
               {i < steps.length - 1 && <div className={`w-0.5 h-8 ${i < currentIndex ? "bg-tomato" : "bg-line"}`} />}

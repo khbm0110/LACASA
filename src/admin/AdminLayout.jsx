@@ -9,6 +9,7 @@ import ConnectionStatus from "../components/ConnectionStatus.jsx"
 // reservee a "admin".
 const NAV = [
   { to: "/admin", label: "Tableau de bord", end: true, roles: ["admin", "manager", "staff"] },
+  { to: "/admin/confirmation", label: "Confirmation des commandes", roles: ["admin"] },
   { to: "/admin/cuisine", label: "Ecran cuisine", roles: ["admin", "manager", "staff", "cuisine"] },
   { to: "/admin/menu", label: "Menu", roles: ["admin", "manager", "staff"] },
   { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"] },

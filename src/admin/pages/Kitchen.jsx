@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { printOrderReceipt } from "../../lib/printReceipt"
 
 // Ecran cuisine (KDS - Kitchen Display System) : pense pour une tablette
 // ou un ecran fixe en cuisine. Gros boutons, mise a jour en direct via
@@ -69,6 +70,7 @@ export default function Kitchen() {
                       <li key={idx}>{it.qty} x {it.name}</li>
                     ))}
                   </ul>
+                  <p className="font-mono text-gold text-sm mb-3">{o.total} MAD</p>
                   {col.key === "ready" ? (
                     <button onClick={() => markServedOrSend(o)}
                       className="w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
@@ -80,6 +82,10 @@ export default function Kitchen() {
                       {col.nextLabel}
                     </button>
                   )}
+                  <button onClick={() => printOrderReceipt(o)}
+                    className="w-full mt-2 px-3 py-2 rounded-xl text-xs border border-line text-inkdim hover:bg-white/5">
+                    Imprimer le ticket
+                  </button>
                 </div>
               ))}
               {orders.filter((o) => o.status === col.key).length === 0 && (

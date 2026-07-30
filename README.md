@@ -43,6 +43,39 @@ et un espace d administration relie a Supabase pour tout gerer sans code.
   apparait desormais en haut de l ecran (site public et admin) des que le
   navigateur perd la connexion internet, et disparait automatiquement au
   retour de la connexion. Supabase Realtime se reconnecte alors de lui-meme.
+- **Commandes livraison envoyees directement en cuisine sans verification**
+  (corrige) : desormais separees en deux etapes :
+  1. **Confirmation** (`/admin/confirmation`, **reserve au role "admin"
+     uniquement** - invisible pour manager/staff/cuisine, y compris si l URL
+     est tapee directement) : un responsable verifie chaque nouvelle commande
+     livraison et chaque nouvelle reservation avant de les valider ou de les
+     refuser. Note : cette restriction se fait au niveau de l interface
+     (meme principe que la page Equipe), pas au niveau des policies RLS -
+     un compte "staff" authentifie pourrait techniquement lire ces donnees
+     via l API Supabase directement si necessaire de durcir davantage.
+  2. Une fois confirmee, la commande passe sur **l ecran cuisine**
+     (`/admin/cuisine`) pour preparation.
+  Les commandes prises via le **QR code d une table** (le client est deja
+  au restaurant) sautent cette etape et arrivent directement en cuisine.
+  - **Bouton "Imprimer"** ajoute sur les commandes (Confirmation, Ecran
+    cuisine, Livraisons) : ouvre un ticket imprimable avec le detail des
+    plats, quantites et prix via l impression standard du navigateur.
+- **Suivi client trop detaille** (corrige) : le client voyait une etape
+  separee "Confirmee" avant "En preparation", alors que ces deux instants
+  sont quasi simultanes cote cuisine. Desormais fusionnes en une seule
+  etape "En preparation" affichee des que la commande est confirmee.
+- **Le carillon continuait de sonner pour une commande deja traitee**
+  (corrige) : chaque alerte est maintenant liee a l id de sa reservation/
+  commande. Des qu elle est confirmee ou annulee (meme depuis un autre
+  onglet ou par quelqu un d autre), l alerte correspondante disparait et
+  arrete de sonner automatiquement.
+- **Boutons confirmer/annuler encore visibles apres traitement** (corrige) -
+  incoherence logique signalee : on pouvait annuler une reservation deja
+  confirmee, ou "livrer" une commande deja annulee. **Reservations** et
+  **Commandes livraison** ont maintenant deux onglets :
+  - **En attente / En cours** : seules les actions valides sont proposees
+  - **Historique** : confirmees/livrees et annulees, lecture seule, aucun
+    bouton d action
 
 - **Page d accueil complete** (`/`) : hero 3D, acces rapide (reserver/livraison/menu/itineraire),
   plats mis en avant, **avis Google**, **carte + infos pratiques**, et un

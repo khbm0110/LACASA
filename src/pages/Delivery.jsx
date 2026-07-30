@@ -94,7 +94,10 @@ export default function Delivery() {
     const orderItems = cartLines.map((i) => ({ item_id: i.id, name: i.name, qty: cart[i.id], price: i.price }))
     const { data, error } = await supabase.from("orders").insert([{
       address, phone, notes, items: orderItems,
-      total, status: "new", order_type: "delivery",
+      // "awaiting_confirmation" (et non "new") : un responsable doit
+      // valider la commande dans Admin > Confirmation avant qu elle
+      // n apparaisse sur l ecran cuisine.
+      total, status: "awaiting_confirmation", order_type: "delivery",
       customer_id: user ? user.id : null,
       promo_code: promo ? promo.code : null,
       discount
