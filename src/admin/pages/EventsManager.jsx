@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import ImageUploadInput from "../../components/ImageUploadInput.jsx"
 
 const EMPTY = { title: "", description: "", image_url: "", event_date: "", is_offer: false, active: true }
 
@@ -49,8 +50,12 @@ export default function EventsManager() {
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <input placeholder="Description" value={form.description} onChange={update("description")}
           className="sm:col-span-2 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-        <input placeholder="URL image (optionnel)" value={form.image_url} onChange={update("image_url")}
-          className="sm:col-span-2 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <ImageUploadInput
+          label="Image (optionnel)"
+          value={form.image_url}
+          onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+          folder="events"
+        />
         <label className="flex items-center gap-2 text-sm text-inkdim">
           <input type="checkbox" checked={form.is_offer} onChange={update("is_offer")} /> Offre permanente
         </label>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import ImageUploadInput from "../../components/ImageUploadInput.jsx"
 
 const EMPTY = { slug: "", title: "", excerpt: "", content: "", cover_image: "", published: false }
 
@@ -57,8 +58,12 @@ export default function BlogManager() {
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato font-mono" />
         <input placeholder="Resume (affiche dans la liste)" value={form.excerpt} onChange={update("excerpt")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-        <input placeholder="URL image de couverture (optionnel)" value={form.cover_image} onChange={update("cover_image")}
-          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <ImageUploadInput
+          label="Image de couverture (optionnel)"
+          value={form.cover_image}
+          onChange={(url) => setForm((f) => ({ ...f, cover_image: url }))}
+          folder="blog"
+        />
         <textarea required rows={6} placeholder="Contenu de l article" value={form.content} onChange={update("content")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <label className="flex items-center gap-2 text-sm text-inkdim">

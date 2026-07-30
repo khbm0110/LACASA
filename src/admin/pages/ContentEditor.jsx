@@ -14,6 +14,8 @@ export default function ContentEditor() {
   const [content, setContent] = useState({})
   const [lang, setLang] = useState("fr")
   const [saving, setSaving] = useState(false)
+  const [reviewsCount, setReviewsCount] = useState(6)
+  const [savingReviews, setSavingReviews] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -22,8 +24,19 @@ export default function ContentEditor() {
       ;(data || []).forEach((row) => { map[row.key] = row.value || {} })
       setContent(map)
     }
+    async function loadInfo() {
+      const { data } = await supabase.from("restaurant_info").select("home_reviews_count").eq("id", 1).single()
+      if (data?.home_reviews_count) setReviewsCount(data.home_reviews_count)
+    }
     load()
+    loadInfo()
   }, [])
+
+  const saveReviewsCount = async () => {
+    setSavingReviews(true)
+    await supabase.from("restaurant_info").update({ home_reviews_count: Number(reviewsCount) || 6 }).eq("id", 1)
+    setSavingReviews(false)
+  }
 
   const updateField = (key) => (e) => {
     setContent((c) => ({ ...c, [key]: { ...(c[key] || {}), [lang]: e.target.value } }))
@@ -69,6 +82,27 @@ export default function ContentEditor() {
         className="mt-6 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
         {saving ? "Enregistrement..." : "Enregistrer"}
       </button>
+
+      <div className="mt-14 pt-8 border-t border-line">
+        <h2 className="font-serif text-2xl mb-2">Slider Avis Google (accueil)</h2>
+        <p className="text-inkdim text-sm mb-4">
+          Nombre d avis Google affiches dans le slider de la page d accueil.
+        </p>
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            min="1"
+            max="20"
+            value={reviewsCount}
+            onChange={(e) => setReviewsCount(e.target.value)}
+            className="w-24 bg-bgsoft border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato"
+          />
+          <button onClick={saveReviewsCount} disabled={savingReviews}
+            className="px-5 py-2.5 rounded-full text-sm font-semibold border border-line hover:bg-white/5 disabled:opacity-60">
+            {savingReviews ? "Enregistrement..." : "Enregistrer"}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

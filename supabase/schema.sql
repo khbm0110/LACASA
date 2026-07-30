@@ -278,3 +278,22 @@ create table if not exists page_views (
   path text not null,
   created_at timestamptz default now()
 );
+
+-- ============================================================
+-- Lot "Page d'accueil : sliders & selection admin"
+-- ============================================================
+
+-- Nombre d'avis Google a afficher sur l'accueil (reglable depuis Admin > Contenu)
+alter table restaurant_info add column if not exists home_reviews_count int not null default 6;
+
+-- Selection manuelle des photos de la galerie a afficher dans le slider
+-- de la page d'accueil (coche depuis Admin > Galerie photo)
+alter table gallery_images add column if not exists show_on_home boolean not null default false;
+
+-- ============================================================
+-- Stockage (Supabase Storage) : upload d'images depuis l'admin
+-- (menu, galerie, evenements, blog) en plus du simple lien URL
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('media', 'media', true)
+on conflict (id) do nothing;

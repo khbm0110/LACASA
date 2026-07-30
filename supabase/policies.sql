@@ -85,3 +85,10 @@ create policy "staff manage contact" on contact_messages for all using (is_staff
 
 create policy "public insert page views" on page_views for insert with check (true);
 create policy "staff read page views" on page_views for select using (is_staff());
+
+-- Lot "Stockage" ------------------------------------------------
+-- Bucket public "media" : lecture publique, ecriture reservee a l'equipe.
+create policy "public read media" on storage.objects for select using (bucket_id = 'media');
+create policy "staff upload media" on storage.objects for insert with check (bucket_id = 'media' and is_staff());
+create policy "staff update media" on storage.objects for update using (bucket_id = 'media' and is_staff());
+create policy "staff delete media" on storage.objects for delete using (bucket_id = 'media' and is_staff());

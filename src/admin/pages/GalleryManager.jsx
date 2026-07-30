@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import ImageUploadInput from "../../components/ImageUploadInput.jsx"
 
 const EMPTY = { url: "", caption: "", category: "Restaurant", sort_order: 0 }
+const HOME_LIMIT = 10
 
-// Gestion par URL d image (pas d upload de fichier ici). Hebergez vos photos
-// sur Supabase Storage (bucket public) ou tout autre service, puis collez
-// l URL publique ici.
+// Gestion par URL d image ou televersement direct (Supabase Storage).
+// Cochez "Afficher sur l accueil" pour inclure une photo dans le slider
+// de la page d accueil (10 photos maximum affichees).
 export default function GalleryManager() {
   const [images, setImages] = useState([])
   const [form, setForm] = useState(EMPTY)
@@ -20,6 +22,7 @@ export default function GalleryManager() {
 
   const submit = async (e) => {
     e.preventDefault()
+    if (!form.url) return
     await supabase.from("gallery_images").insert([{ ...form, sort_order: Number(form.sort_order) || 0 }])
     setForm(EMPTY)
     load()
@@ -30,16 +33,29 @@ export default function GalleryManager() {
     load()
   }
 
+  const homeCount = images.filter((i) => i.show_on_home).length
+
+  const toggleHome = async (img) => {
+    if (!img.show_on_home && homeCount >= HOME_LIMIT) return
+    await supabase.from("gallery_images").update({ show_on_home: !img.show_on_home }).eq("id", img.id)
+    load()
+  }
+
   return (
     <div>
       <h1 className="font-serif text-3xl mb-2">Galerie photo</h1>
       <p className="text-inkdim text-sm mb-8">
-        Collez l URL publique d une image (Supabase Storage ou autre hebergeur).
+        Collez un lien d image ou televersez un fichier. Cochez "Accueil" pour l afficher dans le
+        slider de la page d accueil ({homeCount}/{HOME_LIMIT} selectionnees).
       </p>
 
       <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-6 grid sm:grid-cols-4 gap-3 mb-10">
-        <input required placeholder="URL de l image" value={form.url} onChange={update("url")}
-          className="sm:col-span-2 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <ImageUploadInput
+          label="Photo"
+          value={form.url}
+          onChange={(url) => setForm((f) => ({ ...f, url }))}
+          folder="gallery"
+        />
         <input placeholder="Legende" value={form.caption} onChange={update("caption")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <input placeholder="Categorie" value={form.category} onChange={update("category")}
@@ -52,10 +68,25 @@ export default function GalleryManager() {
       <div className="grid sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map((img) => (
           <div key={img.id} className="bg-bgsoft border border-line rounded-2xl overflow-hidden">
-            <img src={img.url} alt={img.caption} className="w-full h-32 object-cover" />
-            <div className="p-3 flex items-center justify-between">
+            <div className="relative">
+              <img src={img.url} alt={img.caption} className="w-full h-32 object-cover" />
+              {img.show_on_home && (
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-tomato text-paper text-[10px] font-mono">Accueil</span>
+              )}
+            </div>
+            <div className="p-3 flex items-center justify-between gap-2">
               <span className="text-xs text-inkdim truncate">{img.category}</span>
-              <button onClick={() => remove(img.id)} className="text-red-400 text-xs">Suppr.</button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => toggleHome(img)}
+                  disabled={!img.show_on_home && homeCount >= HOME_LIMIT}
+                  className={`text-xs ${img.show_on_home ? "text-tomatoglow" : "text-inkdim hover:text-ink"} disabled:opacity-40`}
+                  title={!img.show_on_home && homeCount >= HOME_LIMIT ? `Maximum ${HOME_LIMIT} atteint` : ""}
+                >
+                  {img.show_on_home ? "Retirer" : "Accueil"}
+                </button>
+                <button onClick={() => remove(img.id)} className="text-red-400 text-xs">Suppr.</button>
+              </div>
             </div>
           </div>
         ))}

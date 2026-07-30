@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import ImageUploadInput from "../../components/ImageUploadInput.jsx"
 
-const EMPTY = { category: "", name: "", price: "", description: "", is_featured: false, available_for_delivery: true }
+const EMPTY = { category: "", name: "", price: "", description: "", is_featured: false, available_for_delivery: true, image_url: "" }
 
 export default function MenuManager() {
   const [items, setItems] = useState([])
@@ -47,6 +48,12 @@ export default function MenuManager() {
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <input placeholder="Description" value={form.description} onChange={update("description")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <ImageUploadInput
+          label="Photo du plat (optionnel)"
+          value={form.image_url}
+          onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+          folder="menu"
+        />
         <label className="flex items-center gap-2 text-sm text-inkdim">
           <input type="checkbox" checked={!!form.is_featured} onChange={update("is_featured")} /> Mis en avant sur l accueil
         </label>
@@ -68,10 +75,17 @@ export default function MenuManager() {
       <div className="grid gap-2">
         {items.map((item) => (
           <div key={item.id} className="bg-bgsoft border border-line rounded-xl px-4 py-3 flex items-center justify-between text-sm">
-            <div>
-              <span className="text-inkdim font-mono text-xs mr-2">{item.category}</span>
-              <span className="font-medium">{item.name}</span>
-              <span className="text-gold ml-2 font-mono">{item.price} MAD</span>
+            <div className="flex items-center gap-3 min-w-0">
+              {item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="w-10 h-10 rounded-lg object-cover border border-line shrink-0" />
+              ) : (
+                <span className="w-10 h-10 rounded-lg border border-dashed border-line shrink-0" />
+              )}
+              <div className="min-w-0">
+                <span className="text-inkdim font-mono text-xs mr-2">{item.category}</span>
+                <span className="font-medium">{item.name}</span>
+                <span className="text-gold ml-2 font-mono">{item.price} MAD</span>
+              </div>
             </div>
             <div className="flex gap-3">
               <button onClick={() => edit(item)} className="text-inkdim hover:text-ink">Modifier</button>
