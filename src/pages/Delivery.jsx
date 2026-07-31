@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
 import { useSEO } from "../lib/useSEO"
+import { useServiceStatus } from "../lib/useServiceStatus"
 
 const FALLBACK = [
   { id: "f1", category: "Pizzas", name: "Margherita", price: 55, description: "Tomate San Marzano, mozzarella, basilic." },
@@ -22,6 +23,7 @@ export default function Delivery() {
   useSEO({ title: t("delivery_page.title") })
   const navigate = useNavigate()
   const { user, profile } = useAuth()
+  const { delivery_enabled, online_payment_enabled } = useServiceStatus()
   const [items, setItems] = useState(FALLBACK)
   const [loading, setLoading] = useState(true)
   const [cart, setCart] = useState({})
@@ -75,7 +77,7 @@ export default function Delivery() {
   const total = Math.max(0, subtotal + deliveryFee - discount)
   const pointsEarned = Math.floor(total / 10)
   const belowMin = subtotal > 0 && subtotal < MIN_ORDER
-  const canOrder = subtotal >= MIN_ORDER && address.trim() && phone.trim()
+  const canOrder = delivery_enabled !== false && subtotal >= MIN_ORDER && address.trim() && phone.trim()
 
   const applyPromo = async () => {
     setPromoError(null)
@@ -94,9 +96,11 @@ export default function Delivery() {
     const orderItems = cartLines.map((i) => ({ item_id: i.id, name: i.name, qty: cart[i.id], price: i.price }))
     const { data, error } = await supabase.from("orders").insert([{
       address, phone, notes, items: orderItems,
-      // "awaiting_confirmation" (et non "new") : un responsable doit
-      // valider la commande dans Admin > Confirmation avant qu elle
-      // n apparaisse sur l ecran cuisine.
+      // "awaiting_confirmation" reste le statut de depart, mais desormais
+      // c est le paiement en ligne (voir Payment.jsx + chari-webhook) qui
+      // fait passer la commande directement a "new" (cuisine) une fois
+      // confirme cote serveur - la commande ne part donc jamais en
+      // cuisine tant qu elle n est pas payee.
       total, status: "awaiting_confirmation", order_type: "delivery",
       customer_id: user ? user.id : null,
       promo_code: promo ? promo.code : null,
@@ -104,7 +108,11 @@ export default function Delivery() {
     }]).select().single()
 
     if (error) { setStatus("error"); return }
-    navigate(`/suivi/${data.id}`)
+    // Le paiement en ligne peut etre mis en pause depuis Admin > Contenu du
+    // site (ex: prestataire de paiement en panne) : dans ce cas, on repasse
+    // temporairement en paiement a la reception - la commande suit alors
+    // l ancien circuit (Admin > Confirmation des commandes).
+    navigate(online_payment_enabled === false ? `/suivi/${data.id}` : `/paiement/${data.id}`)
   }
 
   return (
@@ -116,6 +124,13 @@ export default function Delivery() {
       {!user && (
         <p className="text-inkdim text-sm mb-8">
           <Link to="/compte" className="text-gold underline">{t("delivery_page.login_hint")}</Link>
+        </p>
+      )}
+
+      {delivery_enabled === false && (
+        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 mb-8">
+          La livraison est temporairement en pause. Vous pouvez consulter le menu, mais la
+          commande n est pas disponible pour le moment - reessayez plus tard ou appelez-nous.
         </p>
       )}
 
@@ -161,7 +176,8 @@ export default function Delivery() {
                   <button onClick={() => removeFromCart(item.id)} disabled={!cart[item.id]}
                     className="w-8 h-8 rounded-full border border-line disabled:opacity-30">-</button>
                   <span className="w-5 text-center">{cart[item.id] || 0}</span>
-                  <button onClick={() => addToCart(item.id)} className="w-8 h-8 rounded-full border border-line">+</button>
+                  <button onClick={() => addToCart(item.id)} disabled={delivery_enabled === false}
+                    className="w-8 h-8 rounded-full border border-line disabled:opacity-30">+</button>
                 </div>
               </div>
             ))}

@@ -47,8 +47,8 @@ export default function Orders() {
     <div>
       <h1 className="font-serif text-3xl mb-2">Commandes livraison</h1>
       <p className="text-inkdim text-sm mb-6">
-        Les nouvelles commandes passent d abord par Admin &gt; Confirmation des commandes
-        avant d apparaitre ici avec le statut "Confirmee".
+        Une commande payee en ligne passe directement au statut "Confirmee". Seules les
+        commandes non payees restent bloquees dans Admin &gt; Confirmation des commandes.
       </p>
 
       <div className="flex gap-2 mb-6">
@@ -67,12 +67,21 @@ export default function Orders() {
           <div key={o.id} className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
               <p className="font-medium">{o.phone} - {o.address}</p>
-              <span className={`px-2 py-1 rounded-full text-xs ${
-                o.status === "delivered" ? "bg-basil/20 text-basil"
-                  : o.status === "cancelled" ? "bg-red-500/20 text-red-400"
-                  : o.status === "awaiting_confirmation" ? "bg-inkdim/20 text-inkdim"
-                  : "bg-gold/20 text-gold"
-              }`}>{STATUS_LABELS[o.status] || o.status}</span>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 rounded-full text-[10px] font-mono ${
+                  o.payment_status === "paid" ? "bg-basil/20 text-basil"
+                  : o.payment_status === "failed" ? "bg-red-400/20 text-red-400"
+                  : "bg-white/10 text-inkdim"
+                }`}>
+                  {o.payment_status === "paid" ? "Payee" : o.payment_status === "pending" ? "Paiement..." : o.payment_status === "failed" ? "Paiement echoue" : "Non payee"}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs ${
+                  o.status === "delivered" ? "bg-basil/20 text-basil"
+                    : o.status === "cancelled" ? "bg-red-500/20 text-red-400"
+                    : o.status === "awaiting_confirmation" ? "bg-inkdim/20 text-inkdim"
+                    : "bg-gold/20 text-gold"
+                }`}>{STATUS_LABELS[o.status] || o.status}</span>
+              </div>
             </div>
             <ul className="text-inkdim text-xs mb-2">
               {(o.items || []).map((it, idx) => (

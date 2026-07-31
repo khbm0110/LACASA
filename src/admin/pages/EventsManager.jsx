@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import ImageUploadInput from "../../components/ImageUploadInput.jsx"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { title: "", description: "", image_url: "", event_date: "", is_offer: false, active: true }
 
 export default function EventsManager() {
   const [events, setEvents] = useState([])
   const [form, setForm] = useState(EMPTY)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date")
@@ -21,19 +25,27 @@ export default function EventsManager() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await supabase.from("events").insert([{ ...form, event_date: form.event_date || null }])
+    const { error } = await supabase.from("events").insert([{ ...form, event_date: form.event_date || null }])
+    if (error) { toast.error("Echec de la publication."); return }
     setForm(EMPTY)
     load()
+    toast.success("Evenement publie.")
   }
 
   const toggleActive = async (id, active) => {
-    await supabase.from("events").update({ active: !active }).eq("id", id)
+    const { error } = await supabase.from("events").update({ active: !active }).eq("id", id)
+    if (error) { toast.error("Echec de la mise a jour."); return }
     load()
+    toast.success(!active ? "Evenement active." : "Evenement desactive.")
   }
 
   const remove = async (id) => {
-    await supabase.from("events").delete().eq("id", id)
+    const ok = await confirm({ title: "Supprimer cet evenement ?", message: "Cette action est definitive." })
+    if (!ok) return
+    const { error } = await supabase.from("events").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
     load()
+    toast.success("Evenement supprime.")
   }
 
   return (

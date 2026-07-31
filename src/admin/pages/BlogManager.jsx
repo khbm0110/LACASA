@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import ImageUploadInput from "../../components/ImageUploadInput.jsx"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { slug: "", title: "", excerpt: "", content: "", cover_image: "", published: false }
 
@@ -15,6 +17,8 @@ export default function BlogManager() {
   const [posts, setPosts] = useState([])
   const [form, setForm] = useState(EMPTY)
   const [editingId, setEditingId] = useState(null)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false })
@@ -34,18 +38,25 @@ export default function BlogManager() {
   const submit = async (e) => {
     e.preventDefault()
     const payload = { ...form, published_at: form.published ? new Date().toISOString() : null }
-    if (editingId) {
-      await supabase.from("blog_posts").update(payload).eq("id", editingId)
-    } else {
-      await supabase.from("blog_posts").insert([payload])
-    }
+    const { error } = editingId
+      ? await supabase.from("blog_posts").update(payload).eq("id", editingId)
+      : await supabase.from("blog_posts").insert([payload])
+    if (error) { toast.error("Echec de l enregistrement."); return }
     setForm(EMPTY)
     setEditingId(null)
     load()
+    toast.success(editingId ? "Article mis a jour." : "Article enregistre.")
   }
 
   const edit = (post) => { setForm(post); setEditingId(post.id) }
-  const remove = async (id) => { await supabase.from("blog_posts").delete().eq("id", id); load() }
+  const remove = async (id) => {
+    const ok = await confirm({ title: "Supprimer cet article ?", message: "Cette action est definitive." })
+    if (!ok) return
+    const { error } = await supabase.from("blog_posts").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
+    load()
+    toast.success("Article supprime.")
+  }
 
   return (
     <div>

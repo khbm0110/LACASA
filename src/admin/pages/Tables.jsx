@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { printTableQr, printAllTableQrs } from "../../lib/printReceipt"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { number: "", capacity: 2, zone: "" }
 
@@ -14,6 +17,8 @@ export default function Tables() {
   const [tables, setTables] = useState([])
   const [form, setForm] = useState(EMPTY)
   const [siteUrl, setSiteUrl] = useState("")
+  const confirm = useConfirm()
+  const toast = useToast()
 
   useEffect(() => {
     setSiteUrl(window.location.origin)
@@ -29,22 +34,39 @@ export default function Tables() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await supabase.from("restaurant_tables").insert([{ ...form, capacity: Number(form.capacity) }])
+    const { error } = await supabase.from("restaurant_tables").insert([{ ...form, capacity: Number(form.capacity) }])
+    if (error) { toast.error("Echec de l ajout de la table."); return }
     setForm(EMPTY)
     load()
+    toast.success("Table ajoutee.")
   }
 
   const remove = async (id) => {
-    await supabase.from("restaurant_tables").delete().eq("id", id)
+    const ok = await confirm({ title: "Supprimer cette table ?", message: "Son QR code ne fonctionnera plus." })
+    if (!ok) return
+    const { error } = await supabase.from("restaurant_tables").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
     load()
+    toast.success("Table supprimee.")
   }
 
   return (
     <div>
-      <h1 className="font-serif text-3xl mb-2">Tables & QR codes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 className="font-serif text-3xl">Tables & QR codes</h1>
+        {tables.length > 0 && (
+          <button
+            onClick={() => printAllTableQrs(tables.map((t) => ({ table: t, qrImageUrl: qrUrl(`${siteUrl}/table/${t.id}`) })))}
+            className="px-4 py-2 rounded-full text-xs font-semibold border border-line hover:bg-white/5"
+          >
+            Tout imprimer
+          </button>
+        )}
+      </div>
       <p className="text-inkdim text-sm mb-8">
         Chaque table a son propre QR code. Le client le scanne, voit le menu et peut commander
-        directement depuis sa table (page publique <code>/table/ID</code>).
+        directement depuis sa table (page publique <code>/table/ID</code>). Imprimez la fiche
+        et posez-la sur la table.
       </p>
 
       <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-6 grid sm:grid-cols-4 gap-3 mb-10">
@@ -71,6 +93,7 @@ export default function Tables() {
               )}
               <div className="flex justify-center gap-3 mt-3 text-xs">
                 <a href={targetUrl} target="_blank" rel="noreferrer" className="text-gold">Ouvrir</a>
+                <button onClick={() => printTableQr(t, qrUrl(targetUrl))} className="text-inkdim hover:text-ink">Imprimer</button>
                 <button onClick={() => remove(t.id)} className="text-red-400">Supprimer</button>
               </div>
             </div>

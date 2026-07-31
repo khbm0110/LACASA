@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import ImageUploadInput from "../../components/ImageUploadInput.jsx"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { category: "", name: "", price: "", description: "", is_featured: false, available_for_delivery: true, image_url: "" }
 
@@ -8,6 +10,8 @@ export default function MenuManager() {
   const [items, setItems] = useState([])
   const [form, setForm] = useState(EMPTY)
   const [editingId, setEditingId] = useState(null)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("menu_items").select("*").order("category")
@@ -22,18 +26,25 @@ export default function MenuManager() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (editingId) {
-      await supabase.from("menu_items").update(form).eq("id", editingId)
-    } else {
-      await supabase.from("menu_items").insert([form])
-    }
+    const { error } = editingId
+      ? await supabase.from("menu_items").update(form).eq("id", editingId)
+      : await supabase.from("menu_items").insert([form])
+    if (error) { toast.error("Echec de l enregistrement."); return }
     setForm(EMPTY)
     setEditingId(null)
     load()
+    toast.success(editingId ? "Plat mis a jour." : "Plat ajoute au menu.")
   }
 
   const edit = (item) => { setForm(item); setEditingId(item.id) }
-  const remove = async (id) => { await supabase.from("menu_items").delete().eq("id", id); load() }
+  const remove = async (id) => {
+    const ok = await confirm({ title: "Supprimer ce plat ?", message: "Cette action est definitive." })
+    if (!ok) return
+    const { error } = await supabase.from("menu_items").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
+    load()
+    toast.success("Plat supprime.")
+  }
 
   return (
     <div>

@@ -92,3 +92,14 @@ create policy "public read media" on storage.objects for select using (bucket_id
 create policy "staff upload media" on storage.objects for insert with check (bucket_id = 'media' and is_staff());
 create policy "staff update media" on storage.objects for update using (bucket_id = 'media' and is_staff());
 create policy "staff delete media" on storage.objects for delete using (bucket_id = 'media' and is_staff());
+
+-- Lot "Suivi de commande invite" -----------------------------------------
+-- La fonction elle-meme filtre deja par id exact (voir schema.sql) ; on
+-- autorise juste tout le monde (y compris les visiteurs non connectes) a
+-- l appeler - c est le lien /suivi/{id}, pas un id devinable, qui protege
+-- l acces.
+grant execute on function get_order_tracking(uuid) to anon, authenticated;
+
+-- Lot "Photo(s) du Hero" ------------------------------------------------
+create policy "public read hero dishes" on hero_dishes for select using (true);
+create policy "staff full access hero dishes" on hero_dishes for all using (is_staff());

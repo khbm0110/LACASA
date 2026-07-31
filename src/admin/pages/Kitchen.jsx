@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import { printOrderReceipt } from "../../lib/printReceipt"
 
@@ -11,8 +11,36 @@ const COLUMNS = [
   { key: "ready", label: "Prêtes", next: null, nextLabel: null }
 ]
 
+const PRINTED_KEY = "kitchen_auto_printed_ids"
+const AUTO_PRINT_KEY = "kitchen_auto_print"
+
 export default function Kitchen() {
   const [orders, setOrders] = useState([])
+  const [autoPrint, setAutoPrint] = useState(() => localStorage.getItem(AUTO_PRINT_KEY) === "1")
+  // Ref pour eviter une closure perimee dans load() (souscrit une seule
+  // fois au montage) et pour retenir les commandes deja imprimees
+  // automatiquement, meme apres un rechargement de la page.
+  const autoPrintRef = useRef(autoPrint)
+  const printedRef = useRef(new Set(JSON.parse(localStorage.getItem(PRINTED_KEY) || "[]")))
+
+  useEffect(() => { autoPrintRef.current = autoPrint }, [autoPrint])
+
+  const toggleAutoPrint = () => {
+    setAutoPrint((v) => {
+      const next = !v
+      localStorage.setItem(AUTO_PRINT_KEY, next ? "1" : "0")
+      return next
+    })
+  }
+
+  const markPrinted = (id) => {
+    printedRef.current.add(id)
+    // Garde une trace bornee (les 300 dernieres) pour ne pas faire grossir
+    // indefiniment le stockage local.
+    const arr = Array.from(printedRef.current).slice(-300)
+    printedRef.current = new Set(arr)
+    localStorage.setItem(PRINTED_KEY, JSON.stringify(arr))
+  }
 
   const load = async () => {
     const { data } = await supabase
@@ -20,7 +48,17 @@ export default function Kitchen() {
       .select("*")
       .in("status", ["new", "preparing", "ready"])
       .order("created_at", { ascending: true })
-    setOrders(data || [])
+    const list = data || []
+    setOrders(list)
+
+    if (autoPrintRef.current) {
+      list
+        .filter((o) => o.status === "new" && !printedRef.current.has(o.id))
+        .forEach((o) => {
+          printOrderReceipt(o)
+          markPrinted(o.id)
+        })
+    }
   }
 
   useEffect(() => {
@@ -47,7 +85,30 @@ export default function Kitchen() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl mb-8">Ecran cuisine</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 className="font-serif text-3xl">Ecran cuisine</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleAutoPrint}
+            className={`px-4 py-2 rounded-full text-xs font-semibold border transition ${
+              autoPrint ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:bg-white/5"
+            }`}
+          >
+            {autoPrint ? "Impression auto : ON" : "Impression auto : OFF"}
+          </button>
+          <button onClick={load} className="px-4 py-2 rounded-full text-xs border border-line hover:bg-white/5">
+            Actualiser
+          </button>
+        </div>
+      </div>
+      {autoPrint && (
+        <p className="text-inkdim text-xs mb-6 max-w-2xl">
+          Chaque nouvelle commande ouvre automatiquement sa fenetre d impression sur cet
+          appareil. Pour un vrai fonctionnement silencieux (sans boite de dialogue a valider),
+          definissez l imprimante cuisine comme imprimante par defaut du navigateur, ou lancez
+          Chrome en mode kiosque avec impression silencieuse (<code>--kiosk-printing</code>).
+        </p>
+      )}
       <div className="grid md:grid-cols-3 gap-5">
         {COLUMNS.map((col) => (
           <div key={col.key}>
@@ -65,6 +126,14 @@ export default function Kitchen() {
                     </span>
                     <span className="text-xs text-inkdim">{new Date(o.created_at).toLocaleTimeString().slice(0, 5)}</span>
                   </div>
+                  {o.order_type === "dine_in" && o.address && (
+                    <p className="font-serif text-2xl text-tomatoglow mb-2">{o.address}</p>
+                  )}
+                  {o.order_type !== "dine_in" && o.payment_status === "paid" && (
+                    <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-basil/20 text-basil mb-2">
+                      Payee en ligne
+                    </span>
+                  )}
                   <ul className="text-sm mb-3">
                     {(o.items || []).map((it, idx) => (
                       <li key={idx}>{it.qty} x {it.name}</li>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
 import { useSEO } from "../lib/useSEO"
+import { useServiceStatus } from "../lib/useServiceStatus"
 
 function toMinutes(t) {
   const [h, m] = (t || "0:0").split(":").map(Number)
@@ -13,6 +14,7 @@ export default function Booking() {
   const { t } = useTranslation()
   useSEO({ title: t("booking_page.title"), description: t("booking_page.subtitle") })
   const { user, profile } = useAuth()
+  const { reservations_enabled } = useServiceStatus()
   const [form, setForm] = useState({ name: "", phone: "", date: "", time: "", guests: 2, notes: "", table_id: "" })
   const [status, setStatus] = useState(null)
   const [tables, setTables] = useState([])
@@ -57,6 +59,7 @@ export default function Booking() {
 
   const submit = async (e) => {
     e.preventDefault()
+    if (reservations_enabled === false) return
 
     // Dernier controle juste avant l envoi : si la table choisie vient
     // d etre prise entre-temps (quelqu un d autre a reserve juste avant),
@@ -83,6 +86,11 @@ export default function Booking() {
           <p className="font-serif text-2xl mb-2">{t("booking_page.success_title")}</p>
           <p className="text-inkdim">{t("booking_page.success_text")}</p>
         </div>
+      ) : reservations_enabled === false ? (
+        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
+          Les reservations en ligne sont temporairement en pause. Appelez-nous directement
+          pour reserver une table.
+        </p>
       ) : (
         <form onSubmit={submit} className="grid gap-4">
           <input required placeholder={t("booking_page.name")} value={form.name} onChange={update("name")}

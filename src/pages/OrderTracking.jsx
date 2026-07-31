@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 
-// Suivi de commande en direct (Supabase Realtime), accessible sans compte
-// via le lien recu apres validation d une commande : /suivi/{id}
+// Suivi de commande en direct, accessible sans compte via le lien recu
+// apres validation d une commande : /suivi/{id}
+//
+// NOTE : la table "orders" n a volontairement aucune regle de lecture
+// publique (pour ne pas exposer toutes les commandes de tous les clients
+// via l API). On relit donc la commande via la fonction get_order_tracking
+// (voir supabase/schema.sql), qui ne renvoie que la commande dont l id
+// exact est connu - et on interroge par polling (au lieu du temps reel,
+// qui suit les memes regles de securite et ne verrait donc rien).
 const STEPS = {
   delivery: [
     { keys: ["awaiting_confirmation"], label: "En cours de confirmation" },
@@ -17,27 +24,22 @@ const STEPS = {
   ]
 }
 
+const POLL_MS = 6000
+
 export default function OrderTracking() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const [order, setOrder] = useState(undefined)
 
   useEffect(() => {
+    let cancelled = false
     async function load() {
-      const { data } = await supabase.from("orders").select("*").eq("id", id).single()
-      setOrder(data || null)
+      const { data } = await supabase.rpc("get_order_tracking", { p_id: id })
+      if (!cancelled) setOrder((data && data[0]) || null)
     }
     load()
-
-    // Ecoute les mises a jour de statut en direct (le client voit sa
-    // commande avancer sans avoir a rafraichir la page)
-    const channel = supabase
-      .channel(`order-${id}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` }, (payload) => {
-        setOrder(payload.new)
-      })
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
+    const interval = setInterval(load, POLL_MS)
+    return () => { cancelled = true; clearInterval(interval) }
   }, [id])
 
   if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Chargement...</div>
@@ -53,11 +55,33 @@ export default function OrderTracking() {
 
   const steps = STEPS[order.order_type === "dine_in" ? "dine_in" : "delivery"]
   const currentIndex = steps.findIndex((s) => s.keys.includes(order.status))
+  const isDelivery = order.order_type !== "dine_in"
+  const paymentJustSucceeded = searchParams.get("paiement") === "succes"
 
   return (
     <section className="max-w-md mx-auto px-6 py-20">
       <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Suivi de commande</p>
-      <h1 className="font-serif text-3xl mb-8">{order.total} MAD</h1>
+      <h1 className="font-serif text-3xl mb-4">{order.total} MAD</h1>
+
+      {isDelivery && (
+        <div className="mb-8">
+          {order.payment_status === "paid" && (
+            <p className="text-sm text-basil bg-basil/10 border border-basil/30 rounded-xl px-4 py-3">
+              Paiement confirme{paymentJustSucceeded ? " - merci !" : ""}. Votre commande part en cuisine.
+            </p>
+          )}
+          {order.payment_status === "pending" && (
+            <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
+              Paiement en cours de verification...
+            </p>
+          )}
+          {order.payment_status === "failed" && (
+            <p className="text-sm text-red-400 bg-red-400/10 border border-red-400/30 rounded-xl px-4 py-3">
+              Le paiement a echoue. Contactez-nous au +212 5 37 26 26 58 pour reessayer.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-0 mb-10">
         {steps.map((s, i) => (

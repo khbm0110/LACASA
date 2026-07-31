@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
 import MotionCarousel from "../components/MotionCarousel.jsx"
 import Reveal from "../components/Reveal.jsx"
+import HeroDishRotator from "../components/HeroDishRotator.jsx"
 
 const DOCK = [
   { to: "/reserver", icon: "book" },
@@ -30,6 +31,7 @@ export default function Home() {
   const { user } = useAuth()
   const cardRef = useRef(null)
   const [featured, setFeatured] = useState([])
+  const [heroDishes, setHeroDishes] = useState([])
   const [info, setInfo] = useState(null)
   const [reviews, setReviews] = useState(FALLBACK_REVIEWS)
   const [galleryHome, setGalleryHome] = useState([])
@@ -80,12 +82,19 @@ export default function Home() {
       const { data } = await supabase.from("blog_posts").select("*").eq("published", true).order("published_at", { ascending: false }).limit(3)
       if (data) setPosts(data)
     }
+    // Photo(s) du visuel principal (accueil), choisies par la cuisine
+    // depuis Admin > Contenu du site.
+    async function loadHeroDishes() {
+      const { data } = await supabase.from("hero_dishes").select("*").order("sort_order")
+      if (data) setHeroDishes(data)
+    }
     loadFeatured()
     loadInfo()
     loadReviews()
     loadGalleryHome()
     loadEvents()
     loadPosts()
+    loadHeroDishes()
   }, [])
 
   const updateReservation = (key) => (e) => setReservation((f) => ({ ...f, [key]: e.target.value }))
@@ -154,23 +163,29 @@ export default function Home() {
               transformStyle: "preserve-3d"
             }}
           >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="w-64 h-64 rounded-full shadow-2xl"
-                style={{
-                  background: "conic-gradient(from 200deg, #D2491F, #D4A84B, #7C9A5C, #D2491F)",
-                  transform: "translateZ(60px)",
-                  animation: "spin 22s linear infinite"
-                }}
-              />
-            </div>
-            <div
-              className="absolute top-6 left-6 font-mono text-xs rounded-xl border border-line px-4 py-3 backdrop-blur"
-              style={{ background: "rgba(20,18,16,0.75)", transform: "translateZ(90px)" }}
-            >
-              Specialite
-              <b className="block font-serif text-lg font-semibold text-gold">Pizza al Forno</b>
-            </div>
+            {heroDishes.length > 0 ? (
+              <HeroDishRotator images={heroDishes} />
+            ) : (
+              <>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="w-64 h-64 rounded-full shadow-2xl"
+                    style={{
+                      background: "conic-gradient(from 200deg, #D2491F, #D4A84B, #7C9A5C, #D2491F)",
+                      transform: "translateZ(60px)",
+                      animation: "spin 22s linear infinite"
+                    }}
+                  />
+                </div>
+                <div
+                  className="absolute top-6 left-6 font-mono text-xs rounded-xl border border-line px-4 py-3 backdrop-blur"
+                  style={{ background: "rgba(20,18,16,0.75)", transform: "translateZ(90px)" }}
+                >
+                  Specialite
+                  <b className="block font-serif text-lg font-semibold text-gold">Pizza al Forno</b>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

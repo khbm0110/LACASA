@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { code: "", discount_type: "percent", value: "", min_order: 0, active: true, expires_at: "" }
 
 export default function PromoCodes() {
   const [codes, setCodes] = useState([])
   const [form, setForm] = useState(EMPTY)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("promo_codes").select("*").order("created_at", { ascending: false })
@@ -20,25 +24,33 @@ export default function PromoCodes() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await supabase.from("promo_codes").upsert([{
+    const { error } = await supabase.from("promo_codes").upsert([{
       ...form,
       code: form.code.toUpperCase().trim(),
       value: Number(form.value),
       min_order: Number(form.min_order) || 0,
       expires_at: form.expires_at || null
     }])
+    if (error) { toast.error("Echec de l enregistrement."); return }
     setForm(EMPTY)
     load()
+    toast.success("Code promo enregistre.")
   }
 
   const toggleActive = async (code, active) => {
-    await supabase.from("promo_codes").update({ active: !active }).eq("code", code)
+    const { error } = await supabase.from("promo_codes").update({ active: !active }).eq("code", code)
+    if (error) { toast.error("Echec de la mise a jour."); return }
     load()
+    toast.success(!active ? "Code active." : "Code desactive.")
   }
 
   const remove = async (code) => {
-    await supabase.from("promo_codes").delete().eq("code", code)
+    const ok = await confirm({ title: `Supprimer le code ${code} ?`, message: "Cette action est definitive." })
+    if (!ok) return
+    const { error } = await supabase.from("promo_codes").delete().eq("code", code)
+    if (error) { toast.error("Echec de la suppression."); return }
     load()
+    toast.success("Code promo supprime.")
   }
 
   return (

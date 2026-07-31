@@ -18,6 +18,7 @@ import Events from "./pages/Events.jsx"
 import Blog from "./pages/Blog.jsx"
 import BlogPost from "./pages/BlogPost.jsx"
 import OrderTracking from "./pages/OrderTracking.jsx"
+import Payment from "./pages/Payment.jsx"
 import AdminLayout from "./admin/AdminLayout.jsx"
 import Login from "./admin/pages/Login.jsx"
 import Dashboard from "./admin/pages/Dashboard.jsx"
@@ -74,6 +75,7 @@ export default function App() {
 
       {/* Suivi de commande en direct, accessible sans compte via le lien recu */}
       <Route path="/suivi/:id" element={<PublicPage><OrderTracking /></PublicPage>} />
+      <Route path="/paiement/:id" element={<PublicPage><Payment /></PublicPage>} />
 
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin" element={<AdminLayout />}>

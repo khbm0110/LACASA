@@ -209,6 +209,18 @@ et un espace d administration relie a Supabase pour tout gerer sans code.
 9. Deployer (Vercel, Netlify, ou autre) et pointer votre nom de domaine
    - Remplacez `VOTRE-DOMAINE.com` dans `public/sitemap.xml` et `public/robots.txt`
      par votre vrai domaine une fois deploye
+   - **Important (routes "deep link")** : ce site est une SPA (React Router gere des
+     pages comme `/table/ID` (QR code), `/suivi/ID`, `/blog/mon-article`, `/admin/...`
+     uniquement cote client). Sans redirection serveur, ouvrir un de ces liens
+     directement (ex: scanner un QR code) affiche une erreur 404 ou renvoie a la
+     page d accueil au lieu de la bonne page. C est deja configure dans ce projet :
+     - **Netlify** : `public/_redirects` (copie automatiquement a la racine du site)
+     - **Vercel** : `vercel.json` a la racine du projet
+     - **Hebergement mutualise / cPanel (Apache)** : `public/.htaccess`
+     - **Nginx (VPS)** : ajoutez dans le bloc `server` :
+       `location / { try_files $uri $uri/ /index.html; }`
+     Si votre hebergeur n est pas dans cette liste, cherchez "SPA fallback" ou
+     "rewrite all routes to index.html" dans sa documentation.
 10. **Notifications email/WhatsApp** (optionnel) : deployez `supabase/functions/notify-staff`,
     definissez les variables d environnement necessaires (Resend et/ou Twilio,
     voir les commentaires en tete du fichier), puis creez deux Database Webhooks
@@ -216,6 +228,31 @@ et un espace d administration relie a Supabase pour tout gerer sans code.
     et un sur `orders` (INSERT), pointant tous les deux vers cette fonction.
     Les alertes en direct dans l admin (son + notification navigateur) fonctionnent
     elles automatiquement, sans configuration supplementaire.
+11. **Paiement en ligne des commandes livraison** (ChariBaaS) : depuis la mise en
+    place de ce systeme, une commande livraison ne part en cuisine qu une fois
+    payee - fini les commandes non recuperees/non payees a la livraison.
+    - Creez un compte sandbox sur [baas.ma](https://www.baas.ma) ou
+      [charibaas.com](https://www.charibaas.com) (gratuit, immediat) pour obtenir
+      vos cles de test avant de demander l activation reelle (KYB, 48-72h).
+    - **Avant d ouvrir ce flux a de vrais clients**, confirmez avec ChariBaaS
+      (WhatsApp +212 6 00 00 00 10 ou +212 6 32 64 64 64) s ils proposent une
+      page de paiement hebergee / un widget plutot que la saisie de la carte sur
+      notre propre formulaire (`src/pages/Payment.jsx`) - c est ce qui determine
+      vos obligations de conformite PCI-DSS. Voir le commentaire en tete de
+      `Payment.jsx` et de `supabase/functions/chari-init-payment/index.ts`.
+    - Deployez les deux fonctions :
+      `supabase functions deploy chari-init-payment` et
+      `supabase functions deploy chari-webhook`
+    - Definissez ces variables d environnement (Project Settings > Functions) :
+      `CHARI_API_KEY`, `CHARI_MERCHANT_PHONE` (numero du wallet marchand),
+      `CHARI_BASE_URL` (`https://sandbox.charimoney.com` en test),
+      `SITE_URL` (URL publique de votre site, sans slash final),
+      `CHARI_WEBHOOK_SECRET` (une cle que VOUS choisissez et communiquez a
+      ChariBaaS - ils la renverront dans chaque webhook pour verification)
+    - Dans le tableau de bord ChariBaaS, indiquez comme URL de notification :
+      `https://VOTRE-PROJET.supabase.co/functions/v1/chari-webhook`
+    - Testez avec la carte sandbox fournie par ChariBaaS (PAN `4918914107195005`,
+      CVV `123`, expiration `08/26`, code 3DS `555`) avant de passer en production.
 
 ## Notes importantes
 - Les prix, plats et avis actuellement dans le code sont des **exemples de demonstration**

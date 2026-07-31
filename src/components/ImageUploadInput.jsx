@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { uploadImage } from "../lib/uploadImage"
 
 // Champ image reutilisable pour l'admin : soit coller un lien, soit
@@ -13,7 +13,10 @@ export default function ImageUploadInput({ value, onChange, folder = "misc", lab
   const [mode, setMode] = useState("url")
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
+  const [linkBroken, setLinkBroken] = useState(false)
   const fileRef = useRef(null)
+
+  useEffect(() => { setLinkBroken(false) }, [value])
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0]
@@ -47,15 +50,21 @@ export default function ImageUploadInput({ value, onChange, folder = "misc", lab
       </div>
 
       <div className="flex gap-3 items-start">
-        {value && (
-          <img src={value} alt="apercu" className="w-16 h-16 rounded-lg object-cover border border-line shrink-0" />
+        {value && !linkBroken && (
+          <img src={value} alt="apercu" onError={() => setLinkBroken(true)}
+            className="w-16 h-16 rounded-lg object-cover border border-line shrink-0" />
+        )}
+        {value && linkBroken && (
+          <span className="w-16 h-16 rounded-lg border border-dashed border-red-400/50 shrink-0 flex items-center justify-center text-red-400 text-[10px] text-center leading-tight px-1">
+            Lien invalide
+          </span>
         )}
         <div className="flex-1 min-w-0">
           {mode === "url" ? (
             <input
-              placeholder="https://..."
+              placeholder="https://... (lien direct vers l image)"
               value={value || ""}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => onChange(e.target.value.trim())}
               className="w-full bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato"
             />
           ) : (
@@ -66,6 +75,12 @@ export default function ImageUploadInput({ value, onChange, folder = "misc", lab
             </div>
           )}
           {error && <p className="text-xs text-red-400 mt-1.5">{error}</p>}
+          {linkBroken && !error && (
+            <p className="text-xs text-red-400 mt-1.5">
+              Ce lien ne charge pas d image. Verifiez que c est un lien direct (se terminant par .jpg/.png/.webp,
+              pas une page Google Images / Drive / Facebook / Instagram) — ou utilisez "Televerser" a la place.
+            </p>
+          )}
         </div>
       </div>
     </div>

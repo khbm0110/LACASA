@@ -1,40 +1,65 @@
 import { useEffect, useState } from "react"
 import { Link, Outlet, useNavigate, useLocation, Navigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
 import { useLiveAlerts } from "./hooks/useLiveAlerts"
+import { useNavCounts } from "./hooks/useNavCounts"
 import ConnectionStatus from "../components/ConnectionStatus.jsx"
+import { ToastProvider } from "./ui/Toast.jsx"
+import { ConfirmProvider } from "./ui/ConfirmDialog.jsx"
+import {
+  IconGrid, IconClipboard, IconMonitor, IconUtensils, IconCalendar, IconBox, IconQr,
+  IconUser, IconUsers, IconChart, IconMessage, IconReceipt, IconTag, IconImage,
+  IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines
+} from "./icons.jsx"
+
+const LANGS = ["fr", "ar", "es", "en"]
 
 // Chaque lien precise quels roles peuvent le voir. "cuisine" ne voit que
 // l ecran cuisine ; les autres roles voient tout sauf "Equipe" qui est
-// reservee a "admin".
+// reservee a "admin". countKey relie le lien a une pastille chiffree
+// (voir useNavCounts) ; icon est le composant SVG affiche dans le menu.
 const NAV = [
-  { to: "/admin", label: "Tableau de bord", end: true, roles: ["admin", "manager", "staff"] },
-  { to: "/admin/confirmation", label: "Confirmation des commandes", roles: ["admin"] },
-  { to: "/admin/cuisine", label: "Ecran cuisine", roles: ["admin", "manager", "staff", "cuisine"] },
-  { to: "/admin/menu", label: "Menu", roles: ["admin", "manager", "staff"] },
-  { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"] },
-  { to: "/admin/commandes", label: "Livraisons", roles: ["admin", "manager", "staff"] },
-  { to: "/admin/tables", label: "Tables & QR codes", roles: ["admin", "manager", "staff"] },
-  { to: "/admin/clients", label: "Clients (CRM)", roles: ["admin", "manager"] },
-  { to: "/admin/analytics", label: "Analytics", roles: ["admin", "manager"] },
-  { to: "/admin/messages", label: "Messages", roles: ["admin", "manager", "staff"] },
-  { to: "/admin/comptabilite", label: "Comptabilite", roles: ["admin", "manager"] },
-  { to: "/admin/codes-promo", label: "Codes promo", roles: ["admin", "manager"] },
-  { to: "/admin/galerie", label: "Galerie photo", roles: ["admin", "manager"] },
-  { to: "/admin/evenements", label: "Evenements & Offres", roles: ["admin", "manager"] },
-  { to: "/admin/blog", label: "Blog & Actualites", roles: ["admin", "manager"] },
-  { to: "/admin/contenu", label: "Contenu du site", roles: ["admin", "manager"] },
-  { to: "/admin/traductions", label: "Traductions", roles: ["admin", "manager"] },
-  { to: "/admin/equipe", label: "Equipe & permissions", roles: ["admin"] }
+  { to: "/admin", label: "Tableau de bord", end: true, roles: ["admin", "manager", "staff"], icon: IconGrid },
+  { to: "/admin/confirmation", label: "Commandes", roles: ["admin"], icon: IconClipboard, countKey: "confirmation" },
+  { to: "/admin/cuisine", label: "Ecran cuisine", roles: ["admin", "manager", "staff", "cuisine"], icon: IconMonitor, countKey: "kitchen" },
+  { to: "/admin/menu", label: "Menu", roles: ["admin", "manager", "staff"], icon: IconUtensils },
+  { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"], icon: IconCalendar, countKey: "reservations" },
+  { to: "/admin/commandes", label: "Livraisons", roles: ["admin", "manager", "staff"], icon: IconBox, countKey: "deliveries" },
+  { to: "/admin/tables", label: "Tables & QR codes", roles: ["admin", "manager", "staff"], icon: IconQr },
+  { to: "/admin/clients", label: "Clients (CRM)", roles: ["admin", "manager"], icon: IconUser },
+  { to: "/admin/analytics", label: "Analytics", roles: ["admin", "manager"], icon: IconChart },
+  { to: "/admin/messages", label: "Messages", roles: ["admin", "manager", "staff"], icon: IconMessage, countKey: "messages" },
+  { to: "/admin/comptabilite", label: "Comptabilite", roles: ["admin", "manager"], icon: IconReceipt },
+  { to: "/admin/codes-promo", label: "Codes promo", roles: ["admin", "manager"], icon: IconTag },
+  { to: "/admin/galerie", label: "Galerie photo", roles: ["admin", "manager"], icon: IconImage },
+  { to: "/admin/evenements", label: "Evenements & Offres", roles: ["admin", "manager"], icon: IconMegaphone },
+  { to: "/admin/blog", label: "Blog & Actualites", roles: ["admin", "manager"], icon: IconNews },
+  { to: "/admin/contenu", label: "Contenu du site", roles: ["admin", "manager"], icon: IconLayout },
+  { to: "/admin/traductions", label: "Traductions", roles: ["admin", "manager"], icon: IconGlobe },
+  { to: "/admin/equipe", label: "Equipe & permissions", roles: ["admin"], icon: IconUsers }
 ]
 
 export default function AdminLayout() {
+  return (
+    <ToastProvider>
+      <ConfirmProvider>
+        <AdminLayoutInner />
+      </ConfirmProvider>
+    </ToastProvider>
+  )
+}
+
+function AdminLayoutInner() {
   const [session, setSession] = useState(undefined)
   const [role, setRole] = useState(undefined) // undefined = chargement, null = pas dans staff
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { i18n } = useTranslation()
   const { alerts, dismiss, dismissAll } = useLiveAlerts()
+  const navCounts = useNavCounts()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -55,6 +80,12 @@ export default function AdminLayout() {
   useEffect(() => {
     setMobileNavOpen(false)
   }, [location.pathname])
+
+  const changeLang = (lng) => {
+    i18n.changeLanguage(lng)
+    document.documentElement.dir = lng === "ar" ? "rtl" : "ltr"
+    document.documentElement.lang = lng
+  }
 
   if (session === undefined || (session && role === undefined)) {
     return <div className="min-h-screen bg-bg text-ink flex items-center justify-center">Chargement...</div>
@@ -83,73 +114,166 @@ export default function AdminLayout() {
   }
 
   const visibleNav = NAV.filter((item) => item.roles.includes(role))
-  // Un compte "cuisine" arrivant sur une page qu il ne peut pas voir est
-  // renvoye directement vers l ecran cuisine.
+  // Un compte arrivant sur une page qu il ne peut pas voir est renvoye
+  // directement vers l ecran cuisine.
   const currentAllowed = NAV.find((item) => item.to === location.pathname)
   if (currentAllowed && !currentAllowed.roles.includes(role)) {
     return <Navigate to="/admin/cuisine" replace />
   }
 
-  return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col md:flex-row">
-      <ConnectionStatus />
-      {/* Barre superieure mobile (le menu lateral etait cache sous md, sans
-          aucun moyen de naviguer - on ajoute une barre + un menu deroulant) */}
-      <div className="md:hidden flex items-center justify-between px-5 py-4 border-b border-line">
-        <p className="font-serif text-lg">Casa Di Carta</p>
-        <button onClick={() => setMobileNavOpen((v) => !v)} className="text-sm text-inkdim border border-line rounded-lg px-3 py-1.5">
-          Menu
-        </button>
-      </div>
-      {mobileNavOpen && (
-        <nav className="md:hidden border-b border-line p-4 flex flex-col gap-1 bg-bgsoft">
-          {visibleNav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setMobileNavOpen(false)}
-              className={`px-3 py-2.5 rounded-lg text-sm flex items-center justify-between ${
-                location.pathname === item.to ? "bg-tomato text-paper" : "text-inkdim hover:bg-white/5"
-              }`}
-            >
-              {item.label}
-              {(item.to === "/admin/reservations" || item.to === "/admin/commandes") && alerts.length > 0 && (
-                <span className="w-2 h-2 rounded-full bg-tomatoglow" />
-              )}
-            </Link>
-          ))}
-          <button onClick={logout} className="mt-2 text-sm text-inkdim hover:text-ink text-left px-3">
-            Se deconnecter
-          </button>
-        </nav>
-      )}
+  const badgeAlertCount = alerts.length
 
-      <aside className="w-64 border-r border-line p-6 hidden md:flex flex-col">
-        <p className="font-serif text-lg mb-1">Casa Di Carta</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-gold mb-8">{role}</p>
-        <nav className="flex flex-col gap-1">
-          {visibleNav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`px-3 py-2.5 rounded-lg text-sm flex items-center justify-between ${
-                location.pathname === item.to ? "bg-tomato text-paper" : "text-inkdim hover:bg-white/5"
-              }`}
-            >
-              {item.label}
-              {(item.to === "/admin/reservations" || item.to === "/admin/commandes") && alerts.length > 0 && (
-                <span className="w-2 h-2 rounded-full bg-tomatoglow" />
+  const NavLink = ({ item, onClick }) => {
+    const active = location.pathname === item.to
+    const Icon = item.icon
+    const count = item.countKey ? navCounts[item.countKey] : 0
+    return (
+      <Link
+        key={item.to}
+        to={item.to}
+        onClick={onClick}
+        className={`px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 transition ${
+          active ? "bg-tomato text-paper" : "text-inkdim hover:bg-white/5 hover:text-ink"
+        }`}
+      >
+        <Icon size={18} className="shrink-0" />
+        <span className="flex-1 truncate">{item.label}</span>
+        {count > 0 && (
+          <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+            active ? "bg-black/20 text-paper" : "bg-tomato/20 text-tomatoglow"
+          }`}>
+            {count}
+          </span>
+        )}
+      </Link>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-bg text-ink">
+      <ConnectionStatus />
+
+      {/* Barre superieure : logo, changement de langue, notifications, retour au site */}
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 md:px-6 h-16 border-b border-line bg-bgsoft">
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => setMobileNavOpen((v) => !v)} className="md:hidden text-inkdim hover:text-ink p-1.5 -ml-1.5" aria-label="Menu">
+            <IconMenuLines size={22} />
+          </button>
+          <Link to="/admin" className="flex items-center gap-2.5 min-w-0">
+            <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#1a0d05] shrink-0">
+              C
+            </span>
+            <span className="min-w-0 hidden sm:block">
+              <span className="block font-serif font-semibold text-base leading-tight truncate">La Casa Di Carta</span>
+              <span className="block text-[11px] text-gold leading-tight truncate">Cuisine Italienne</span>
+            </span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          <div className="hidden sm:flex gap-1 font-mono text-[11px]">
+            {LANGS.map((l) => (
+              <button
+                key={l}
+                onClick={() => changeLang(l)}
+                className={`px-2.5 py-1.5 rounded-md border ${i18n.language === l ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink"}`}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <button onClick={() => setNotifOpen((v) => !v)} className="relative text-inkdim hover:text-ink p-2" aria-label="Notifications">
+              <IconBell size={20} />
+              {badgeAlertCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-tomato text-paper text-[9px] font-bold flex items-center justify-center">
+                  {badgeAlertCount > 9 ? "9+" : badgeAlertCount}
+                </span>
               )}
-            </Link>
-          ))}
-        </nav>
-        <button onClick={logout} className="mt-auto text-sm text-inkdim hover:text-ink text-left">
-          Se deconnecter
-        </button>
-      </aside>
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-        <Outlet />
-      </main>
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-bgsoft border border-line rounded-2xl shadow-2xl p-2 z-50">
+                {alerts.length === 0 ? (
+                  <p className="text-inkdim text-xs p-3">Aucune alerte pour le moment.</p>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between px-2 py-1.5">
+                      <span className="text-xs text-inkdim">{alerts.length} alerte(s)</span>
+                      <button onClick={dismissAll} className="text-xs text-gold hover:underline">Tout marquer comme vu</button>
+                    </div>
+                    <div className="grid gap-1 max-h-72 overflow-y-auto">
+                      {alerts.map((a) => (
+                        <div key={a.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/5 text-xs">
+                          <span className="text-ink">{a.message}</span>
+                          <button onClick={() => dismiss(a.id)} className="text-inkdim hover:text-ink shrink-0">&times;</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border border-line hover:bg-white/5 transition"
+          >
+            Voir le site
+            <span aria-hidden>&rarr;</span>
+          </a>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Menu lateral (desktop) */}
+        <aside className="w-64 border-r border-line p-4 hidden md:flex flex-col shrink-0 sticky top-16 h-[calc(100vh-64px)]">
+          <nav className="flex flex-col gap-1 overflow-y-auto flex-1">
+            {visibleNav.map((item) => <NavLink key={item.to} item={item} />)}
+          </nav>
+          <div className="pt-3 mt-3 border-t border-line">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim px-3 mb-2">{role}</p>
+            <button onClick={logout} className="w-full px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10 transition">
+              <IconPower size={18} />
+              Se deconnecter
+            </button>
+          </div>
+        </aside>
+
+        {/* Menu lateral (mobile, en tiroir) */}
+        {mobileNavOpen && (
+          <>
+            <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setMobileNavOpen(false)} />
+            <aside className="fixed top-16 left-0 bottom-0 w-72 bg-bgsoft border-r border-line p-4 z-40 md:hidden flex flex-col overflow-y-auto">
+              <nav className="flex flex-col gap-1 flex-1">
+                {visibleNav.map((item) => <NavLink key={item.to} item={item} onClick={() => setMobileNavOpen(false)} />)}
+              </nav>
+              <div className="pt-3 mt-3 border-t border-line">
+                <div className="flex gap-1 font-mono text-[11px] px-1 mb-3">
+                  {LANGS.map((l) => (
+                    <button key={l} onClick={() => changeLang(l)}
+                      className={`px-2.5 py-1.5 rounded-md border ${i18n.language === l ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim"}`}>
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim px-3 mb-2">{role}</p>
+                <button onClick={logout} className="w-full px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10">
+                  <IconPower size={18} />
+                  Se deconnecter
+                </button>
+              </div>
+            </aside>
+          </>
+        )}
+
+        <main className="flex-1 min-w-0 p-5 md:p-10">
+          <Outlet context={{ role }} />
+        </main>
+      </div>
 
       <div className="fixed bottom-5 right-5 flex flex-col gap-2 z-50 max-w-xs">
         {alerts.length > 1 && (

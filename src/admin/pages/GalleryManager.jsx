@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import ImageUploadInput from "../../components/ImageUploadInput.jsx"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY = { url: "", caption: "", category: "Restaurant", sort_order: 0 }
 const HOME_LIMIT = 10
@@ -11,6 +13,8 @@ const HOME_LIMIT = 10
 export default function GalleryManager() {
   const [images, setImages] = useState([])
   const [form, setForm] = useState(EMPTY)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("gallery_images").select("*").order("sort_order")
@@ -23,14 +27,20 @@ export default function GalleryManager() {
   const submit = async (e) => {
     e.preventDefault()
     if (!form.url) return
-    await supabase.from("gallery_images").insert([{ ...form, sort_order: Number(form.sort_order) || 0 }])
+    const { error } = await supabase.from("gallery_images").insert([{ ...form, sort_order: Number(form.sort_order) || 0 }])
+    if (error) { toast.error("Echec de l ajout de la photo."); return }
     setForm(EMPTY)
     load()
+    toast.success("Photo ajoutee.")
   }
 
   const remove = async (id) => {
-    await supabase.from("gallery_images").delete().eq("id", id)
+    const ok = await confirm({ title: "Supprimer cette photo ?", message: "Cette action est definitive." })
+    if (!ok) return
+    const { error } = await supabase.from("gallery_images").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
     load()
+    toast.success("Photo supprimee.")
   }
 
   const homeCount = images.filter((i) => i.show_on_home).length

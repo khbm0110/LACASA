@@ -297,3 +297,60 @@ alter table gallery_images add column if not exists show_on_home boolean not nul
 insert into storage.buckets (id, name, public)
 values ('media', 'media', true)
 on conflict (id) do nothing;
+
+-- ============================================================
+-- Lot "Paiement en ligne (ChariBaaS)" : les commandes livraison ne
+-- partent en cuisine qu une fois le paiement confirme par webhook,
+-- ce qui evite les commandes non recuperees / non payees a la
+-- livraison.
+-- ============================================================
+alter table orders add column if not exists payment_status text not null default 'unpaid'
+  check (payment_status in ('unpaid', 'pending', 'paid', 'failed', 'refunded'));
+alter table orders add column if not exists payment_provider text;
+alter table orders add column if not exists payment_operation_id text;
+-- Reference unique generee par notre site, envoyee a ChariBaaS (C-Request-Id /
+-- ExternalReference) et utilisee pour retrouver la commande a la reception du webhook.
+alter table orders add column if not exists payment_reference text unique;
+alter table orders add column if not exists paid_at timestamptz;
+
+-- ============================================================
+-- Lot "Suivi de commande invite" : la table orders n a pas de regle de
+-- lecture publique (volontairement, pour ne pas exposer toutes les
+-- commandes/coordonnees clients via l API REST). Cette fonction permet
+-- au client de relire UNIQUEMENT la commande dont il connait deja l id
+-- (le lien /suivi/{id} recu apres commande), sans ouvrir la lecture de
+-- toute la table.
+-- ============================================================
+create or replace function get_order_tracking(p_id uuid)
+returns setof orders
+language sql
+security definer
+set search_path = public
+as $$
+  select * from orders where id = p_id;
+$$;
+
+-- ============================================================
+-- Lot "Interrupteurs de service" : permet de mettre en pause la
+-- livraison, le paiement en ligne, ou les reservations depuis
+-- Admin > Contenu du site, sans toucher au code (ex: rupture de stock
+-- de livreurs, panne du prestataire de paiement, complet ce soir...).
+-- ============================================================
+alter table restaurant_info add column if not exists delivery_enabled boolean not null default true;
+alter table restaurant_info add column if not exists online_payment_enabled boolean not null default true;
+alter table restaurant_info add column if not exists reservations_enabled boolean not null default true;
+
+-- ============================================================
+-- Lot "Photo(s) du Hero (accueil)" : le visuel principal de la page
+-- d accueil peut afficher une ou plusieurs photos de plats, choisies
+-- depuis Admin > Contenu du site (lien ou televersement). S il y en a
+-- plusieurs, elles defilent en fondu automatiquement.
+-- ============================================================
+create table if not exists hero_dishes (
+  id uuid primary key default uuid_generate_v4(),
+  url text not null,
+  label text, -- ex: "Pizza al Forno", affiche en overlay (optionnel)
+  sort_order int not null default 0,
+  created_at timestamptz not null default now()
+);
+alter table hero_dishes enable row level security;

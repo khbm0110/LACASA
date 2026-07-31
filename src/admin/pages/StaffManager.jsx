@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { useConfirm } from "../ui/ConfirmDialog.jsx"
+import { useToast } from "../ui/Toast.jsx"
 
 const ROLES = ["admin", "manager", "cuisine", "staff"]
 
@@ -11,6 +13,8 @@ export default function StaffManager() {
   const [staff, setStaff] = useState([])
   const [form, setForm] = useState({ id: "", role: "staff" })
   const [error, setError] = useState(null)
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const load = async () => {
     const { data } = await supabase.from("staff").select("*").order("created_at")
@@ -22,18 +26,26 @@ export default function StaffManager() {
     e.preventDefault()
     setError(null)
     const { error } = await supabase.from("staff").insert([{ id: form.id.trim(), role: form.role }])
-    if (error) setError(error.message)
-    else { setForm({ id: "", role: "staff" }); load() }
+    if (error) { setError(error.message); return }
+    setForm({ id: "", role: "staff" })
+    load()
+    toast.success("Membre ajoute a l equipe.")
   }
 
   const changeRole = async (id, role) => {
-    await supabase.from("staff").update({ role }).eq("id", id)
+    const { error } = await supabase.from("staff").update({ role }).eq("id", id)
+    if (error) { toast.error("Echec de la mise a jour du role."); return }
     load()
+    toast.success("Role mis a jour.")
   }
 
   const remove = async (id) => {
-    await supabase.from("staff").delete().eq("id", id)
+    const ok = await confirm({ title: "Retirer ce membre de l equipe ?", message: "Il perdra l acces a l espace admin." })
+    if (!ok) return
+    const { error } = await supabase.from("staff").delete().eq("id", id)
+    if (error) { toast.error("Echec de la suppression."); return }
     load()
+    toast.success("Membre retire de l equipe.")
   }
 
   return (
