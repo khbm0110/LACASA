@@ -1,5 +1,14 @@
 -- La Casa Di Carta - schema Supabase (PostgreSQL)
 -- A executer dans Supabase > SQL Editor
+--
+-- Ce fichier est concu pour etre reexecute en entier a tout moment (par
+-- exemple apres avoir recupere une nouvelle version du projet) sans
+-- provoquer d erreur, meme s il a deja ete execute avant : chaque
+-- create table/colonne utilise "if not exists", chaque fonction utilise
+-- "or replace", et les deux seules commandes qui n ont pas d equivalent
+-- "if not exists" en PostgreSQL (les triggers et l ajout de tables au
+-- flux temps reel) sont protegees manuellement (drop trigger if exists /
+-- verification prealable). Executez-le simplement a chaque mise a jour.
 
 create extension if not exists "uuid-ossp";
 
@@ -111,7 +120,7 @@ create table if not exists restaurant_tables (
 
 alter table reservations add column if not exists table_id uuid references restaurant_tables(id);
 alter table orders add column if not exists table_id uuid references restaurant_tables(id);
-alter table orders add column if not exists order_type text not null default 'delivery'; -- delivery | dine_in
+alter table orders add column if not exists order_type text not null default 'delivery'; -- delivery | dine_in | takeaway (takeaway = vente comptoir via Admin > Point de vente)
 alter table orders add column if not exists notes text;
 
 
@@ -129,9 +138,24 @@ create table if not exists google_reviews (
 
 -- Active Supabase Realtime sur ces tables pour permettre au tableau de
 -- bord admin de recevoir les nouvelles reservations/commandes en direct
--- (utilise par src/admin/hooks/useLiveAlerts.js).
-alter publication supabase_realtime add table reservations;
-alter publication supabase_realtime add table orders;
+-- (utilise par src/admin/hooks/useLiveAlerts.js). Enveloppe dans un test
+-- d existence car "alter publication ... add table" echoue si la table y
+-- est deja (pas de "if not exists" pour cette commande en PostgreSQL).
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'reservations'
+  ) then
+    alter publication supabase_realtime add table reservations;
+  end if;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'orders'
+  ) then
+    alter publication supabase_realtime add table orders;
+  end if;
+end $$;
 
 -- ============================================================
 -- Lot "Experience client" : comptes clients, suivi de commande,

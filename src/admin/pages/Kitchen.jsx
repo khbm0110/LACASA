@@ -79,7 +79,7 @@ export default function Kitchen() {
   // livraison depuis Admin > Livraisons (le livreur part avec). Pour une
   // commande sur place, "Prete" = a servir, geree ici jusqu au bout.
   const markServedOrSend = async (order) => {
-    const next = order.order_type === "dine_in" ? "delivered" : "out_for_delivery"
+    const next = order.order_type === "delivery" ? "out_for_delivery" : "delivered"
     await supabase.from("orders").update({ status: next }).eq("id", order.id)
   }
 
@@ -120,18 +120,23 @@ export default function Kitchen() {
                 <div key={o.id} className="bg-bgsoft border border-line rounded-2xl p-4">
                   <div className="flex justify-between items-start mb-2">
                     <span className={`text-xs font-mono px-2 py-1 rounded-full ${
-                      o.order_type === "dine_in" ? "bg-basil/20 text-basil" : "bg-gold/20 text-gold"
+                      o.order_type === "delivery" ? "bg-gold/20 text-gold" : "bg-basil/20 text-basil"
                     }`}>
-                      {o.order_type === "dine_in" ? "Sur place" : "Livraison"}
+                      {o.order_type === "delivery" ? "Livraison" : o.order_type === "takeaway" ? "A emporter" : "Sur place"}
                     </span>
                     <span className="text-xs text-inkdim">{new Date(o.created_at).toLocaleTimeString().slice(0, 5)}</span>
                   </div>
                   {o.order_type === "dine_in" && o.address && (
                     <p className="font-serif text-2xl text-tomatoglow mb-2">{o.address}</p>
                   )}
-                  {o.order_type !== "dine_in" && o.payment_status === "paid" && (
+                  {o.order_type === "delivery" && o.payment_status === "paid" && (
                     <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-basil/20 text-basil mb-2">
                       Payee en ligne
+                    </span>
+                  )}
+                  {o.order_type !== "delivery" && o.payment_status === "paid" && o.payment_provider && (
+                    <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-basil/20 text-basil mb-2">
+                      {o.payment_provider === "cash" ? "Payee especes" : "Payee carte"}
                     </span>
                   )}
                   <ul className="text-sm mb-3">
@@ -143,7 +148,7 @@ export default function Kitchen() {
                   {col.key === "ready" ? (
                     <button onClick={() => markServedOrSend(o)}
                       className="w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
-                      {o.order_type === "dine_in" ? "Marquer servie" : "Envoyer en livraison"}
+                      {o.order_type === "delivery" ? "Envoyer en livraison" : "Marquer servie"}
                     </button>
                   ) : (
                     <button onClick={() => advance(o, col.next)}

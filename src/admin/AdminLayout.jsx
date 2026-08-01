@@ -10,7 +10,7 @@ import { ConfirmProvider } from "./ui/ConfirmDialog.jsx"
 import {
   IconGrid, IconClipboard, IconMonitor, IconUtensils, IconCalendar, IconBox, IconQr,
   IconUser, IconUsers, IconChart, IconMessage, IconReceipt, IconTag, IconImage,
-  IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines
+  IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines, IconCoins
 } from "./icons.jsx"
 
 const LANGS = ["fr", "ar", "es", "en"]
@@ -23,6 +23,7 @@ const NAV = [
   { to: "/admin", label: "Tableau de bord", end: true, roles: ["admin", "manager", "staff"], icon: IconGrid },
   { to: "/admin/confirmation", label: "Commandes", roles: ["admin"], icon: IconClipboard, countKey: "confirmation" },
   { to: "/admin/cuisine", label: "Ecran cuisine", roles: ["admin", "manager", "staff", "cuisine"], icon: IconMonitor, countKey: "kitchen" },
+  { to: "/admin/pos", label: "Point de vente", roles: ["admin", "manager", "staff"], icon: IconCoins },
   { to: "/admin/menu", label: "Menu", roles: ["admin", "manager", "staff"], icon: IconUtensils },
   { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"], icon: IconCalendar, countKey: "reservations" },
   { to: "/admin/commandes", label: "Livraisons", roles: ["admin", "manager", "staff"], icon: IconBox, countKey: "deliveries" },

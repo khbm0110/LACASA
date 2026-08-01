@@ -7,6 +7,15 @@ et un espace d administration relie a Supabase pour tout gerer sans code.
 ## Ce qui est deja fait
 
 ### Corrections recentes
+- **`schema.sql`/`policies.sql` non reexecutables sans erreur** (corrige) :
+  `alter publication supabase_realtime add table ...` et chaque
+  `create policy ...` echouaient si vous les aviez deja executes une fois
+  (PostgreSQL n a pas d equivalent "if not exists" pour ces deux
+  commandes). **Desormais les deux fichiers peuvent etre executes en
+  entier autant de fois que necessaire**, y compris apres avoir deja tout
+  mis en place - executez-les simplement a chaque fois que vous recuperez
+  une nouvelle version du projet, sans avoir a deviner quelle partie est
+  "deja passee".
 - **Menu admin invisible sur mobile** (corrige) : la barre laterale etait
   completement cachee sous la largeur `md` sans aucune alternative. Une
   barre superieure avec un bouton "Menu" deroulant a ete ajoutee pour mobile.

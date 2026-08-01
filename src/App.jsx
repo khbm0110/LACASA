@@ -31,6 +31,7 @@ import Tables from "./admin/pages/Tables.jsx"
 import Accounting from "./admin/pages/Accounting.jsx"
 import PromoCodes from "./admin/pages/PromoCodes.jsx"
 import Kitchen from "./admin/pages/Kitchen.jsx"
+import POS from "./admin/pages/POS.jsx"
 import StaffManager from "./admin/pages/StaffManager.jsx"
 import GalleryManager from "./admin/pages/GalleryManager.jsx"
 import EventsManager from "./admin/pages/EventsManager.jsx"
@@ -87,6 +88,7 @@ export default function App() {
         <Route path="comptabilite" element={<Accounting />} />
         <Route path="codes-promo" element={<PromoCodes />} />
         <Route path="cuisine" element={<Kitchen />} />
+        <Route path="pos" element={<POS />} />
         <Route path="clients" element={<Customers />} />
         <Route path="equipe" element={<StaffManager />} />
         <Route path="galerie" element={<GalleryManager />} />

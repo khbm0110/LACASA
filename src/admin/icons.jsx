@@ -92,3 +92,6 @@ export const IconStar = (p) => (
 export const IconClipboard = (p) => (
   <Svg {...p}><rect x="5" y="4" width="14" height="17" rx="2" /><rect x="8.5" y="2.5" width="7" height="3.5" rx="1" /><path d="M8.5 11h7M8.5 15h4.5" /></Svg>
 )
+export const IconCoins = (p) => (
+  <Svg {...p}><ellipse cx="9" cy="7" rx="6" ry="3" /><path d="M3 7v5c0 1.66 2.69 3 6 3s6-1.34 6-3V7" /><path d="M15 10.2c2.98.34 5 1.53 5 2.8 0 1.66-2.69 3-6 3-1.36 0-2.62-.22-3.62-.6" /><path d="M9 15v2c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" /></Svg>
+)

@@ -13,9 +13,11 @@ export function printOrderReceipt(order) {
       </tr>
     `).join("")
 
-  const typeLabel = order.order_type === "dine_in"
-    ? `Sur place${order.table_number ? " - Table " + order.table_number : ""}`
-    : "Livraison"
+  const typeLabel = order.order_type === "delivery"
+    ? "Livraison"
+    : order.order_type === "takeaway"
+      ? "A emporter"
+      : `Sur place${order.address ? " - " + order.address : ""}`
 
   win.document.write(`
     <html>
