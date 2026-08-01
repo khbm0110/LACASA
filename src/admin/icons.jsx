@@ -92,6 +92,18 @@ export const IconStar = (p) => (
 export const IconClipboard = (p) => (
   <Svg {...p}><rect x="5" y="4" width="14" height="17" rx="2" /><rect x="8.5" y="2.5" width="7" height="3.5" rx="1" /><path d="M8.5 11h7M8.5 15h4.5" /></Svg>
 )
+export const IconWarehouse = (p) => (
+  <Svg {...p}><path d="M3 21V10l9-6 9 6v11" /><path d="M5 21v-8h14v8" /><path d="M9 21v-5h6v5" /></Svg>
+)
+export const IconTruck = (p) => (
+  <Svg {...p}><rect x="1" y="7" width="13" height="10" rx="1.5" /><path d="M14 10h4l3 3v4h-7" /><circle cx="6" cy="19" r="1.8" /><circle cx="17" cy="19" r="1.8" /></Svg>
+)
+export const IconClipboardList = (p) => (
+  <Svg {...p}><rect x="5" y="4" width="14" height="17" rx="2" /><path d="M9 3h6v3H9z" /><path d="M8 11h8M8 14.5h8M8 18h5" /></Svg>
+)
+export const IconSliders = (p) => (
+  <Svg {...p}><path d="M4 6h10M17 6h3M4 12h3M10 12h10M4 18h13M20 18h0" /><circle cx="17" cy="6" r="1.5" fill="currentColor" /><circle cx="7" cy="12" r="1.5" fill="currentColor" /><circle cx="17" cy="18" r="1.5" fill="currentColor" /></Svg>
+)
 export const IconCoins = (p) => (
   <Svg {...p}><ellipse cx="9" cy="7" rx="6" ry="3" /><path d="M3 7v5c0 1.66 2.69 3 6 3s6-1.34 6-3V7" /><path d="M15 10.2c2.98.34 5 1.53 5 2.8 0 1.66-2.69 3-6 3-1.36 0-2.62-.22-3.62-.6" /><path d="M9 15v2c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" /></Svg>
 )

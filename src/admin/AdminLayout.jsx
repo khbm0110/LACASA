@@ -10,7 +10,8 @@ import { ConfirmProvider } from "./ui/ConfirmDialog.jsx"
 import {
   IconGrid, IconClipboard, IconMonitor, IconUtensils, IconCalendar, IconBox, IconQr,
   IconUser, IconUsers, IconChart, IconMessage, IconReceipt, IconTag, IconImage,
-  IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines, IconCoins
+  IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines, IconCoins,
+  IconWarehouse, IconTruck, IconClipboardList, IconStar, IconSliders
 } from "./icons.jsx"
 
 const LANGS = ["fr", "ar", "es", "en"]
@@ -28,6 +29,12 @@ const NAV = [
   { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"], icon: IconCalendar, countKey: "reservations" },
   { to: "/admin/commandes", label: "Livraisons", roles: ["admin", "manager", "staff"], icon: IconBox, countKey: "deliveries" },
   { to: "/admin/tables", label: "Tables & QR codes", roles: ["admin", "manager", "staff"], icon: IconQr },
+  { to: "/admin/inventaire", label: "Inventaire (stock)", roles: ["admin", "manager"], icon: IconWarehouse },
+  { to: "/admin/fournisseurs", label: "Fournisseurs", roles: ["admin", "manager"], icon: IconTruck },
+  { to: "/admin/achats", label: "Achats", roles: ["admin", "manager"], icon: IconClipboardList },
+  { to: "/admin/recettes", label: "Recettes", roles: ["admin", "manager"], icon: IconUtensils },
+  { to: "/admin/modificateurs", label: "Modificateurs", roles: ["admin", "manager"], icon: IconSliders },
+  { to: "/admin/formules", label: "Formules (combos)", roles: ["admin", "manager", "staff"], icon: IconStar },
   { to: "/admin/clients", label: "Clients (CRM)", roles: ["admin", "manager"], icon: IconUser },
   { to: "/admin/analytics", label: "Analytics", roles: ["admin", "manager"], icon: IconChart },
   { to: "/admin/messages", label: "Messages", roles: ["admin", "manager", "staff"], icon: IconMessage, countKey: "messages" },

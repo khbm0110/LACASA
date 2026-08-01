@@ -8,7 +8,7 @@ export function printOrderReceipt(order) {
   const itemsHtml = (order.items || [])
     .map((it) => `
       <tr>
-        <td>${it.qty} x ${escapeHtml(it.name)}</td>
+        <td>${it.qty} x ${escapeHtml(it.name)}${it.modifiers?.length ? `<br/><span style="font-size:11px;color:#666">${escapeHtml(it.modifiers.join(", "))}</span>` : ""}</td>
         <td style="text-align:right">${it.qty * it.price} MAD</td>
       </tr>
     `).join("")

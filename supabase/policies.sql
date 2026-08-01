@@ -151,3 +151,53 @@ drop policy if exists "public read hero dishes" on hero_dishes;
 create policy "public read hero dishes" on hero_dishes for select using (true);
 drop policy if exists "staff full access hero dishes" on hero_dishes;
 create policy "staff full access hero dishes" on hero_dishes for all using (is_staff());
+
+-- Lot "Inventaire, fournisseurs & achats" --------------------------------
+-- Donnees purement internes (couts, stock, coordonnees fournisseurs) :
+-- aucune lecture publique, seule l equipe (staff) y accede.
+drop policy if exists "staff full access branches" on branches;
+create policy "staff full access branches" on branches for all using (is_staff());
+drop policy if exists "staff full access suppliers" on suppliers;
+create policy "staff full access suppliers" on suppliers for all using (is_staff());
+drop policy if exists "staff full access inventory items" on inventory_items;
+create policy "staff full access inventory items" on inventory_items for all using (is_staff());
+drop policy if exists "staff full access purchases" on purchases;
+create policy "staff full access purchases" on purchases for all using (is_staff());
+drop policy if exists "staff full access purchase items" on purchase_items;
+create policy "staff full access purchase items" on purchase_items for all using (is_staff());
+drop policy if exists "staff full access stock adjustments" on stock_adjustments;
+create policy "staff full access stock adjustments" on stock_adjustments for all using (is_staff());
+
+grant execute on function receive_purchase(uuid) to authenticated;
+
+-- Lot "Recettes, modificateurs & formules" --------------------------------
+-- Les recettes (couts/quantites de stock) restent internes.
+drop policy if exists "staff full access menu item ingredients" on menu_item_ingredients;
+create policy "staff full access menu item ingredients" on menu_item_ingredients for all using (is_staff());
+
+-- Modificateurs et formules sont visibles publiquement (utilises sur le
+-- site client pour composer une commande), mais seule l equipe les gere.
+drop policy if exists "public read modifier groups" on modifier_groups;
+create policy "public read modifier groups" on modifier_groups for select using (true);
+drop policy if exists "staff full access modifier groups" on modifier_groups;
+create policy "staff full access modifier groups" on modifier_groups for all using (is_staff());
+
+drop policy if exists "public read modifiers" on modifiers;
+create policy "public read modifiers" on modifiers for select using (true);
+drop policy if exists "staff full access modifiers" on modifiers;
+create policy "staff full access modifiers" on modifiers for all using (is_staff());
+
+drop policy if exists "public read menu item modifier groups" on menu_item_modifier_groups;
+create policy "public read menu item modifier groups" on menu_item_modifier_groups for select using (true);
+drop policy if exists "staff full access menu item modifier groups" on menu_item_modifier_groups;
+create policy "staff full access menu item modifier groups" on menu_item_modifier_groups for all using (is_staff());
+
+drop policy if exists "public read combos" on combos;
+create policy "public read combos" on combos for select using (true);
+drop policy if exists "staff full access combos" on combos;
+create policy "staff full access combos" on combos for all using (is_staff());
+
+drop policy if exists "public read combo items" on combo_items;
+create policy "public read combo items" on combo_items for select using (true);
+drop policy if exists "staff full access combo items" on combo_items;
+create policy "staff full access combo items" on combo_items for all using (is_staff());

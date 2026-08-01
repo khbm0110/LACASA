@@ -40,6 +40,12 @@ import Customers from "./admin/pages/Customers.jsx"
 import ContactMessages from "./admin/pages/ContactMessages.jsx"
 import Analytics from "./admin/pages/Analytics.jsx"
 import OrderConfirmation from "./admin/pages/OrderConfirmation.jsx"
+import InventoryItems from "./admin/pages/InventoryItems.jsx"
+import Suppliers from "./admin/pages/Suppliers.jsx"
+import Purchases from "./admin/pages/Purchases.jsx"
+import Recipes from "./admin/pages/Recipes.jsx"
+import Modifiers from "./admin/pages/Modifiers.jsx"
+import Combos from "./admin/pages/Combos.jsx"
 
 export default function App() {
   return (
@@ -89,6 +95,12 @@ export default function App() {
         <Route path="codes-promo" element={<PromoCodes />} />
         <Route path="cuisine" element={<Kitchen />} />
         <Route path="pos" element={<POS />} />
+        <Route path="inventaire" element={<InventoryItems />} />
+        <Route path="fournisseurs" element={<Suppliers />} />
+        <Route path="achats" element={<Purchases />} />
+        <Route path="recettes" element={<Recipes />} />
+        <Route path="modificateurs" element={<Modifiers />} />
+        <Route path="formules" element={<Combos />} />
         <Route path="clients" element={<Customers />} />
         <Route path="equipe" element={<StaffManager />} />
         <Route path="galerie" element={<GalleryManager />} />

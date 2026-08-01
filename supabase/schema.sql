@@ -378,3 +378,266 @@ create table if not exists hero_dishes (
   created_at timestamptz not null default now()
 );
 alter table hero_dishes enable row level security;
+
+-- ============================================================
+-- Lot "Inventaire, fournisseurs & achats"
+--
+-- Concu des le depart pour le multi-etablissement : chaque table porte
+-- une colonne branch_id (nullable, pointant vers "branches"). Pour
+-- l instant un seul etablissement existe (cree automatiquement ci-dessous)
+-- et toutes les lignes lui sont rattachees par defaut - il suffira, le
+-- jour ou un 2e etablissement ouvre, de creer une nouvelle ligne dans
+-- "branches" et de filtrer les ecrans par etablissement selectionne,
+-- sans migration de schema.
+-- ============================================================
+
+create table if not exists branches (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  address text,
+  phone text,
+  active boolean not null default true,
+  created_at timestamptz default now()
+);
+
+-- Cree l etablissement par defaut une seule fois (si aucun n existe encore)
+insert into branches (name, address)
+select 'Etablissement principal', (select address from restaurant_info where id = 1)
+where not exists (select 1 from branches);
+
+-- Retourne l etablissement par defaut (le plus ancien) - utilise comme
+-- valeur par defaut des colonnes branch_id tant qu un seul etablissement
+-- existe. Le jour du multi-etablissement, chaque ecran passera
+-- explicitement le branch_id choisi au lieu de dependre de ce defaut.
+create or replace function default_branch_id()
+returns uuid as $$
+  select id from branches order by created_at asc limit 1;
+$$ language sql stable;
+
+-- Fournisseurs ------------------------------------------------------
+create table if not exists suppliers (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  contact_name text,
+  phone text,
+  email text,
+  address text,
+  notes text,
+  active boolean not null default true,
+  created_at timestamptz default now()
+);
+
+-- Articles de stock (ingredients / consommables) ----------------------
+create table if not exists inventory_items (
+  id uuid primary key default uuid_generate_v4(),
+  branch_id uuid references branches(id) default default_branch_id(),
+  name text not null,
+  category text, -- ex: Viandes, Legumes, Boissons, Emballages...
+  unit text not null default 'unite', -- kg | g | l | ml | unite
+  current_stock numeric not null default 0,
+  min_stock_alert numeric not null default 0, -- seuil d alerte stock bas
+  cost_per_unit numeric not null default 0, -- dernier cout d achat connu
+  supplier_id uuid references suppliers(id),
+  created_at timestamptz default now()
+);
+
+-- Bons d achat --------------------------------------------------------
+create table if not exists purchases (
+  id uuid primary key default uuid_generate_v4(),
+  branch_id uuid references branches(id) default default_branch_id(),
+  supplier_id uuid references suppliers(id),
+  invoice_number text,
+  purchase_date date not null default current_date,
+  status text not null default 'pending', -- pending | received | cancelled
+  total numeric not null default 0,
+  notes text,
+  created_by uuid references staff(id),
+  created_at timestamptz default now(),
+  received_at timestamptz
+);
+
+create table if not exists purchase_items (
+  id uuid primary key default uuid_generate_v4(),
+  purchase_id uuid not null references purchases(id) on delete cascade,
+  inventory_item_id uuid not null references inventory_items(id),
+  quantity numeric not null,
+  unit_cost numeric not null default 0,
+  subtotal numeric generated always as (quantity * unit_cost) stored
+);
+
+-- Journal des mouvements de stock (source de verite du stock actuel) ---
+create table if not exists stock_adjustments (
+  id uuid primary key default uuid_generate_v4(),
+  branch_id uuid references branches(id) default default_branch_id(),
+  inventory_item_id uuid not null references inventory_items(id),
+  type text not null, -- purchase_in | manual_in | waste | correction
+  quantity numeric not null, -- positif = entree, negatif = sortie
+  reason text,
+  purchase_id uuid references purchases(id),
+  staff_id uuid references staff(id),
+  created_at timestamptz default now()
+);
+
+-- Chaque mouvement inséré met a jour le stock actuel de l article -----
+create or replace function apply_stock_adjustment()
+returns trigger as $$
+begin
+  update inventory_items set current_stock = current_stock + new.quantity
+  where id = new.inventory_item_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_stock_adjustment on stock_adjustments;
+create trigger on_stock_adjustment
+  after insert on stock_adjustments
+  for each row execute function apply_stock_adjustment();
+
+-- Reception d un bon d achat : passe son statut a "received", cree un
+-- mouvement d entree de stock pour chaque ligne, et met a jour le
+-- dernier cout d achat connu de chaque article. Appelee depuis l admin
+-- via supabase.rpc('receive_purchase', { p_purchase_id }).
+create or replace function receive_purchase(p_purchase_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  r record;
+begin
+  update purchases
+  set status = 'received',
+      received_at = now(),
+      total = (select coalesce(sum(subtotal), 0) from purchase_items where purchase_id = p_purchase_id)
+  where id = p_purchase_id and status = 'pending';
+
+  for r in select * from purchase_items where purchase_id = p_purchase_id loop
+    insert into stock_adjustments (inventory_item_id, type, quantity, reason, purchase_id)
+    values (r.inventory_item_id, 'purchase_in', r.quantity, 'Reception achat', p_purchase_id);
+
+    update inventory_items set cost_per_unit = r.unit_cost where id = r.inventory_item_id;
+  end loop;
+end;
+$$;
+
+alter table branches enable row level security;
+alter table suppliers enable row level security;
+alter table inventory_items enable row level security;
+alter table purchases enable row level security;
+alter table purchase_items enable row level security;
+alter table stock_adjustments enable row level security;
+
+-- ============================================================
+-- Lot "Recettes, modificateurs & formules"
+-- ============================================================
+
+-- Recettes : quantite d un article de stock consommee par unite vendue
+-- d un plat. Sert au calcul du cout et a la deduction automatique du
+-- stock quand une commande part en cuisine (voir deduct_recipe_stock).
+create table if not exists menu_item_ingredients (
+  id uuid primary key default uuid_generate_v4(),
+  menu_item_id uuid not null references menu_items(id) on delete cascade,
+  inventory_item_id uuid not null references inventory_items(id),
+  quantity numeric not null,
+  unique (menu_item_id, inventory_item_id)
+);
+
+-- Groupes de modificateurs (ex: "Taille", "Supplements") -------------
+create table if not exists modifier_groups (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  min_select int not null default 0,
+  max_select int not null default 1, -- 1 = choix unique, >1 = choix multiple
+  required boolean not null default false,
+  created_at timestamptz default now()
+);
+
+create table if not exists modifiers (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid not null references modifier_groups(id) on delete cascade,
+  name text not null,
+  price_delta numeric not null default 0,
+  sort_order int not null default 0
+);
+
+-- Quels groupes de modificateurs s appliquent a quel plat
+create table if not exists menu_item_modifier_groups (
+  menu_item_id uuid not null references menu_items(id) on delete cascade,
+  modifier_group_id uuid not null references modifier_groups(id) on delete cascade,
+  primary key (menu_item_id, modifier_group_id)
+);
+
+-- Formules / Combos : bundle de plats existants a prix fixe -----------
+create table if not exists combos (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  description text,
+  price numeric not null,
+  image_url text,
+  active boolean not null default true,
+  created_at timestamptz default now()
+);
+
+create table if not exists combo_items (
+  id uuid primary key default uuid_generate_v4(),
+  combo_id uuid not null references combos(id) on delete cascade,
+  menu_item_id uuid not null references menu_items(id),
+  quantity int not null default 1
+);
+
+alter table menu_item_ingredients enable row level security;
+alter table modifier_groups enable row level security;
+alter table modifiers enable row level security;
+alter table menu_item_modifier_groups enable row level security;
+alter table combos enable row level security;
+alter table combo_items enable row level security;
+
+-- Deduction automatique du stock quand une commande entre en cuisine
+-- (passage au statut "new" - creation directe au POS, ou confirmation
+-- d une commande livraison). Parcourt orders.items (jsonb) ; chaque
+-- ligne peut porter "item_type": "menu_item" (defaut) ou "combo". Les
+-- plats sans recette (aucune ligne dans menu_item_ingredients) ne
+-- generent simplement aucun mouvement - pas d erreur.
+create or replace function deduct_recipe_stock()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  it jsonb;
+  item_uuid uuid;
+  item_type text;
+  item_qty numeric;
+  ci record;
+begin
+  if new.status = 'new' and (tg_op = 'INSERT' or old.status is distinct from 'new') then
+    for it in select * from jsonb_array_elements(coalesce(new.items, '[]'::jsonb))
+    loop
+      item_uuid := nullif(it->>'item_id', '')::uuid;
+      item_type := coalesce(it->>'item_type', 'menu_item');
+      item_qty := coalesce((it->>'qty')::numeric, 1);
+      if item_uuid is null then continue; end if;
+
+      if item_type = 'combo' then
+        for ci in select menu_item_id, quantity from combo_items where combo_id = item_uuid loop
+          insert into stock_adjustments (inventory_item_id, type, quantity, reason)
+          select mi.inventory_item_id, 'sale_out', -(mi.quantity * ci.quantity * item_qty), 'Vente commande ' || new.id
+          from menu_item_ingredients mi where mi.menu_item_id = ci.menu_item_id;
+        end loop;
+      else
+        insert into stock_adjustments (inventory_item_id, type, quantity, reason)
+        select mi.inventory_item_id, 'sale_out', -(mi.quantity * item_qty), 'Vente commande ' || new.id
+        from menu_item_ingredients mi where mi.menu_item_id = item_uuid;
+      end if;
+    end loop;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_order_new_deduct_stock on orders;
+create trigger on_order_new_deduct_stock
+  after insert or update on orders
+  for each row execute function deduct_recipe_stock();
