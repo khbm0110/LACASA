@@ -201,3 +201,14 @@ drop policy if exists "public read combo items" on combo_items;
 create policy "public read combo items" on combo_items for select using (true);
 drop policy if exists "staff full access combo items" on combo_items;
 create policy "staff full access combo items" on combo_items for all using (is_staff());
+
+-- Lot "Caisse & Remboursements/Annulations" ------------------------------
+drop policy if exists "staff full access shifts" on shifts;
+create policy "staff full access shifts" on shifts for all using (is_staff());
+drop policy if exists "staff full access order refunds" on order_refunds;
+create policy "staff full access order refunds" on order_refunds for all using (is_staff());
+drop policy if exists "staff full access order payments" on order_payments;
+create policy "staff full access order payments" on order_payments for all using (is_staff());
+
+grant execute on function void_order(uuid, text) to authenticated;
+grant execute on function close_shift(uuid, numeric, uuid, text) to authenticated;

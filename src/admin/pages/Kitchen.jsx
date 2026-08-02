@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
-import { printOrderReceipt } from "../../lib/printReceipt"
+import { printKitchenTicket } from "../../lib/printReceipt"
 
 // Ecran cuisine (KDS - Kitchen Display System) : pense pour une tablette
 // ou un ecran fixe en cuisine. Gros boutons, mise a jour en direct via
@@ -45,7 +45,7 @@ export default function Kitchen() {
   const load = async () => {
     const { data } = await supabase
       .from("orders")
-      .select("*")
+      .select("*, restaurant_tables(number)")
       .in("status", ["new", "preparing", "ready"])
       .order("created_at", { ascending: true })
     const list = data || []
@@ -55,7 +55,7 @@ export default function Kitchen() {
       list
         .filter((o) => o.status === "new" && !printedRef.current.has(o.id))
         .forEach((o) => {
-          printOrderReceipt(o)
+          printKitchenTicket({ ...o, table_number: o.restaurant_tables?.number })
           markPrinted(o.id)
         })
     }
@@ -156,9 +156,9 @@ export default function Kitchen() {
                       {col.nextLabel}
                     </button>
                   )}
-                  <button onClick={() => printOrderReceipt(o)}
+                  <button onClick={() => printKitchenTicket({ ...o, table_number: o.restaurant_tables?.number })}
                     className="w-full mt-2 px-3 py-2 rounded-xl text-xs border border-line text-inkdim hover:bg-white/5">
-                    Imprimer le ticket
+                    Imprimer le ticket cuisine
                   </button>
                 </div>
               ))}

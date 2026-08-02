@@ -104,6 +104,18 @@ export const IconClipboardList = (p) => (
 export const IconSliders = (p) => (
   <Svg {...p}><path d="M4 6h10M17 6h3M4 12h3M10 12h10M4 18h13M20 18h0" /><circle cx="17" cy="6" r="1.5" fill="currentColor" /><circle cx="7" cy="12" r="1.5" fill="currentColor" /><circle cx="17" cy="18" r="1.5" fill="currentColor" /></Svg>
 )
+export const IconVolume = (p) => (
+  <Svg {...p}><path d="M4 9v6h4l5 4V5L8 9H4z" /><path d="M16.5 8.5a5 5 0 010 7" /><path d="M19 6a9 9 0 010 12" /></Svg>
+)
+export const IconVolumeMute = (p) => (
+  <Svg {...p}><path d="M4 9v6h4l5 4V5L8 9H4z" /><path d="M16 9l5 6M21 9l-5 6" /></Svg>
+)
+export const IconArchive = (p) => (
+  <Svg {...p}><rect x="3" y="4" width="18" height="4" rx="1" /><path d="M4 8v11a1 1 0 001 1h14a1 1 0 001-1V8" /><path d="M10 12h4" /></Svg>
+)
+export const IconStore = (p) => (
+  <Svg {...p}><path d="M4 9l1-5h14l1 5" /><path d="M4 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0" /><path d="M5 9v10h14V9" /><path d="M9 19v-6h6v6" /></Svg>
+)
 export const IconCoins = (p) => (
   <Svg {...p}><ellipse cx="9" cy="7" rx="6" ry="3" /><path d="M3 7v5c0 1.66 2.69 3 6 3s6-1.34 6-3V7" /><path d="M15 10.2c2.98.34 5 1.53 5 2.8 0 1.66-2.69 3-6 3-1.36 0-2.62-.22-3.62-.6" /><path d="M9 15v2c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" /></Svg>
 )

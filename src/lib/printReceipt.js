@@ -1,3 +1,49 @@
+// Ticket cuisine : ce que voit le cuisinier - noms des plats, quantites,
+// modificateurs choisis et table/type de commande. Volontairement SANS
+// prix ni total ni mode de paiement (ce n est pas un document commercial,
+// juste une liste de preparation).
+export function printKitchenTicket(order) {
+  const win = window.open("", "_blank", "width=380,height=600")
+  if (!win) return
+
+  const itemsHtml = (order.items || [])
+    .map((it) => `
+      <tr>
+        <td style="font-size:16px;font-weight:bold;padding:6px 0">${it.qty} x ${escapeHtml(it.name)}</td>
+      </tr>
+      ${it.modifiers?.length ? `<tr><td style="font-size:13px;color:#333;padding-bottom:6px">↳ ${escapeHtml(it.modifiers.join(", "))}</td></tr>` : ""}
+    `).join("")
+
+  const typeLabel = order.order_type === "delivery"
+    ? "LIVRAISON"
+    : order.order_type === "takeaway"
+      ? "A EMPORTER"
+      : "SUR PLACE"
+
+  win.document.write(`
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>Ticket cuisine</title>
+      <style>
+        body { font-family: 'Courier New', monospace; padding: 16px; color: #111; }
+        h1 { font-size: 18px; text-align: center; margin-bottom: 2px; letter-spacing: 1px; }
+        .sub { text-align: center; font-size: 13px; color: #333; margin-bottom: 14px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        td { border-bottom: 1px dashed #ccc; }
+      </style>
+    </head>
+    <body onload="window.print()">
+      <h1>*** CUISINE ***</h1>
+      <p class="sub">${typeLabel}${order.table_number ? " · Table " + escapeHtml(order.table_number) : ""} — ${new Date(order.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</p>
+      <table>${itemsHtml}</table>
+      ${order.address && order.order_type !== "dine_in" ? `<p style="font-size:12px;margin-top:10px">Adresse : ${escapeHtml(order.address)}</p>` : ""}
+    </body>
+    </html>
+  `)
+  win.document.close()
+}
+
 // Ouvre une fenetre de navigateur formatee pour l impression d une commande
 // (ticket cuisine / ticket client) - aucune dependance ni imprimante
 // specifique requise, utilise l impression standard du navigateur.
@@ -38,7 +84,12 @@ export function printOrderReceipt(order) {
       <h1>La Casa Di Carta</h1>
       <p class="sub">${typeLabel} - ${new Date(order.created_at).toLocaleString("fr-FR")}</p>
       <table>${itemsHtml}</table>
+      ${order.discount_amount > 0 ? `
+        <p style="font-size:12px;text-align:right;color:#555">Sous-total : ${order.subtotal} MAD</p>
+        <p style="font-size:12px;text-align:right;color:#b45309">Remise${order.discount_reason ? " (" + escapeHtml(order.discount_reason) + ")" : ""} : -${order.discount_amount} MAD</p>
+      ` : ""}
       <p class="total">Total : ${order.total} MAD</p>
+      <p style="font-size:12px;color:#444">${paymentLine(order)}</p>
       ${order.discount > 0 ? `<p class="meta">Remise appliquee : -${order.discount} MAD (${order.promo_code || ""})</p>` : ""}
       ${order.address ? `<p class="meta">Adresse : ${escapeHtml(order.address)}</p>` : ""}
       ${order.phone ? `<p class="meta">Telephone : ${escapeHtml(order.phone)}</p>` : ""}
@@ -49,6 +100,14 @@ export function printOrderReceipt(order) {
   win.document.close()
   win.focus()
   win.print()
+}
+
+function paymentLine(order) {
+  const labels = { cash: "Especes", card_tpe: "Carte (TPE)" }
+  if (order.payments && order.payments.length > 0) {
+    return "Paiement : " + order.payments.map((p) => `${p.amount} MAD ${labels[p.method] || p.method}`).join(" + ")
+  }
+  return "Paiement : " + (labels[order.payment_provider] || order.payment_provider || "—")
 }
 
 function escapeHtml(str) {

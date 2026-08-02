@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
 import { printTableQr, printAllTableQrs } from "../../lib/printReceipt"
+import { useBranch } from "../BranchContext.jsx"
 import { useConfirm } from "../ui/ConfirmDialog.jsx"
 import { useToast } from "../ui/Toast.jsx"
 
@@ -14,6 +15,7 @@ function qrUrl(targetUrl) {
 }
 
 export default function Tables() {
+  const { activeBranchId, activeBranch } = useBranch()
   const [tables, setTables] = useState([])
   const [form, setForm] = useState(EMPTY)
   const [siteUrl, setSiteUrl] = useState("")
@@ -25,16 +27,17 @@ export default function Tables() {
   }, [])
 
   const load = async () => {
-    const { data } = await supabase.from("restaurant_tables").select("*").order("number")
+    if (!activeBranchId) return
+    const { data } = await supabase.from("restaurant_tables").select("*").eq("branch_id", activeBranchId).order("number")
     setTables(data || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [activeBranchId])
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
   const submit = async (e) => {
     e.preventDefault()
-    const { error } = await supabase.from("restaurant_tables").insert([{ ...form, capacity: Number(form.capacity) }])
+    const { error } = await supabase.from("restaurant_tables").insert([{ ...form, capacity: Number(form.capacity), branch_id: activeBranchId }])
     if (error) { toast.error("Echec de l ajout de la table."); return }
     setForm(EMPTY)
     load()
@@ -53,7 +56,7 @@ export default function Tables() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 className="font-serif text-3xl">Tables & QR codes</h1>
+        <h1 className="font-serif text-3xl">Tables & QR codes{activeBranch && <span className="text-inkdim text-lg font-sans ml-2">— {activeBranch.name}</span>}</h1>
         {tables.length > 0 && (
           <button
             onClick={() => printAllTableQrs(tables.map((t) => ({ table: t, qrImageUrl: qrUrl(`${siteUrl}/table/${t.id}`) })))}

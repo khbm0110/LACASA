@@ -7,11 +7,12 @@ import { useNavCounts } from "./hooks/useNavCounts"
 import ConnectionStatus from "../components/ConnectionStatus.jsx"
 import { ToastProvider } from "./ui/Toast.jsx"
 import { ConfirmProvider } from "./ui/ConfirmDialog.jsx"
+import { BranchProvider, useBranch } from "./BranchContext.jsx"
 import {
   IconGrid, IconClipboard, IconMonitor, IconUtensils, IconCalendar, IconBox, IconQr,
   IconUser, IconUsers, IconChart, IconMessage, IconReceipt, IconTag, IconImage,
   IconMegaphone, IconNews, IconLayout, IconGlobe, IconPower, IconBell, IconMenuLines, IconCoins,
-  IconWarehouse, IconTruck, IconClipboardList, IconStar, IconSliders
+  IconWarehouse, IconTruck, IconClipboardList, IconStar, IconSliders, IconStore, IconArchive
 } from "./icons.jsx"
 
 const LANGS = ["fr", "ar", "es", "en"]
@@ -25,6 +26,9 @@ const NAV = [
   { to: "/admin/confirmation", label: "Commandes", roles: ["admin"], icon: IconClipboard, countKey: "confirmation" },
   { to: "/admin/cuisine", label: "Ecran cuisine", roles: ["admin", "manager", "staff", "cuisine"], icon: IconMonitor, countKey: "kitchen" },
   { to: "/admin/pos", label: "Point de vente", roles: ["admin", "manager", "staff"], icon: IconCoins },
+  { to: "/admin/ventes", label: "Ventes & remboursements", roles: ["admin", "manager"], icon: IconReceipt },
+  { to: "/admin/caisses", label: "Caisses (historique)", roles: ["admin", "manager"], icon: IconArchive },
+  { to: "/admin/rapports", label: "Rapports", roles: ["admin", "manager"], icon: IconChart },
   { to: "/admin/menu", label: "Menu", roles: ["admin", "manager", "staff"], icon: IconUtensils },
   { to: "/admin/reservations", label: "Reservations", roles: ["admin", "manager", "staff"], icon: IconCalendar, countKey: "reservations" },
   { to: "/admin/commandes", label: "Livraisons", roles: ["admin", "manager", "staff"], icon: IconBox, countKey: "deliveries" },
@@ -35,6 +39,7 @@ const NAV = [
   { to: "/admin/recettes", label: "Recettes", roles: ["admin", "manager"], icon: IconUtensils },
   { to: "/admin/modificateurs", label: "Modificateurs", roles: ["admin", "manager"], icon: IconSliders },
   { to: "/admin/formules", label: "Formules (combos)", roles: ["admin", "manager", "staff"], icon: IconStar },
+  { to: "/admin/etablissements", label: "Etablissements", roles: ["admin"], icon: IconStore },
   { to: "/admin/clients", label: "Clients (CRM)", roles: ["admin", "manager"], icon: IconUser },
   { to: "/admin/analytics", label: "Analytics", roles: ["admin", "manager"], icon: IconChart },
   { to: "/admin/messages", label: "Messages", roles: ["admin", "manager", "staff"], icon: IconMessage, countKey: "messages" },
@@ -52,7 +57,9 @@ export default function AdminLayout() {
   return (
     <ToastProvider>
       <ConfirmProvider>
-        <AdminLayoutInner />
+        <BranchProvider>
+          <AdminLayoutInner />
+        </BranchProvider>
       </ConfirmProvider>
     </ToastProvider>
   )
@@ -68,6 +75,7 @@ function AdminLayoutInner() {
   const { i18n } = useTranslation()
   const { alerts, dismiss, dismissAll } = useLiveAlerts()
   const navCounts = useNavCounts()
+  const { branches, activeBranchId, setActiveBranchId } = useBranch()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -179,6 +187,15 @@ function AdminLayoutInner() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          {branches.length > 1 && (
+            <select
+              value={activeBranchId || ""}
+              onChange={(e) => setActiveBranchId(e.target.value)}
+              className="hidden sm:block bg-bg border border-line rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-tomato max-w-[160px]"
+            >
+              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          )}
           <div className="hidden sm:flex gap-1 font-mono text-[11px]">
             {LANGS.map((l) => (
               <button

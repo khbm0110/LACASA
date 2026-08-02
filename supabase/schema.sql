@@ -641,3 +641,241 @@ drop trigger if exists on_order_new_deduct_stock on orders;
 create trigger on_order_new_deduct_stock
   after insert or update on orders
   for each row execute function deduct_recipe_stock();
+
+-- Rattachement des commandes et de l equipe a un etablissement (multi-branch)
+alter table orders add column if not exists branch_id uuid references branches(id) default default_branch_id();
+-- Nul = membre de l equipe rattache a tous les etablissements (ex: admin) ;
+-- un role "staff" ou "manager" peut au contraire etre limite a un seul.
+alter table staff add column if not exists branch_id uuid references branches(id);
+
+-- ============================================================
+-- Lot "Caisse (ouverture/fermeture) & Remboursements/Annulations"
+-- ============================================================
+
+-- Une "session de caisse" : ouverte par un membre de l equipe avec un
+-- fond de caisse de depart, fermee en fin de service avec le montant
+-- reellement compte - l ecart avec le montant attendu (fond de depart +
+-- ventes especes - remboursements especes) est calcule automatiquement
+-- (voir close_shift). Equivalent du rapport "Z" d une caisse enregistreuse.
+create table if not exists shifts (
+  id uuid primary key default uuid_generate_v4(),
+  branch_id uuid references branches(id) default default_branch_id(),
+  opened_by uuid references staff(id),
+  closed_by uuid references staff(id),
+  opening_cash numeric not null default 0,
+  closing_cash numeric,
+  expected_cash numeric,
+  cash_difference numeric,
+  status text not null default 'open', -- open | closed
+  notes text,
+  opened_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+
+-- Chaque vente POS est rattachee a la session de caisse ouverte au
+-- moment de l encaissement, pour pouvoir cloturer une caisse et
+-- retrouver ensuite quelles ventes en faisaient partie.
+alter table orders add column if not exists shift_id uuid references shifts(id);
+
+-- Remboursements (partiels ou totaux) d une commande deja encaissee -
+-- la commande reste dans l historique mais son montant rembourse
+-- cumule est visible (orders.refunded_total, tenu a jour par trigger).
+create table if not exists order_refunds (
+  id uuid primary key default uuid_generate_v4(),
+  order_id uuid not null references orders(id) on delete cascade,
+  amount numeric not null,
+  payment_method text not null default 'cash', -- cash | card_tpe - impacte le calcul de caisse
+  reason text,
+  staff_id uuid references staff(id),
+  created_at timestamptz default now()
+);
+
+alter table orders add column if not exists refunded_total numeric not null default 0;
+alter table orders add column if not exists voided_at timestamptz;
+alter table orders add column if not exists void_reason text;
+
+alter table shifts enable row level security;
+alter table order_refunds enable row level security;
+
+create or replace function apply_order_refund()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update orders set refunded_total = refunded_total + new.amount where id = new.order_id;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_order_refund on order_refunds;
+create trigger on_order_refund
+  after insert on order_refunds
+  for each row execute function apply_order_refund();
+
+-- Annule une commande (ex: erreur de saisie au POS, commande refusee par
+-- le client). Passe son statut a "cancelled" (deja exclu des rapports de
+-- vente existants - Analytics, Comptabilite...) et restitue le stock
+-- deduit par sa recette si la commande etait deja partie en cuisine.
+create or replace function void_order(p_order_id uuid, p_reason text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  ord record;
+  it jsonb;
+  item_uuid uuid;
+  item_type text;
+  item_qty numeric;
+  ci record;
+  was_in_kitchen boolean;
+begin
+  select * into ord from orders where id = p_order_id;
+  if ord.id is null then raise exception 'Commande introuvable'; end if;
+  if ord.status = 'cancelled' then return; end if;
+
+  was_in_kitchen := ord.status in ('new','preparing','ready','out_for_delivery','delivered');
+
+  update orders set status = 'cancelled', voided_at = now(), void_reason = p_reason where id = p_order_id;
+
+  if was_in_kitchen then
+    for it in select * from jsonb_array_elements(coalesce(ord.items, '[]'::jsonb)) loop
+      item_uuid := nullif(it->>'item_id', '')::uuid;
+      item_type := coalesce(it->>'item_type', 'menu_item');
+      item_qty := coalesce((it->>'qty')::numeric, 1);
+      if item_uuid is null then continue; end if;
+
+      if item_type = 'combo' then
+        for ci in select menu_item_id, quantity from combo_items where combo_id = item_uuid loop
+          insert into stock_adjustments (inventory_item_id, type, quantity, reason)
+          select mi.inventory_item_id, 'correction', (mi.quantity * ci.quantity * item_qty), 'Annulation commande ' || p_order_id
+          from menu_item_ingredients mi where mi.menu_item_id = ci.menu_item_id;
+        end loop;
+      else
+        insert into stock_adjustments (inventory_item_id, type, quantity, reason)
+        select mi.inventory_item_id, 'correction', (mi.quantity * item_qty), 'Annulation commande ' || p_order_id
+        from menu_item_ingredients mi where mi.menu_item_id = item_uuid;
+      end if;
+    end loop;
+  end if;
+end;
+$$;
+
+grant execute on function void_order(uuid, text) to authenticated;
+
+-- Cloture une session de caisse : fige le montant attendu (fond de
+-- depart + ventes especes - remboursements especes de cette session) et
+-- l ecart avec le montant reellement compte par l employe.
+create or replace function close_shift(p_shift_id uuid, p_closing_cash numeric, p_closed_by uuid default null, p_notes text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_opening numeric;
+  v_cash_sales numeric;
+  v_cash_refunds numeric;
+  v_expected numeric;
+begin
+  select opening_cash into v_opening from shifts where id = p_shift_id;
+
+  select coalesce(sum(total), 0) into v_cash_sales
+  from orders where shift_id = p_shift_id and payment_provider = 'cash' and status <> 'cancelled';
+
+  select coalesce(sum(r.amount), 0) into v_cash_refunds
+  from order_refunds r join orders o on o.id = r.order_id
+  where o.shift_id = p_shift_id and r.payment_method = 'cash';
+
+  v_expected := coalesce(v_opening, 0) + v_cash_sales - v_cash_refunds;
+
+  update shifts set
+    status = 'closed',
+    closing_cash = p_closing_cash,
+    expected_cash = v_expected,
+    cash_difference = p_closing_cash - v_expected,
+    closed_by = p_closed_by,
+    notes = p_notes,
+    closed_at = now()
+  where id = p_shift_id;
+end;
+$$;
+
+grant execute on function close_shift(uuid, numeric, uuid, text) to authenticated;
+
+-- ============================================================
+-- Lot "Paiement partage (split payment)"
+-- ============================================================
+
+-- Detail des methodes de paiement d une commande : la plupart des
+-- commandes n auront qu une seule ligne ici (paiement simple), mais une
+-- commande peut en avoir plusieurs si le client a paye en especes ET par
+-- carte sur le meme ticket. orders.payment_provider vaut alors 'split'.
+-- C est cette table (et non plus orders.payment_provider) qui sert de
+-- source de verite pour calculer les especes attendues en caisse.
+create table if not exists order_payments (
+  id uuid primary key default uuid_generate_v4(),
+  order_id uuid not null references orders(id) on delete cascade,
+  method text not null, -- cash | card_tpe
+  amount numeric not null,
+  created_at timestamptz default now()
+);
+alter table order_payments enable row level security;
+
+-- Remise manuelle appliquee au POS (distincte de "discount"/"promo_code",
+-- deja utilises pour les codes promo de la livraison).
+alter table orders add column if not exists subtotal numeric;
+alter table orders add column if not exists discount_amount numeric not null default 0;
+alter table orders add column if not exists discount_reason text;
+
+-- Rattache chaque table a un etablissement (multi-branch) et permet au
+-- POS de savoir quelle table a passe quelle commande "sur place".
+alter table restaurant_tables add column if not exists branch_id uuid references branches(id) default default_branch_id();
+alter table orders add column if not exists table_id uuid references restaurant_tables(id);
+
+-- Suivi du paiement des fournisseurs, independant du statut de reception
+-- (une livraison peut etre recue et facturee bien avant d etre reglee).
+alter table purchases add column if not exists payment_status text not null default 'unpaid'; -- unpaid | paid
+alter table purchases add column if not exists paid_at timestamptz;
+
+create or replace function close_shift(p_shift_id uuid, p_closing_cash numeric, p_closed_by uuid default null, p_notes text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_opening numeric;
+  v_cash_sales numeric;
+  v_cash_refunds numeric;
+  v_expected numeric;
+begin
+  select opening_cash into v_opening from shifts where id = p_shift_id;
+
+  select coalesce(sum(p.amount), 0) into v_cash_sales
+  from order_payments p
+  join orders o on o.id = p.order_id
+  where o.shift_id = p_shift_id and p.method = 'cash' and o.status <> 'cancelled';
+
+  select coalesce(sum(r.amount), 0) into v_cash_refunds
+  from order_refunds r join orders o on o.id = r.order_id
+  where o.shift_id = p_shift_id and r.payment_method = 'cash';
+
+  v_expected := coalesce(v_opening, 0) + v_cash_sales - v_cash_refunds;
+
+  update shifts set
+    status = 'closed',
+    closing_cash = p_closing_cash,
+    expected_cash = v_expected,
+    cash_difference = p_closing_cash - v_expected,
+    closed_by = p_closed_by,
+    notes = p_notes,
+    closed_at = now()
+  where id = p_shift_id;
+end;
+$$;
+
+grant execute on function close_shift(uuid, numeric, uuid, text) to authenticated;

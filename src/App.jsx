@@ -46,6 +46,10 @@ import Purchases from "./admin/pages/Purchases.jsx"
 import Recipes from "./admin/pages/Recipes.jsx"
 import Modifiers from "./admin/pages/Modifiers.jsx"
 import Combos from "./admin/pages/Combos.jsx"
+import Branches from "./admin/pages/Branches.jsx"
+import SalesHistory from "./admin/pages/SalesHistory.jsx"
+import Shifts from "./admin/pages/Shifts.jsx"
+import Reports from "./admin/pages/Reports.jsx"
 
 export default function App() {
   return (
@@ -101,6 +105,10 @@ export default function App() {
         <Route path="recettes" element={<Recipes />} />
         <Route path="modificateurs" element={<Modifiers />} />
         <Route path="formules" element={<Combos />} />
+        <Route path="etablissements" element={<Branches />} />
+        <Route path="ventes" element={<SalesHistory />} />
+        <Route path="caisses" element={<Shifts />} />
+        <Route path="rapports" element={<Reports />} />
         <Route path="clients" element={<Customers />} />
         <Route path="equipe" element={<StaffManager />} />
         <Route path="galerie" element={<GalleryManager />} />

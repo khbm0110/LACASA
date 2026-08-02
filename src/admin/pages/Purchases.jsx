@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { useBranch } from "../BranchContext.jsx"
 import { useConfirm } from "../ui/ConfirmDialog.jsx"
 import { useToast } from "../ui/Toast.jsx"
 
 const EMPTY_LINE = { inventory_item_id: "", quantity: "", unit_cost: "" }
 
 export default function Purchases() {
+  const { activeBranchId, activeBranch } = useBranch()
   const [purchases, setPurchases] = useState([])
   const [suppliers, setSuppliers] = useState([])
   const [invItems, setInvItems] = useState([])
@@ -17,16 +19,17 @@ export default function Purchases() {
   const toast = useToast()
 
   const load = async () => {
+    if (!activeBranchId) return
     const [{ data: p }, { data: sup }, { data: inv }] = await Promise.all([
-      supabase.from("purchases").select("*, suppliers(name)").order("created_at", { ascending: false }).limit(50),
+      supabase.from("purchases").select("*, suppliers(name)").eq("branch_id", activeBranchId).order("created_at", { ascending: false }).limit(50),
       supabase.from("suppliers").select("id, name").eq("active", true).order("name"),
-      supabase.from("inventory_items").select("id, name, unit, cost_per_unit").order("name"),
+      supabase.from("inventory_items").select("id, name, unit, cost_per_unit").eq("branch_id", activeBranchId).order("name"),
     ])
     setPurchases(p || [])
     setSuppliers(sup || [])
     setInvItems(inv || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [activeBranchId])
 
   const updateLine = (i, key, value) => {
     setLines((ls) => ls.map((l, idx) => (idx === i ? { ...l, [key]: value } : l)))
@@ -47,6 +50,7 @@ export default function Purchases() {
       invoice_number: invoiceNumber || null,
       status: "pending",
       total: 0,
+      branch_id: activeBranchId,
     }]).select().single()
 
     if (error || !purchase) { setBusy(false); toast.error("Echec de la creation du bon d achat."); return }
@@ -85,9 +89,16 @@ export default function Purchases() {
     toast.success("Bon d achat annule.")
   }
 
+  const markPaid = async (purchase) => {
+    const { error } = await supabase.from("purchases").update({ payment_status: "paid", paid_at: new Date().toISOString() }).eq("id", purchase.id)
+    if (error) { toast.error("Echec de la mise a jour."); return }
+    load()
+    toast.success("Marque comme paye au fournisseur.")
+  }
+
   return (
     <div>
-      <h1 className="font-serif text-3xl mb-8">Achats</h1>
+      <h1 className="font-serif text-3xl mb-8">Achats{activeBranch && <span className="text-inkdim text-lg font-sans ml-2">— {activeBranch.name}</span>}</h1>
 
       <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-6 grid gap-3 mb-10">
         <div className="grid sm:grid-cols-2 gap-3">
@@ -144,6 +155,11 @@ export default function Purchases() {
                 <span className="font-medium">{p.suppliers?.name || "Fournisseur non renseigne"}</span>
                 {p.invoice_number && <span className="text-inkdim font-mono text-xs">#{p.invoice_number}</span>}
                 <StatusBadge status={p.status} />
+                {p.status === "received" && (
+                  p.payment_status === "paid"
+                    ? <span className="text-xs text-basil border border-basil/50 rounded-full px-2 py-0.5">Paye</span>
+                    : <span className="text-xs text-tomato border border-tomato/50 rounded-full px-2 py-0.5">Du au fournisseur</span>
+                )}
               </div>
               <p className="text-inkdim text-xs">
                 {new Date(p.created_at).toLocaleDateString("fr-FR")} · {p.total} MAD
@@ -155,6 +171,9 @@ export default function Purchases() {
                   <button onClick={() => receive(p)} className="text-basil hover:text-basil/80">Marquer recue</button>
                   <button onClick={() => cancel(p)} className="text-red-400 hover:text-red-300">Annuler</button>
                 </>
+              )}
+              {p.status === "received" && p.payment_status !== "paid" && (
+                <button onClick={() => markPaid(p)} className="text-gold hover:text-gold/80">Marquer payee</button>
               )}
             </div>
           </div>

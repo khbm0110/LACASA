@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabaseClient"
+import { useBranch } from "../BranchContext.jsx"
 import { useConfirm } from "../ui/ConfirmDialog.jsx"
 import { useToast } from "../ui/Toast.jsx"
 
@@ -7,6 +8,7 @@ const EMPTY = { name: "", category: "", unit: "unite", min_stock_alert: 0, cost_
 const UNITS = ["unite", "kg", "g", "l", "ml"]
 
 export default function InventoryItems() {
+  const { activeBranchId, activeBranch } = useBranch()
   const [items, setItems] = useState([])
   const [suppliers, setSuppliers] = useState([])
   const [form, setForm] = useState(EMPTY)
@@ -19,20 +21,21 @@ export default function InventoryItems() {
   const toast = useToast()
 
   const load = async () => {
+    if (!activeBranchId) return
     const [{ data: inv }, { data: sup }] = await Promise.all([
-      supabase.from("inventory_items").select("*, suppliers(name)").order("name"),
+      supabase.from("inventory_items").select("*, suppliers(name)").eq("branch_id", activeBranchId).order("name"),
       supabase.from("suppliers").select("id, name").eq("active", true).order("name"),
     ])
     setItems(inv || [])
     setSuppliers(sup || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [activeBranchId])
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
   const submit = async (e) => {
     e.preventDefault()
-    const payload = { ...form, supplier_id: form.supplier_id || null }
+    const payload = { ...form, supplier_id: form.supplier_id || null, branch_id: activeBranchId }
     const { error } = editingId
       ? await supabase.from("inventory_items").update(payload).eq("id", editingId)
       : await supabase.from("inventory_items").insert([payload])
@@ -74,7 +77,7 @@ export default function InventoryItems() {
     if (!qty) { toast.error("Quantite invalide."); return }
     const signedQty = adjustType === "waste" ? -Math.abs(qty) : qty
     const { error } = await supabase.from("stock_adjustments").insert([{
-      inventory_item_id: adjustingId, type: adjustType, quantity: signedQty, reason: adjustReason || null,
+      inventory_item_id: adjustingId, type: adjustType, quantity: signedQty, reason: adjustReason || null, branch_id: activeBranchId,
     }])
     if (error) { toast.error("Echec de l enregistrement du mouvement."); return }
     setAdjustingId(null)
@@ -84,7 +87,7 @@ export default function InventoryItems() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl mb-8">Inventaire (stock)</h1>
+      <h1 className="font-serif text-3xl mb-8">Inventaire (stock){activeBranch && <span className="text-inkdim text-lg font-sans ml-2">— {activeBranch.name}</span>}</h1>
 
       <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-6 grid sm:grid-cols-2 gap-3 mb-10">
         <input required placeholder="Nom de l article (ex: Farine T55)" value={form.name} onChange={update("name")}
