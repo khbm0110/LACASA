@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="relative min-h-screen flex items-center px-6 md:px-8 pt-24 pb-10" style={{ perspective: "1400px" }}>
+      <section className="relative min-h-screen flex items-center px-6 md:px-8 pt-24 pb-16" style={{ perspective: "1400px" }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center w-full">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold mb-4">
@@ -208,7 +208,7 @@ export default function Home() {
 
       {/* Menu - selection mise en avant, cartes retournables */}
       {featured.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -274,7 +274,7 @@ export default function Home() {
       )}
 
       {/* Avis Google - slider anime, quantite reglable depuis Admin > Contenu */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Avis Google</p>
@@ -304,7 +304,7 @@ export default function Home() {
 
       {/* Galerie - slider anime, photos choisies par l administrateur */}
       {galleryHome.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Ambiance</p>
@@ -328,7 +328,7 @@ export default function Home() {
 
       {/* Evenements & offres - grille 2 colonnes */}
       {events.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">A ne pas manquer</p>
@@ -366,7 +366,7 @@ export default function Home() {
 
       {/* Blog & actualites - grille 3 colonnes */}
       {posts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Actualites</p>
@@ -401,7 +401,7 @@ export default function Home() {
       )}
 
       {/* Infos pratiques + carte + reservation rapide */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
+      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
         <Reveal>
           <div className="flex items-center gap-3 mb-3">
             <span className="w-7 h-px bg-gold" />

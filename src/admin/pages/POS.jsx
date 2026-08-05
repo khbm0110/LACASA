@@ -359,11 +359,11 @@ export default function POS() {
           <button onClick={openClosingModal} className="text-tomatoglow hover:underline font-medium">Fermer la caisse</button>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex flex-wrap gap-2 pb-2 mb-4 shrink-0">
           {combos.length > 0 && (
             <button
               onClick={() => setActiveCategory(FORMULES_TAB)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
                 activeCategory === FORMULES_TAB ? "bg-gold border-gold text-[#1a0d05]" : "border-line text-inkdim hover:text-ink hover:border-gold"
               }`}
             >
@@ -374,7 +374,7 @@ export default function POS() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
                 activeCategory === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
               }`}
             >
