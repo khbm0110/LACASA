@@ -374,60 +374,102 @@ export default function Home() {
       {/* Infos pratiques + carte + reservation rapide */}
       <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
         <Reveal>
-          <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Venez nous voir</p>
-          <h2 className="font-serif text-3xl mb-8">Horaires, adresse & reservation rapide</h2>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="w-7 h-px bg-gold" />
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-gold">Venez nous voir</p>
+          </div>
+          <h2 className="font-serif text-4xl md:text-5xl leading-[1.05] mb-12">
+            Horaires, adresse<br className="hidden md:block" /> & reservation rapide
+          </h2>
         </Reveal>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <Reveal delay={0}>
-            <div className="bg-bgsoft border border-line rounded-2xl p-6 h-full">
-              <Row label="Adresse" value={info?.address || "Rue d'Oran, Rabat"} />
-              <Row label="Telephone" value={info?.phone || "+212 5 37 26 26 58"} />
-              <Row label="Horaires" value={info?.hours || "Tous les jours, 8h - 23h"} />
-              <Row label="Prix moyen" value={info?.avg_price || "150 - 250 MAD"} last />
-            </div>
-          </Reveal>
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
+          {/* Formulaire de reservation */}
+          <Reveal delay={0} className="lg:col-span-7">
+            <div className="frame-corners bg-bgsoft border border-line rounded-2xl p-7 md:p-10 h-full">
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold mb-2">// Reservation rapide</p>
+              <h3 className="font-serif text-2xl md:text-3xl mb-2">Reservez votre table</h3>
+              <p className="text-inkdim text-sm mb-8">Confirmation par telephone. Aucune avance requise.</p>
 
-          <Reveal delay={90} className="rounded-2xl overflow-hidden border border-line">
-            <iframe
-              title="Carte"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
-              className="w-full h-full border-0 min-h-[260px]"
-            />
-          </Reveal>
-
-          <Reveal delay={180}>
-            <form onSubmit={submitReservation} className="bg-bgsoft border border-line rounded-2xl p-6 h-full">
-              <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-3">Reservation rapide</p>
               {resStatus === "success" ? (
                 <p className="text-sm text-inkdim">Demande recue ! Nous vous appelons pour confirmer.</p>
               ) : (
-                <div className="grid gap-2.5">
-                  <input required placeholder="Nom" value={reservation.name} onChange={updateReservation("name")}
-                    className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-                  <input required placeholder="Telephone" value={reservation.phone} onChange={updateReservation("phone")}
-                    className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <input required type="date" value={reservation.date} onChange={updateReservation("date")}
-                      className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-                    <input required type="time" value={reservation.time} onChange={updateReservation("time")}
-                      className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+                <form onSubmit={submitReservation} className="grid gap-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Field label="Nom">
+                      <input required placeholder="Votre nom" value={reservation.name} onChange={updateReservation("name")}
+                        className="form-underline" />
+                    </Field>
+                    <Field label="Telephone">
+                      <input required placeholder="+212 6 00 00 00 00" value={reservation.phone} onChange={updateReservation("phone")}
+                        className="form-underline" />
+                    </Field>
                   </div>
-                  <input required type="number" min="1" max="20" value={reservation.guests} onChange={updateReservation("guests")}
-                    placeholder="Convives"
-                    className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Field label="Date">
+                      <input required type="date" value={reservation.date} onChange={updateReservation("date")}
+                        className="form-underline" />
+                    </Field>
+                    <Field label="Heure">
+                      <input required type="time" value={reservation.time} onChange={updateReservation("time")}
+                        className="form-underline" />
+                    </Field>
+                  </div>
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkdim mb-3">Convives</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[2, 4, 6, 8].map((n) => (
+                        <button type="button" key={n}
+                          onClick={() => setReservation((r) => ({ ...r, guests: n }))}
+                          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-widest border transition-colors ${
+                            reservation.guests === n
+                              ? "bg-tomato border-tomato text-[#1a0d05] font-semibold"
+                              : "border-line text-inkdim hover:border-gold hover:text-paper"
+                          }`}>
+                          {n === 8 ? "8+" : n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <button disabled={resStatus === "loading"}
-                    className="mt-1 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
-                    {resStatus === "loading" ? "Envoi..." : "Reserver"}
+                    className="mt-1 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
+                    {resStatus === "loading" ? "Envoi..." : "Reserver ma table"}
                   </button>
                   {resStatus === "error" && <p className="text-xs text-red-400">Verifiez la configuration Supabase.</p>}
-                </div>
+                </form>
               )}
-            </form>
+            </div>
+          </Reveal>
+
+          {/* Infos pratiques */}
+          <Reveal delay={120} className="lg:col-span-5">
+            <div className="grid gap-4 h-full">
+              <InfoCard label="/ Adresse" title="Nous trouver">
+                <p className="text-inkdim text-sm leading-relaxed">{info?.address || "Rue d'Oran, Rabat"}</p>
+              </InfoCard>
+              <InfoCard label="/ Horaires" title="Ouverture">
+                <p className="text-inkdim text-sm leading-relaxed">{info?.hours || "Tous les jours, 8h - 23h"}</p>
+              </InfoCard>
+              <InfoCard label="/ Contact" title="Nous appeler">
+                <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
+                  className="block text-paper text-sm font-medium hover:text-tomatoglow transition-colors">
+                  {info?.phone || "+212 5 37 26 26 58"}
+                </a>
+                <p className="text-inkdim text-xs mt-2">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
+              </InfoCard>
+            </div>
           </Reveal>
         </div>
+
+        <Reveal delay={200} className="rounded-2xl overflow-hidden border border-line mt-6">
+          <iframe
+            title="Carte"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
+            className="w-full h-[280px] border-0"
+          />
+        </Reveal>
       </section>
 
       <style>{`@keyframes spin { from { transform: translateZ(60px) rotate(0deg); } to { transform: translateZ(60px) rotate(360deg); } }`}</style>
@@ -435,11 +477,21 @@ export default function Home() {
   )
 }
 
-function Row({ label, value, last }) {
+function Field({ label, children }) {
   return (
-    <div className={`flex justify-between py-3 text-sm ${last ? "" : "border-b border-line"}`}>
-      <span className="font-mono text-[11px] uppercase tracking-widest text-inkdim">{label}</span>
-      <span className="font-medium text-right">{value}</span>
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkdim">{label}</span>
+      {children}
+    </label>
+  )
+}
+
+function InfoCard({ label, title, children }) {
+  return (
+    <div className="frame-corners bg-bgsoft border border-line rounded-2xl p-6">
+      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold mb-2">{label}</p>
+      <h4 className="font-serif text-xl mb-3">{title}</h4>
+      {children}
     </div>
   )
 }
