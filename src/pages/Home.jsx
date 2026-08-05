@@ -47,7 +47,7 @@ export default function Home() {
     async function loadFeatured() {
       const { data, error } = await supabase
         .from("menu_items")
-        .select("id, name, price, category, image_url")
+        .select("id, name, price, category, image_url, description")
         .eq("is_featured", true)
         .limit(6)
       if (!error && data) setFeatured(data)
@@ -123,8 +123,8 @@ export default function Home() {
 
   return (
     <>
-      <section className="relative px-6 md:px-8 pt-16 pb-10" style={{ perspective: "1400px" }}>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="relative min-h-screen flex items-center px-6 md:px-8 pt-24 pb-10" style={{ perspective: "1400px" }}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center w-full">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold mb-4">
               {t("hero.eyebrow")}
@@ -206,36 +206,65 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Menu - selection mise en avant, organisee avec motion */}
+      {/* Menu - selection mise en avant, cartes retournables */}
       {featured.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-24">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Notre carte</p>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="w-7 h-px bg-gold" />
+                <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-gold">Notre carte</p>
+              </div>
               <h2 className="font-serif text-3xl">A la une</h2>
             </div>
             <Link to="/menu" className="text-sm text-inkdim hover:text-ink border-b border-transparent hover:border-tomato transition">
               Voir tout le menu &rarr;
             </Link>
           </Reveal>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {featured.map((item, i) => (
               <Reveal key={item.id} delay={i * 90}>
-                <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full">
-                  {item.image_url ? (
-                    <div className="h-40 overflow-hidden">
-                      <img src={item.image_url} alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="flip-card h-80"
+                  onClick={(e) => {
+                    if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
+                  }}>
+                  <div className="flip-card-inner">
+                    {/* Face avant : photo + prix */}
+                    <div className="flip-face bg-bgsoft border border-line rounded-2xl flex flex-col">
+                      {item.image_url ? (
+                        <div className="h-56 overflow-hidden rounded-t-2xl">
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                          <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                        </div>
+                      )}
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                          <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
+                          <h3 className="font-serif text-xl">{item.name}</h3>
+                        </div>
+                        <div className="flex items-center justify-between pt-3 border-t border-line mt-3">
+                          <p className="font-mono text-gold">{item.price} MAD</p>
+                          <span className="font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="h-40 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                      <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                    {/* Face arriere : description */}
+                    <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-7 flex flex-col">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold mb-3">/ {item.category}</p>
+                      <h3 className="font-serif text-2xl mb-4">{item.name}</h3>
+                      <p className="text-inkdim text-sm leading-relaxed flex-1">
+                        {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
+                      </p>
+                      <div className="flex items-center justify-between pt-4 border-t border-line mt-4">
+                        <p className="font-mono text-gold text-lg">{item.price} MAD</p>
+                        <Link to="/menu" className="font-mono text-[10px] uppercase tracking-widest text-tomatoglow hover:text-gold transition-colors">
+                          Voir la carte &rarr;
+                        </Link>
+                      </div>
                     </div>
-                  )}
-                  <div className="p-6">
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
-                    <h3 className="font-serif text-xl">{item.name}</h3>
-                    <p className="font-mono text-gold mt-2">{item.price} MAD</p>
                   </div>
                 </div>
               </Reveal>
@@ -245,7 +274,7 @@ export default function Home() {
       )}
 
       {/* Avis Google - slider anime, quantite reglable depuis Admin > Contenu */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
+      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Avis Google</p>
@@ -275,7 +304,7 @@ export default function Home() {
 
       {/* Galerie - slider anime, photos choisies par l administrateur */}
       {galleryHome.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Ambiance</p>
@@ -299,7 +328,7 @@ export default function Home() {
 
       {/* Evenements & offres - grille 2 colonnes */}
       {events.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">A ne pas manquer</p>
@@ -337,7 +366,7 @@ export default function Home() {
 
       {/* Blog & actualites - grille 3 colonnes */}
       {posts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Actualites</p>
@@ -372,7 +401,7 @@ export default function Home() {
       )}
 
       {/* Infos pratiques + carte + reservation rapide */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-28">
+      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20">
         <Reveal>
           <div className="flex items-center gap-3 mb-3">
             <span className="w-7 h-px bg-gold" />
@@ -441,15 +470,20 @@ export default function Home() {
             </div>
           </Reveal>
 
-          {/* Infos pratiques */}
-          <Reveal delay={120} className="lg:col-span-5">
-            <div className="grid gap-4 h-full">
-              <InfoCard label="/ Adresse" title="Nous trouver">
-                <p className="text-inkdim text-sm leading-relaxed">{info?.address || "Rue d'Oran, Rabat"}</p>
-              </InfoCard>
-              <InfoCard label="/ Horaires" title="Ouverture">
-                <p className="text-inkdim text-sm leading-relaxed">{info?.hours || "Tous les jours, 8h - 23h"}</p>
-              </InfoCard>
+          {/* Infos pratiques + carte, dans la meme ligne que le formulaire */}
+          <div className="lg:col-span-5 grid gap-4">
+            <Reveal delay={120}>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <InfoCard label="/ Adresse" title="Nous trouver">
+                  <p className="text-inkdim text-sm leading-relaxed">{info?.address || "Rue d'Oran, Rabat"}</p>
+                </InfoCard>
+                <InfoCard label="/ Horaires" title="Ouverture">
+                  <p className="text-inkdim text-sm leading-relaxed">{info?.hours || "Tous les jours, 8h - 23h"}</p>
+                </InfoCard>
+              </div>
+            </Reveal>
+
+            <Reveal delay={160}>
               <InfoCard label="/ Contact" title="Nous appeler">
                 <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
                   className="block text-paper text-sm font-medium hover:text-tomatoglow transition-colors">
@@ -457,19 +491,19 @@ export default function Home() {
                 </a>
                 <p className="text-inkdim text-xs mt-2">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
               </InfoCard>
-            </div>
-          </Reveal>
-        </div>
+            </Reveal>
 
-        <Reveal delay={200} className="rounded-2xl overflow-hidden border border-line mt-6">
-          <iframe
-            title="Carte"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
-            className="w-full h-[280px] border-0"
-          />
-        </Reveal>
+            <Reveal delay={200} className="frame-corners rounded-2xl overflow-hidden border border-line flex-1">
+              <iframe
+                title="Carte"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
+                className="w-full h-full min-h-[160px] border-0"
+              />
+            </Reveal>
+          </div>
+        </div>
       </section>
 
       <style>{`@keyframes spin { from { transform: translateZ(60px) rotate(0deg); } to { transform: translateZ(60px) rotate(360deg); } }`}</style>
