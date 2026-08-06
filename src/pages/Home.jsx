@@ -216,7 +216,8 @@ export default function Home() {
 
       {/* Menu - selection mise en avant, cartes retournables */}
       {featured.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <section className="border-t-0">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -278,11 +279,13 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          </div>
         </section>
       )}
 
       {/* Avis Google - slider anime, quantite reglable depuis Admin > Contenu */}
-      <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+      <section className="border-t border-line">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Avis Google</p>
@@ -308,11 +311,13 @@ export default function Home() {
             </div>
           )}
         />
+        </div>
       </section>
 
       {/* Galerie - grille 3 colonnes, apparition progressive au defilement */}
       {galleryHome.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <section className="border-t border-line">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Ambiance</p>
@@ -332,12 +337,14 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          </div>
         </section>
       )}
 
       {/* Evenements & offres - grille 2 colonnes */}
       {events.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <section className="border-t border-line">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">A ne pas manquer</p>
@@ -370,12 +377,14 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          </div>
         </section>
       )}
 
       {/* Blog & actualites - grille 3 colonnes */}
       {posts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <section className="border-t border-line">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Actualites</p>
@@ -406,11 +415,13 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          </div>
         </section>
       )}
 
       {/* Infos pratiques + carte + reservation rapide */}
-      <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+      <section className="border-t border-line">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
         <Reveal>
           <div className="flex items-center gap-3 mb-3">
             <span className="w-7 h-px bg-gold" />
@@ -512,6 +523,7 @@ export default function Home() {
               />
             </Reveal>
           </div>
+        </div>
         </div>
       </section>
 
