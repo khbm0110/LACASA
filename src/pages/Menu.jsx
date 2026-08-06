@@ -74,28 +74,48 @@ export default function Menu() {
         </Reveal>
       )}
 
-      {/* Grille de cartes avec grande photo (coherent avec "A la une" de
-          l'accueil) au lieu de la petite vignette 64x64 en liste */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Grille de cartes retournables - meme traitement que "A la une" sur
+          l'accueil, pour une experience visuelle coherente partout ou les
+          photos du menu apparaissent */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {shownItems.map((item, ii) => (
           <Reveal key={item.id} delay={Math.min(ii, 6) * 70}>
-            <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col">
-              {item.image_url ? (
-                <div className="h-48 overflow-hidden">
-                  <img src={item.image_url} alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            <div className="flip-card h-64 md:h-80"
+              onClick={(e) => {
+                if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
+              }}>
+              <div className="flip-card-inner">
+                {/* Face avant : photo + prix */}
+                <div className="flip-face bg-bgsoft border border-line rounded-2xl flex flex-col">
+                  {item.image_url ? (
+                    <div className="h-36 md:h-56 overflow-hidden rounded-t-2xl">
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="h-36 md:h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                      <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                    </div>
+                  )}
+                  <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
+                      <h3 className="font-serif text-base md:text-xl leading-tight">{item.name}</h3>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-line mt-2 md:mt-3">
+                      <p className="font-mono text-gold text-sm md:text-base">{item.price} MAD</p>
+                      <span className="hidden md:inline font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="h-48 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                  <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                {/* Face arriere : description */}
+                <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-4 md:p-7 flex flex-col">
+                  <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gold mb-2 md:mb-3">/ {item.category}</p>
+                  <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-4">{item.name}</h3>
+                  <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
+                    {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
+                  </p>
+                  <p className="font-mono text-gold text-sm md:text-lg pt-2 md:pt-4 border-t border-line mt-2 md:mt-4">{item.price} MAD</p>
                 </div>
-              )}
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-serif text-xl mb-2">{item.name}</h3>
-                  <p className="text-sm text-inkdim">{item.description}</p>
-                </div>
-                <p className="font-mono text-gold mt-4 pt-4 border-t border-line">{item.price} MAD</p>
               </div>
             </div>
           </Reveal>

@@ -217,7 +217,7 @@ export default function Home() {
       {/* Menu - selection mise en avant, cartes retournables */}
       {featured.length > 0 && (
         <section className="border-t-0">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -230,10 +230,10 @@ export default function Home() {
               Voir tout le menu &rarr;
             </Link>
           </Reveal>
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {featured.map((item, i) => (
               <Reveal key={item.id} delay={i * 90}>
-                <div className="flip-card h-80"
+                <div className="flip-card h-64 md:h-80"
                   onClick={(e) => {
                     if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
                   }}>
@@ -241,35 +241,35 @@ export default function Home() {
                     {/* Face avant : photo + prix */}
                     <div className="flip-face bg-bgsoft border border-line rounded-2xl flex flex-col">
                       {item.image_url ? (
-                        <div className="h-56 overflow-hidden rounded-t-2xl">
+                        <div className="h-36 md:h-56 overflow-hidden rounded-t-2xl">
                           <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                         </div>
                       ) : (
-                        <div className="h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                        <div className="h-36 md:h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
                           <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
                         </div>
                       )}
-                      <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
                         <div>
-                          <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
-                          <h3 className="font-serif text-xl">{item.name}</h3>
+                          <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
+                          <h3 className="font-serif text-base md:text-xl leading-tight">{item.name}</h3>
                         </div>
-                        <div className="flex items-center justify-between pt-3 border-t border-line mt-3">
-                          <p className="font-mono text-gold">{item.price} MAD</p>
-                          <span className="font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
+                        <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-line mt-2 md:mt-3">
+                          <p className="font-mono text-gold text-sm md:text-base">{item.price} MAD</p>
+                          <span className="hidden md:inline font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
                         </div>
                       </div>
                     </div>
                     {/* Face arriere : description */}
-                    <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-7 flex flex-col">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold mb-3">/ {item.category}</p>
-                      <h3 className="font-serif text-2xl mb-4">{item.name}</h3>
-                      <p className="text-inkdim text-sm leading-relaxed flex-1">
+                    <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-4 md:p-7 flex flex-col">
+                      <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gold mb-2 md:mb-3">/ {item.category}</p>
+                      <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-4">{item.name}</h3>
+                      <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
                         {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
                       </p>
-                      <div className="flex items-center justify-between pt-4 border-t border-line mt-4">
-                        <p className="font-mono text-gold text-lg">{item.price} MAD</p>
-                        <Link to="/menu" className="font-mono text-[10px] uppercase tracking-widest text-tomatoglow hover:text-gold transition-colors">
+                      <div className="flex items-center justify-between pt-2 md:pt-4 border-t border-line mt-2 md:mt-4">
+                        <p className="font-mono text-gold text-sm md:text-lg">{item.price} MAD</p>
+                        <Link to="/menu" className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-tomatoglow hover:text-gold transition-colors">
                           Voir la carte &rarr;
                         </Link>
                       </div>
@@ -285,7 +285,7 @@ export default function Home() {
 
       {/* Avis Google - slider anime, quantite reglable depuis Admin > Contenu */}
       <section className="border-t border-line">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Avis Google</p>
@@ -317,7 +317,7 @@ export default function Home() {
       {/* Galerie - grille 3 colonnes, apparition progressive au defilement */}
       {galleryHome.length > 0 && (
         <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Ambiance</p>
@@ -344,7 +344,7 @@ export default function Home() {
       {/* Evenements & offres - grille 2 colonnes */}
       {events.length > 0 && (
         <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">A ne pas manquer</p>
@@ -357,10 +357,10 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-5">
             {events.map((e, i) => (
               <Reveal key={e.id} delay={i * 90}>
-                <div className="bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato transition h-full flex flex-col sm:flex-row">
+                <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col sm:flex-row">
                   {e.image_url && (
                     <div className="sm:w-40 h-40 sm:h-auto shrink-0 overflow-hidden">
-                      <img src={e.image_url} alt={e.title} className="w-full h-full object-cover" />
+                      <img src={e.image_url} alt={e.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
                   )}
                   <div className="p-5">
@@ -384,7 +384,7 @@ export default function Home() {
       {/* Blog & actualites - grille 3 colonnes */}
       {posts.length > 0 && (
         <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Actualites</p>
@@ -421,7 +421,7 @@ export default function Home() {
 
       {/* Infos pratiques + carte + reservation rapide */}
       <section className="border-t border-line">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-20">
         <Reveal>
           <div className="flex items-center gap-3 mb-3">
             <span className="w-7 h-px bg-gold" />

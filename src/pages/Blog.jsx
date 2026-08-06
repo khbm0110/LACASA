@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import { useSEO } from "../lib/useSEO"
+import Reveal from "../components/Reveal.jsx"
 
 export default function Blog() {
   useSEO({ title: "Blog & Actualites", description: "Actualites, coulisses et nouveautes de La Casa Di Carta." })
@@ -16,22 +17,32 @@ export default function Blog() {
   }, [])
 
   return (
-    <section className="max-w-4xl mx-auto px-6 md:px-8 py-20">
+    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
       <h1 className="font-serif text-4xl mb-10">Blog & Actualites</h1>
-      <div className="grid gap-6">
-        {posts.map((p) => (
-          <Link key={p.id} to={`/blog/${p.slug}`} className="bg-bgsoft border border-line rounded-2xl overflow-hidden flex flex-col sm:flex-row hover:border-tomato transition">
-            {p.cover_image && <img src={p.cover_image} alt={p.title} className="w-full sm:w-56 h-40 object-cover" />}
-            <div className="p-5">
-              <p className="font-mono text-xs text-gold mb-2">
-                {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
-              </p>
-              <h2 className="font-serif text-xl mb-1">{p.title}</h2>
-              <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
-            </div>
-          </Link>
+
+      {/* Meme carte que le bloc "Blog" de l accueil, pour une experience
+          coherente entre l apercu et la liste complete. */}
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+        {posts.map((p, i) => (
+          <Reveal key={p.id} delay={Math.min(i, 6) * 90}>
+            <Link to={`/blog/${p.slug}`} className="group block bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full">
+              {p.cover_image && (
+                <div className="h-36 overflow-hidden">
+                  <img src={p.cover_image} alt={p.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                </div>
+              )}
+              <div className="p-5">
+                <p className="font-mono text-xs text-gold mb-2">
+                  {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
+                </p>
+                <h2 className="font-serif text-lg mb-1">{p.title}</h2>
+                <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
+              </div>
+            </Link>
+          </Reveal>
         ))}
-        {posts.length === 0 && <p className="text-inkdim text-sm">Aucun article publie pour le moment.</p>}
+        {posts.length === 0 && <p className="text-inkdim text-sm col-span-full">Aucun article publie pour le moment.</p>}
       </div>
     </section>
   )

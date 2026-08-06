@@ -43,8 +43,13 @@ export default function Events() {
 
 function EventCard({ event }) {
   return (
-    <div className="bg-bgsoft border border-line rounded-2xl overflow-hidden">
-      {event.image_url && <img src={event.image_url} alt={event.title} className="w-full h-40 object-cover" />}
+    <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300">
+      {event.image_url && (
+        <div className="h-40 overflow-hidden">
+          <img src={event.image_url} alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        </div>
+      )}
       <div className="p-5">
         {event.event_date && (
           <p className="font-mono text-xs text-gold mb-2">{new Date(event.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</p>

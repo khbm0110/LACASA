@@ -56,7 +56,7 @@ export default function Gallery() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {filtered.map((img, i) => (
               <button key={img.id} onClick={() => setLightboxIndex(i)}
-                className="rounded-2xl overflow-hidden border border-line aspect-square group cursor-zoom-in">
+                className="rounded-2xl overflow-hidden border border-line aspect-square group cursor-zoom-in hover:border-tomato hover:-translate-y-1.5 transition-all duration-300">
                 <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </button>
