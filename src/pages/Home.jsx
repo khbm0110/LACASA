@@ -199,7 +199,7 @@ export default function Home() {
       </section>
 
       {/* Dock d acces rapide */}
-      <div className="px-6 md:px-8 -mt-6 relative z-10">
+      <div className="px-6 lg:px-10 -mt-6 relative z-10">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-3xl p-3">
           {DOCK.map((item) => (
             <Link
