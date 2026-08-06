@@ -16,10 +16,6 @@ const FALLBACK = [
   { id: "f4", category: "Maison", name: "Couscous du Vendredi", price: 65, description: "Agneau ou poulet, sept legumes." }
 ]
 
-function slugCat(cat) {
-  return "cat-" + (cat || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
-}
-
 export default function Menu() {
   const { t } = useTranslation()
   useSEO({ title: t("menu_page.title") })
@@ -46,65 +42,69 @@ export default function Menu() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items])
 
-  const jumpTo = (cat) => {
-    setActiveCat(cat)
-    document.getElementById(slugCat(cat))?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
+  // Filtre reel : seul le plat de la categorie active est affiche
+  // (auparavant tout le monde etait affiche et les boutons ne faisaient
+  // que defiler la page - source de la confusion "toutes les assiettes
+  // s'affichent").
+  const shownItems = items.filter((i) => i.category === activeCat)
 
   return (
-    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
       <Reveal>
         <h1 className="font-serif text-4xl md:text-5xl mb-2">{t("menu_page.title")}</h1>
         <p className="text-inkdim mb-8">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
       </Reveal>
 
-      {/* Navigation par categories - organise la carte et permet un acces rapide */}
+      {/* Filtre par categorie - boutons qui filtrent reellement la liste,
+          en colonnes multiples (flex-wrap) plutot qu'une seule ligne
+          defilante trop longue sur les petits ecrans */}
       {categories.length > 1 && (
-        <div className="sticky top-[64px] z-30 -mx-6 md:-mx-8 px-6 md:px-8 py-3 mb-10 bg-bg/85 backdrop-blur-md border-b border-line">
-          <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => jumpTo(cat)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide border transition ${
-                  activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Reveal className="flex flex-wrap gap-2 mb-10">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCat(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+                activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </Reveal>
       )}
 
-      {categories.map((cat, ci) => (
-        <div key={cat} id={slugCat(cat)} className="mb-16 scroll-mt-32">
-          <Reveal>
-            <h2 className="font-serif text-2xl mb-5 text-gold">{cat}</h2>
-          </Reveal>
-          <div className="grid md:grid-cols-2 gap-4">
-            {items.filter((i) => i.category === cat).map((item, ii) => (
-              <Reveal key={item.id} delay={Math.min(ii, 6) * 70}>
-                <div className="group bg-bgsoft border border-line rounded-2xl p-5 flex justify-between gap-4 h-full hover:border-tomato hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex gap-4 min-w-0">
-                    {item.image_url && (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-line shrink-0">
-                        <img src={item.image_url} alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <h3 className="font-serif text-lg">{item.name}</h3>
-                      <p className="text-sm text-inkdim mt-1">{item.description}</p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-gold whitespace-nowrap">{item.price} MAD</span>
+      {/* Grille de cartes avec grande photo (coherent avec "A la une" de
+          l'accueil) au lieu de la petite vignette 64x64 en liste */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {shownItems.map((item, ii) => (
+          <Reveal key={item.id} delay={Math.min(ii, 6) * 70}>
+            <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col">
+              {item.image_url ? (
+                <div className="h-48 overflow-hidden">
+                  <img src={item.image_url} alt={item.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      ))}
+              ) : (
+                <div className="h-48 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                  <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                </div>
+              )}
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-serif text-xl mb-2">{item.name}</h3>
+                  <p className="text-sm text-inkdim">{item.description}</p>
+                </div>
+                <p className="font-mono text-gold mt-4 pt-4 border-t border-line">{item.price} MAD</p>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+
+        {shownItems.length === 0 && (
+          <p className="text-inkdim text-sm col-span-full">{t("menu_page.note")}</p>
+        )}
+      </div>
     </section>
   )
 }

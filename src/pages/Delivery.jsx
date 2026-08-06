@@ -31,7 +31,7 @@ export default function Delivery() {
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
   const [search, setSearch] = useState("")
-  const [activeCat, setActiveCat] = useState("Tous")
+  const [activeCat, setActiveCat] = useState(null)
   const [status, setStatus] = useState(null)
   const [promoInput, setPromoInput] = useState("")
   const [promo, setPromo] = useState(null)
@@ -41,7 +41,7 @@ export default function Delivery() {
     async function load() {
       const { data, error } = await supabase
         .from("menu_items")
-        .select("id, category, name, price, description")
+        .select("id, category, name, price, description, image_url")
         .eq("available_for_delivery", true)
         .order("category")
       if (!error && data && data.length > 0) setItems(data)
@@ -54,13 +54,19 @@ export default function Delivery() {
     if (profile?.phone && !phone) setPhone(profile.phone)
   }, [profile]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const categories = useMemo(() => ["Tous", ...new Set(items.map((i) => i.category || "Autres"))], [items])
+  const categories = useMemo(() => [...new Set(items.map((i) => i.category || "Autres"))], [items])
 
-  const filtered = items.filter((i) => {
-    const matchCat = activeCat === "Tous" || (i.category || "Autres") === activeCat
-    const matchSearch = i.name.toLowerCase().includes(search.toLowerCase())
-    return matchCat && matchSearch
-  })
+  useEffect(() => {
+    if (categories.length > 0 && !activeCat) setActiveCat(categories[0])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items])
+
+  // Une seule categorie affichee a la fois (pas tout le menu en vrac) - la
+  // recherche, elle, ignore volontairement le filtre de categorie pour que
+  // taper un plat le retrouve meme s'il est dans une autre categorie.
+  const filtered = search.trim()
+    ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
+    : items.filter((i) => (i.category || "Autres") === activeCat)
 
   const addToCart = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }))
   const removeFromCart = (id) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) - 1) }))
@@ -154,8 +160,8 @@ export default function Delivery() {
               <button
                 key={cat}
                 onClick={() => setActiveCat(cat)}
-                className={`px-4 py-1.5 rounded-full text-xs font-mono border transition ${
-                  activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim"
+                className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+                  activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
                 }`}
               >
                 {cat}
@@ -166,8 +172,16 @@ export default function Delivery() {
           <div className="grid gap-3">
             {loading && <p className="text-inkdim text-sm">{t("menu_page.loading")}</p>}
             {filtered.map((item) => (
-              <div key={item.id} className="bg-bgsoft border border-line rounded-2xl p-4 flex items-center justify-between gap-4">
-                <div className="min-w-0">
+              <div key={item.id} className="bg-bgsoft border border-line rounded-2xl p-3 flex items-center gap-4">
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
+                ) : (
+                  <div className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center"
+                    style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                    <span className="font-serif text-xl text-gold/40">{item.name?.[0]}</span>
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
                   <p className="font-serif text-lg truncate">{item.name}</p>
                   {item.description && <p className="text-inkdim text-xs mt-1 line-clamp-2">{item.description}</p>}
                   <p className="font-mono text-gold text-sm mt-1">{item.price} MAD</p>
@@ -181,6 +195,9 @@ export default function Delivery() {
                 </div>
               </div>
             ))}
+            {!loading && filtered.length === 0 && (
+              <p className="text-inkdim text-sm">{t("menu_page.note")}</p>
+            )}
           </div>
         </div>
 

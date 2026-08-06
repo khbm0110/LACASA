@@ -121,9 +121,17 @@ export default function Home() {
   const reviewsCount = info?.home_reviews_count || 6
   const shownReviews = reviews.slice(0, reviewsCount)
 
+  // Photos du visuel principal : d'abord celles choisies par l administrateur
+  // (hero_dishes), sinon on retombe sur les photos de la galerie de la
+  // maison (deja reelles) plutot que de n afficher qu un cercle decoratif
+  // vide quand hero_dishes n a pas encore ete rempli.
+  const heroImages = heroDishes.length > 0
+    ? heroDishes
+    : galleryHome.slice(0, 5).map((g) => ({ id: g.id, url: g.url, label: g.caption }))
+
   return (
     <>
-      <section className="relative min-h-screen flex items-center px-6 md:px-8 pt-24 pb-16" style={{ perspective: "1400px" }}>
+      <section className="relative h-screen min-h-[760px] flex items-center px-6 lg:px-10" style={{ perspective: "1400px" }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center w-full">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold mb-4">
@@ -163,8 +171,8 @@ export default function Home() {
               transformStyle: "preserve-3d"
             }}
           >
-            {heroDishes.length > 0 ? (
-              <HeroDishRotator images={heroDishes} />
+            {heroImages.length > 0 ? (
+              <HeroDishRotator images={heroImages} />
             ) : (
               <>
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -208,7 +216,7 @@ export default function Home() {
 
       {/* Menu - selection mise en avant, cartes retournables */}
       {featured.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -221,7 +229,7 @@ export default function Home() {
               Voir tout le menu &rarr;
             </Link>
           </Reveal>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6">
             {featured.map((item, i) => (
               <Reveal key={item.id} delay={i * 90}>
                 <div className="flip-card h-80"
@@ -274,7 +282,7 @@ export default function Home() {
       )}
 
       {/* Avis Google - slider anime, quantite reglable depuis Admin > Contenu */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+      <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Avis Google</p>
@@ -302,9 +310,9 @@ export default function Home() {
         />
       </section>
 
-      {/* Galerie - slider anime, photos choisies par l administrateur */}
+      {/* Galerie - grille 3 colonnes, apparition progressive au defilement */}
       {galleryHome.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Ambiance</p>
@@ -314,21 +322,22 @@ export default function Home() {
               Toute la galerie &rarr;
             </Link>
           </Reveal>
-          <MotionCarousel
-            items={galleryHome}
-            renderItem={(img) => (
-              <div className="rounded-2xl overflow-hidden border border-line aspect-[4/5] group">
-                <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              </div>
-            )}
-          />
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {galleryHome.map((img, i) => (
+              <Reveal key={img.id} delay={(i % 3) * 100}>
+                <div className="rounded-2xl overflow-hidden border border-line aspect-[4/5] group">
+                  <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </section>
       )}
 
       {/* Evenements & offres - grille 2 colonnes */}
       {events.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">A ne pas manquer</p>
@@ -366,7 +375,7 @@ export default function Home() {
 
       {/* Blog & actualites - grille 3 colonnes */}
       {posts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Actualites</p>
@@ -401,7 +410,7 @@ export default function Home() {
       )}
 
       {/* Infos pratiques + carte + reservation rapide */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 mt-20 min-h-screen flex flex-col justify-center py-16">
+      <section className="max-w-6xl mx-auto px-6 lg:px-10 py-28 lg:py-36">
         <Reveal>
           <div className="flex items-center gap-3 mb-3">
             <span className="w-7 h-px bg-gold" />
@@ -436,7 +445,7 @@ export default function Home() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <Field label="Date">
-                      <input required type="date" value={reservation.date} onChange={updateReservation("date")}
+                      <input required type="date" min={new Date().toISOString().split("T")[0]} value={reservation.date} onChange={updateReservation("date")}
                         className="form-underline" />
                     </Field>
                     <Field label="Heure">

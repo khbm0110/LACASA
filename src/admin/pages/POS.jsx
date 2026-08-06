@@ -28,6 +28,9 @@ import { useShift } from "../useShift"
 const FORMULES_TAB = "__formules__"
 
 export default function POS() {
+  const [mode, setMode] = useState("new") // "new" = construire un ticket | "settle" = encaisser une commande QR deja en cuisine
+  const [openOrders, setOpenOrders] = useState([]) // commandes dine_in impayees (ex: passees via QR table)
+  const [settleOrder, setSettleOrder] = useState(null) // commande en cours d encaissement (mode "settle")
   const [items, setItems] = useState([])
   const [combos, setCombos] = useState([])
   const [tables, setTables] = useState([])
@@ -129,10 +132,34 @@ export default function POS() {
     loadTables()
   }, [activeBranchId])
 
+  // Commandes "sur place" deja parties en cuisine (ex : passees par le
+  // client lui-meme via le QR code de sa table) mais pas encore payees -
+  // c est la liste que le mode "Encaisser une table" propose de solder.
+  // On ne touche jamais ici au statut cuisine/service (`status`), seul
+  // `payment_status` change : la commande a deja ete confirmee et
+  // preparee sans intervention du POS, il n y a donc rien a re-envoyer en
+  // cuisine ni a faire valider par un responsable a ce stade.
+  const loadOpenOrders = async () => {
+    const { data } = await supabase
+      .from("orders")
+      .select("id, table_id, items, subtotal, discount_amount, total, status, created_at")
+      .eq("order_type", "dine_in")
+      .eq("payment_status", "unpaid")
+      .neq("status", "cancelled")
+      .order("created_at", { ascending: true })
+    setOpenOrders(data || [])
+  }
+
+  useEffect(() => {
+    if (mode === "settle" || shift) loadOpenOrders()
+  }, [mode, shift])
+
   const categories = useMemo(() => [...new Set(items.map((i) => i.category))], [items])
   const shownItems = items.filter((i) => i.category === activeCategory)
 
-  const subtotal = cart.reduce((sum, l) => sum + l.unitPrice * l.qty, 0)
+  const subtotal = mode === "settle"
+    ? (settleOrder ? Number(settleOrder.subtotal ?? settleOrder.total) : 0)
+    : cart.reduce((sum, l) => sum + l.unitPrice * l.qty, 0)
   const discountAmount = discountValue === "" ? 0 : discountType === "percent"
     ? Math.round(subtotal * (Number(discountValue) / 100) * 100) / 100
     : Math.min(subtotal, Number(discountValue) || 0)
@@ -235,6 +262,7 @@ export default function POS() {
     setDiscountValue("")
     setDiscountReason("")
     setSelectedTableId("")
+    setSettleOrder(null)
   }
 
   const clearCart = async () => {
@@ -317,6 +345,79 @@ export default function POS() {
     resetSale()
   }
 
+  // Encaissement d une commande QR deja existante : on ne cree AUCUNE
+  // nouvelle commande, on ne touche pas au statut cuisine/service, et on
+  // n imprime pas de nouveau ticket cuisine (deja fait a la creation de la
+  // commande) - seul payment_status passe a "paid" et le paiement est
+  // trace, exactement comme une caisse qui solde une addition deja
+  // servie.
+  const finalizeSettle = async () => {
+    if (!settleOrder || !payMode) return
+    if (!shift) {
+      playErrorBuzz()
+      toast.error("Ouvrez la caisse avant d encaisser une vente.")
+      return
+    }
+    if (payMode === "cash" && Number(cashReceived || 0) < total) {
+      playErrorBuzz()
+      toast.error("Le montant recu est inferieur au total.")
+      return
+    }
+    if (payMode === "split" && splitRemaining !== 0) {
+      playErrorBuzz()
+      toast.error(splitRemaining > 0 ? `Il manque ${splitRemaining} MAD.` : `Le total depasse de ${-splitRemaining} MAD.`)
+      return
+    }
+    setBusy(true)
+    const payments = payMode === "split"
+      ? [
+          ...(Number(splitCash) > 0 ? [{ method: "cash", amount: Number(splitCash) }] : []),
+          ...(Number(splitCard) > 0 ? [{ method: "card_tpe", amount: Number(splitCard) }] : []),
+        ]
+      : [{ method: payMode === "cash" ? "cash" : "card_tpe", amount: total }]
+
+    const { data, error } = await supabase.from("orders").update({
+      discount_amount: discountAmount,
+      discount_reason: discountAmount > 0 ? (discountReason || null) : settleOrder.discount_reason,
+      total,
+      payment_status: "paid",
+      payment_provider: payMode === "split" ? "split" : (payMode === "cash" ? "cash" : "card_tpe"),
+      paid_at: new Date().toISOString(),
+      shift_id: shift.id,
+    }).eq("id", settleOrder.id).select().single()
+
+    if (error || !data) {
+      setBusy(false)
+      playErrorBuzz()
+      toast.error("Echec de l encaissement.")
+      return
+    }
+
+    const { error: paymentsError } = await supabase.from("order_payments").insert(
+      payments.map((p) => ({ order_id: data.id, method: p.method, amount: p.amount }))
+    )
+    setBusy(false)
+    if (paymentsError) {
+      playErrorBuzz()
+      toast.error("Vente encaissee mais echec du detail de paiement - verifiez la caisse.")
+      return
+    }
+
+    printOrderReceipt({ ...data, payments })
+    playPosChime()
+    toast.success(`Table encaissee - ${total} MAD`)
+    resetSale()
+    loadOpenOrders()
+  }
+
+  const selectOrderToSettle = (order) => {
+    setSettleOrder(order)
+    setPayMode(null)
+    setCashReceived("")
+    setSplitCash("")
+    setSplitCard("")
+  }
+
   return (
     <>
     {shift === undefined && (
@@ -354,11 +455,26 @@ export default function POS() {
             </button>
           </div>
         </div>
+
+        <div className="flex gap-2 mb-4 shrink-0">
+          {[["new", "Nouvelle vente"], ["settle", "Encaisser une table"]].map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => { setMode(val); resetSale() }}
+              className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
+                mode === val ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink"
+              }`}
+            >
+              {label}{val === "settle" && openOrders.length > 0 ? ` (${openOrders.length})` : ""}
+            </button>
+          ))}
+        </div>
         <div className="flex items-center justify-between mb-4 shrink-0 text-xs text-inkdim bg-bgsoft border border-line rounded-xl px-3 py-2">
           <span>Caisse ouverte a {new Date(shift.opened_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} · fond {shift.opening_cash} MAD</span>
           <button onClick={openClosingModal} className="text-tomatoglow hover:underline font-medium">Fermer la caisse</button>
         </div>
 
+        {mode === "new" && (
         <div className="flex flex-wrap gap-2 pb-2 mb-4 shrink-0">
           {combos.length > 0 && (
             <button
@@ -382,7 +498,9 @@ export default function POS() {
             </button>
           ))}
         </div>
+        )}
 
+        {mode === "new" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 min-h-0 overflow-y-auto pr-1 auto-rows-min">
           {activeCategory === FORMULES_TAB
             ? combos.map((c) => (
@@ -421,10 +539,39 @@ export default function POS() {
               </button>
             ))}
         </div>
+        ) : (
+        /* Mode "Encaisser une table" : liste des additions QR deja en cuisine, pas encore payees */
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 min-h-0 overflow-y-auto pr-1 auto-rows-min content-start">
+          {openOrders.length === 0 && (
+            <p className="text-inkdim text-sm col-span-full text-center py-10">
+              Aucune addition en attente de paiement pour le moment.
+            </p>
+          )}
+          {openOrders.map((o) => {
+            const tableNumber = tables.find((t) => t.id === o.table_id)?.number
+            return (
+              <button
+                key={o.id}
+                onClick={() => selectOrderToSettle(o)}
+                className={`bg-bgsoft border rounded-2xl p-4 text-left hover:border-tomato hover:-translate-y-0.5 transition active:scale-95 ${
+                  settleOrder?.id === o.id ? "border-tomato" : "border-line"
+                }`}
+              >
+                <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">
+                  {tableNumber ? `Table ${tableNumber}` : "Sur place"}
+                </p>
+                <p className="text-sm text-inkdim mb-2">{(o.items || []).length} article(s)</p>
+                <p className="font-mono text-lg">{o.total} MAD</p>
+              </button>
+            )
+          })}
+        </div>
+        )}
       </div>
 
       {/* Ticket en cours */}
       <div className="bg-bgsoft border border-line rounded-2xl p-5 flex flex-col min-h-0 lg:h-full">
+        {mode === "new" && (
         <div className="flex gap-2 mb-4 shrink-0">
           {[["dine_in", "Sur place"], ["takeaway", "A emporter"]].map(([val, label]) => (
             <button
@@ -438,8 +585,9 @@ export default function POS() {
             </button>
           ))}
         </div>
+        )}
 
-        {orderType === "dine_in" && tables.length > 0 && (
+        {mode === "new" && orderType === "dine_in" && tables.length > 0 && (
           <select value={selectedTableId} onChange={(e) => setSelectedTableId(e.target.value)}
             className="w-full bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato mb-4 shrink-0">
             <option value="">Table (optionnel)</option>
@@ -447,6 +595,7 @@ export default function POS() {
           </select>
         )}
 
+        {mode === "new" ? (
         <div className="flex-1 overflow-y-auto min-h-0 grid gap-2 content-start">
           {cart.length === 0 && <p className="text-inkdim text-sm text-center py-10">Ticket vide - touchez un plat pour l ajouter.</p>}
           {cart.map((l) => (
@@ -464,6 +613,27 @@ export default function POS() {
             </div>
           ))}
         </div>
+        ) : (
+        /* Mode "Encaisser une table" : detail en lecture seule de l addition choisie */
+        <div className="flex-1 overflow-y-auto min-h-0 grid gap-2 content-start">
+          {!settleOrder && <p className="text-inkdim text-sm text-center py-10">Choisissez une table a encaisser dans la liste.</p>}
+          {settleOrder && (
+            <>
+              <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">
+                {tables.find((t) => t.id === settleOrder.table_id)?.number
+                  ? `Table ${tables.find((t) => t.id === settleOrder.table_id)?.number}`
+                  : "Sur place"}
+              </p>
+              {(settleOrder.items || []).map((it, idx) => (
+                <div key={idx} className="flex items-center justify-between gap-2 bg-bg border border-line rounded-xl px-3 py-2">
+                  <p className="text-sm truncate">{it.qty} x {it.name}</p>
+                  <p className="text-sm font-mono text-inkdim">{it.qty * it.price} MAD</p>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+        )}
 
         <div className="shrink-0 pt-4 mt-4 border-t border-line">
           <div className="flex items-center justify-between mb-1">
@@ -575,12 +745,18 @@ export default function POS() {
           )}
 
           <div className="flex gap-2">
-            <button onClick={clearCart} className="px-4 py-3 rounded-xl text-sm border border-line text-inkdim">
-              Vider
+            <button
+              onClick={mode === "new" ? clearCart : () => { setSettleOrder(null); setPayMode(null); setCashReceived(""); setSplitCash(""); setSplitCard("") }}
+              className="px-4 py-3 rounded-xl text-sm border border-line text-inkdim"
+            >
+              {mode === "new" ? "Vider" : "Retour"}
             </button>
             <button
-              onClick={finalize}
-              disabled={busy || cart.length === 0 || !payMode || (payMode === "split" && splitRemaining !== 0)}
+              onClick={mode === "new" ? finalize : finalizeSettle}
+              disabled={
+                busy || !payMode || (payMode === "split" && splitRemaining !== 0) ||
+                (mode === "new" ? cart.length === 0 : !settleOrder)
+              }
               className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50"
             >
               {busy ? "Encaissement..." : "Encaisser"}

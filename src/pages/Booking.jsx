@@ -98,7 +98,7 @@ export default function Booking() {
           <input required placeholder={t("booking_page.phone")} value={form.phone} onChange={update("phone")}
             className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
           <div className="grid grid-cols-2 gap-4">
-            <input required type="date" value={form.date} onChange={update("date")}
+            <input required type="date" min={new Date().toISOString().split("T")[0]} value={form.date} onChange={update("date")}
               className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
             <input required type="time" value={form.time} onChange={update("time")}
               className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
