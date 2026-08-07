@@ -176,7 +176,7 @@ export default function Home() {
   return (
     <>
       {/* ============ GRAIN OVERLAY ============ */}
-      <div className="grain" />
+      
 
       {/* ============ HERO ============ */}
       <section className="relative h-screen min-h-[760px] w-full overflow-hidden">
@@ -194,7 +194,7 @@ export default function Home() {
         </div>
 
         <div className="hero-overlay" />
-        <div className="scan-line" />
+        
 
         {/* Hero content */}
         <div className="relative z-10 h-full max-w-container mx-auto px-6 lg:px-10 flex flex-col justify-end pb-20 pt-32">
@@ -254,204 +254,7 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* Scrolling ticker */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-black/60 backdrop-blur-sm py-3 overflow-hidden z-10">
-          <div className="marquee-track font-display text-sm tracking-[0.25em] text-silver-dim">
-            <span className="px-8">PIZZA AU FEU DE BOIS</span><span className="text-accent">/</span>
-            <span className="px-8">SPECIALITES ITALO-MAROCAINES</span><span className="text-accent">/</span>
-            <span className="px-8">COUSCOUS DU VENDREDI</span><span className="text-accent">/</span>
-            <span className="px-8">LIVRAISON EN 20 MIN</span><span className="text-accent">/</span>
-            <span className="px-8">RESERVEZ VOTRE TABLE</span><span className="text-accent">/</span>
-            <span className="px-8">RUE D'ORAN · RABAT</span><span className="text-accent">/</span>
-            <span className="px-8">PIZZA AU FEU DE BOIS</span><span className="text-accent">/</span>
-            <span className="px-8">SPECIALITES ITALO-MAROCAINES</span><span className="text-accent">/</span>
-            <span className="px-8">COUSCOUS DU VENDREDI</span><span className="text-accent">/</span>
-            <span className="px-8">LIVRAISON EN 20 MIN</span><span className="text-accent">/</span>
-            <span className="px-8">RESERVEZ VOTRE TABLE</span><span className="text-accent">/</span>
-            <span className="px-8">RUE D'ORAN · RABAT</span><span className="text-accent">/</span>
-          </div>
-        </div>
       </section>
-
-      {/* ============ QUICK DOCK ============ */}
-      <div className="px-6 lg:px-10 relative z-10 -mt-6">
-        <div className="max-w-container mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bg-card border border-line rounded-sm p-3">
-          {[
-            { to: "/reserver", icon: "fa-utensils", label: t("dock.book"), sub: t("dock.book_sub") },
-            { to: "/livraison", icon: "fa-motorcycle", label: t("dock.delivery"), sub: t("dock.delivery_sub") },
-            { to: "/menu", icon: "fa-book-open", label: t("dock.menu"), sub: t("dock.menu_sub") },
-            { to: "/a-propos", icon: "fa-location-dot", label: t("dock.directions"), sub: t("dock.directions_sub") },
-          ].map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex items-center gap-4 p-4 hover:bg-bg-card-hover hover:-translate-y-0.5 transition group"
-            >
-              <div className="w-10 h-10 border border-line-light flex items-center justify-center group-hover:border-accent group-hover:text-accent transition-colors">
-                <i className={`fas ${item.icon} text-sm`} />
-              </div>
-              <div>
-                <b className="text-sm font-heading tracking-wider block">{item.label}</b>
-                <span className="text-xs text-muted font-mono">{item.sub}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ============ STATS ============ */}
-      <section className="border-y border-line bg-bg-darker relative overflow-hidden mt-8">
-        <div className="max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-20">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
-            <div className="border-l border-line-light pl-6">
-              <div className="font-display text-6xl md:text-7xl text-fg number-display">12+</div>
-              <div className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase mt-2">Annees d'experience</div>
-            </div>
-            <div className="border-l border-line-light pl-6">
-              <div className="font-display text-6xl md:text-7xl text-accent number-display">850+</div>
-              <div className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase mt-2">Clients satisfaits</div>
-            </div>
-            <div className="border-l border-line-light pl-6">
-              <div className="font-display text-6xl md:text-7xl text-fg number-display">{info?.google_rating || "4.5"}</div>
-              <div className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase mt-2">Note Google</div>
-            </div>
-            <div className="border-l border-line-light pl-6">
-              <div className="font-display text-6xl md:text-7xl text-gold number-display">20m</div>
-              <div className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase mt-2">Livraison moyenne</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ FEATURED MENU (A la une) ============ */}
-      {featured.length > 0 && (
-        <section className="relative py-28 lg:py-36" id="menu">
-          <div className="max-w-container mx-auto px-6 lg:px-10">
-            <div className="grid lg:grid-cols-12 gap-8 mb-20">
-              <div className="lg:col-span-7">
-                <Reveal>
-                  <div className="section-marker mb-6"><span>01 — Notre carte</span></div>
-                  <h2 className="font-display text-6xl md:text-7xl lg:text-8xl leading-[0.9]">
-                    A la une.<br />
-                    <span className="text-stroke">Saveurs</span> du{" "}
-                    <span className="text-accent">moment.</span>
-                  </h2>
-                </Reveal>
-              </div>
-              <div className="lg:col-span-4 lg:col-start-9 flex flex-col justify-end">
-                <Reveal>
-                  <p className="text-fg-dim text-base leading-relaxed mb-6">
-                    Nos plats signatures, prepares avec des ingredients frais et de saison. Chaque assiette raconte une histoire entre tradition italienne et heritage marocain.
-                  </p>
-                  <Link to="/menu" className="flex items-center justify-between font-heading text-sm tracking-[0.15em] uppercase link-underline text-fg-dim hover:text-fg">
-                    <span>Voir tout le menu</span>
-                    <i className="fas fa-arrow-right text-accent" />
-                  </Link>
-                </Reveal>
-              </div>
-            </div>
-
-            {/* Program-style cards (3 featured) */}
-            <div className="grid md:grid-cols-3 gap-6">
-              {featured.slice(0, 3).map((item, i) => (
-                <Reveal key={item.id} delay={i * 120}>
-                  <article className="program-card info-card notch-corner group h-full flex flex-col">
-                    <div className="relative h-72 overflow-hidden">
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="program-img w-full h-full object-cover img-noir" />
-                      ) : (
-                        <div className="w-full h-full bg-bg-card-hover" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent" />
-                      <div className="absolute top-4 left-4 font-mono text-[10px] text-accent tracking-[0.2em]">/ {String(i + 1).padStart(2, "0")}</div>
-                      <div className="absolute top-4 right-4 px-2 py-1 bg-black/60 backdrop-blur-sm font-mono text-[10px] text-fg tracking-[0.15em]">{item.category}</div>
-                    </div>
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="mb-4">
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <div className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Prix</div>
-                            <div className="font-heading text-base">{item.price} MAD</div>
-                          </div>
-                          <div>
-                            <div className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Categorie</div>
-                            <div className="font-heading text-base">{item.category}</div>
-                          </div>
-                        </div>
-                        <p className="text-fg-dim text-sm leading-relaxed line-clamp-3">{item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}</p>
-                      </div>
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-line-light">
-                        <span className="font-mono text-[10px] text-muted tracking-[0.15em]">SUR COMMANDE</span>
-                        <Link to="/menu" className="font-heading text-sm tracking-[0.15em] uppercase link-underline">
-                          <span>Commander</span>
-                          <i className="fas fa-arrow-right text-accent ml-2 text-xs" />
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
-            </div>
-
-            {/* Remaining featured as flip cards */}
-            {featured.length > 3 && (
-              <div className="grid md:grid-cols-3 gap-6 mt-6">
-                {featured.slice(3, 6).map((item, i) => (
-                  <Reveal key={item.id} delay={i * 90}>
-                    <div
-                      className="flip-card"
-                      onClick={(e) => {
-                        if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
-                      }}
-                    >
-                      <div className="flip-card-inner">
-                        <div className="flip-face info-card flex flex-col">
-                          <div className="dish-img-wrap">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} />
-                            ) : (
-                              <div className="w-full h-full bg-bg-card-hover" />
-                            )}
-                            <div className="absolute top-4 left-4 font-mono text-[10px] text-accent tracking-[0.2em]">/ {String(i + 4).padStart(2, "0")}</div>
-                            <div className="absolute bottom-4 left-4 right-4">
-                              <div className="font-mono text-[10px] text-silver-dim tracking-[0.2em] uppercase">{item.category}</div>
-                            </div>
-                          </div>
-                          <div className="p-6 flex-1 flex flex-col justify-between">
-                            <div>
-                              <h3 className="font-display text-3xl leading-none">{item.name}</h3>
-                              <p className="text-muted text-xs mt-2 font-heading tracking-wider uppercase">{item.category}</p>
-                            </div>
-                            <div className="flex items-center justify-between mt-4 pt-4 border-t border-line-light">
-                              <span className="font-mono text-[10px] text-muted tracking-[0.15em]">{item.price} MAD</span>
-                              <span className="font-mono text-[10px] text-accent tracking-[0.15em]">SURVOLER →</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flip-face flip-back info-card p-7 flex flex-col bg-bg-card">
-                          <div className="font-mono text-[10px] text-accent tracking-[0.2em] uppercase mb-4">/ {item.name}</div>
-                          <h3 className="font-display text-2xl mb-5">Description</h3>
-                          <p className="text-fg-dim text-sm leading-relaxed flex-1">
-                            {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
-                          </p>
-                          <div className="mt-auto pt-5 border-t border-line-light">
-                            <div className="flex items-center justify-between">
-                              <div className="font-display text-2xl text-accent">{item.price} MAD</div>
-                              <Link to="/menu" className="font-mono text-[10px] tracking-[0.15em] uppercase text-accent hover:text-gold transition-colors">
-                                Commander →
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
       )}
 
       {/* ============ REVIEWS (Stories Carousel) ============ */}
@@ -462,8 +265,7 @@ export default function Home() {
               <Reveal>
                 <div className="section-marker mb-6"><span>02 — Avis</span></div>
                 <h2 className="font-display text-6xl md:text-7xl lg:text-8xl leading-[0.9]">
-                  Ce qu'en pensent<br />
-                  <span className="text-accent">nos clients.</span>
+                  Ce qu'en pensent <span className="text-accent">nos clients.</span>
                 </h2>
               </Reveal>
             </div>
@@ -570,8 +372,7 @@ export default function Home() {
                 <Reveal>
                   <div className="section-marker mb-6"><span>03 — Ambiance</span></div>
                   <h2 className="font-display text-6xl md:text-7xl lg:text-8xl leading-[0.9]">
-                    Un apercu<br />
-                    <span className="text-stroke">en images.</span>
+                    Un apercu <span className="text-stroke">en images.</span>
                   </h2>
                 </Reveal>
               </div>
@@ -596,7 +397,7 @@ export default function Home() {
                       src={img.url}
                       alt={img.caption || "La Casa Di Carta"}
                       loading="lazy"
-                      className="w-full h-full object-cover img-noir group-hover:scale-110 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   </div>
                 </Reveal>
@@ -614,7 +415,7 @@ export default function Home() {
               <Reveal>
                 <div className="section-marker mb-6"><span>04 — Evenements</span></div>
                 <h2 className="font-display text-6xl md:text-7xl lg:text-8xl leading-[0.9]">
-                  A ne pas<br /><span className="text-accent">manquer.</span>
+                  A ne pas <span className="text-accent">manquer.</span>
                 </h2>
               </Reveal>
             </div>
@@ -624,7 +425,7 @@ export default function Home() {
                   <div className="info-card overflow-hidden group hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col sm:flex-row">
                     {e.image_url && (
                       <div className="sm:w-48 h-48 sm:h-auto shrink-0 overflow-hidden">
-                        <img src={e.image_url} alt={e.title} className="w-full h-full object-cover img-noir group-hover:scale-110 transition-transform duration-500" />
+                        <img src={e.image_url} alt={e.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                     )}
                     <div className="p-6 flex-1">
@@ -654,7 +455,7 @@ export default function Home() {
                 <Reveal>
                   <div className="section-marker mb-6"><span>05 — Actualites</span></div>
                   <h2 className="font-display text-6xl md:text-7xl lg:text-8xl leading-[0.9]">
-                    Notre<br /><span className="text-stroke">blog.</span>
+                    Notre <span className="text-stroke">blog.</span>
                   </h2>
                 </Reveal>
               </div>
@@ -673,7 +474,7 @@ export default function Home() {
                   <Link to={`/blog/${p.slug}`} className="group block info-card overflow-hidden hover:-translate-y-1.5 transition-all duration-300 h-full">
                     {p.cover_image && (
                       <div className="h-48 overflow-hidden">
-                        <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover img-noir group-hover:scale-110 transition-transform duration-500" />
+                        <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                     )}
                     <div className="p-6">
@@ -699,8 +500,7 @@ export default function Home() {
               <Reveal>
                 <div className="section-marker mb-6"><span>06 — Reservation</span></div>
                 <h2 className="font-display text-6xl md:text-7xl lg:text-[7rem] leading-[0.9]">
-                  RESERVEZ.<br />
-                  <span className="text-stroke">VENEZ</span> <span className="text-accent">GOUTER.</span>
+                  RESERVEZ. <span className="text-stroke">VENEZ</span> <span className="text-accent">GOUTER.</span>
                 </h2>
               </Reveal>
             </div>
