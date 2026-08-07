@@ -94,14 +94,7 @@ export default function Reports() {
           ))}
         </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <p className="text-inkdim text-sm">Ventes et gaspillage sur la periode choisie · stock bas et dettes fournisseurs en instantane.</p>
-        <div className="flex gap-2">
-          <button onClick={() => window.print()} className="px-4 py-2 rounded-full text-xs font-semibold bg-bgsoft border border-line hover:border-gold transition">
-            Imprimer / Exporter PDF
-          </button>
-        </div>
-      </div>
+      <p className="text-inkdim text-sm mb-8">Ventes et gaspillage sur la periode choisie · stock bas et dettes fournisseurs en instantane.</p>
 
       {loading ? (
         <p className="text-inkdim text-sm">Chargement...</p>

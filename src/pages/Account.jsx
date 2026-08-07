@@ -88,25 +88,12 @@ function Dashboard({ user, profile, signOut }) {
         <button onClick={signOut} className="text-sm text-inkdim underline">Se deconnecter</button>
       </div>
 
-      <div className="bg-gradient-to-br from-bgsoft to-[#241b14] border border-line rounded-2xl p-6 mb-10">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">Programme de Fidelite VIP</p>
-            <p className="font-serif text-3xl">{profile?.loyalty_points ?? 0} <span className="text-sm font-sans text-inkdim">points</span></p>
-          </div>
-          <div className="text-right">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gold/20 text-gold border border-gold/30">
-              {(profile?.loyalty_points ?? 0) >= 100 ? "Statut Or 🌟" : "Statut Argent 🥈"}
-            </span>
-          </div>
+      <div className="bg-gradient-to-br from-bgsoft to-[#241b14] border border-line rounded-2xl p-6 mb-10 flex items-center justify-between">
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">Points de fidelite</p>
+          <p className="font-serif text-4xl">{profile?.loyalty_points ?? 0} pts</p>
         </div>
-        <div className="w-full bg-black/40 rounded-full h-2.5 overflow-hidden mb-2">
-          <div className="bg-gradient-to-r from-gold to-tomatoglow h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, ((profile?.loyalty_points ?? 0) % 100))}%` }}></div>
-        </div>
-        <div className="flex justify-between text-xs text-inkdim">
-          <span>Progression vers la recompense suivante (100 pts)</span>
-          <span>{100 - ((profile?.loyalty_points ?? 0) % 100)} pts restants</span>
-        </div>
+        <p className="text-inkdim text-sm max-w-[16ch] text-right">1 point tous les 10 MAD depenses, credites a la livraison.</p>
       </div>
 
       <h2 className="font-serif text-xl mb-4">Mes commandes</h2>

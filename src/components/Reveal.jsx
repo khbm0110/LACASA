@@ -1,9 +1,6 @@
 import { useEffect, useRef } from "react"
 
-// Enveloppe un bloc et l anime en fondu + translation des qu il entre dans
-// l ecran (utilise la classe utilitaire .reveal deja definie dans index.css).
-// delay: decalage en ms, utile pour un effet en cascade sur une liste.
-export default function Reveal({ children, delay = 0, className = "", as: Tag = "div" }) {
+export default function Reveal({ children, delay = 0, className = "", as: Tag = "div", style }) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -14,19 +11,19 @@ export default function Reveal({ children, delay = 0, className = "", as: Tag = 
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             el.style.transitionDelay = `${delay}ms`
-            el.classList.add("in")
+            el.classList.add("in", "in-view")
             observer.unobserve(el)
           }
         })
       },
-      { threshold: 0.15 }
+      { threshold: 0.12, rootMargin: "0px 0px -60px 0px" }
     )
     observer.observe(el)
     return () => observer.disconnect()
   }, [delay])
 
   return (
-    <Tag ref={ref} className={`reveal ${className}`}>
+    <Tag ref={ref} className={`reveal ${className}`} style={style}>
       {children}
     </Tag>
   )
