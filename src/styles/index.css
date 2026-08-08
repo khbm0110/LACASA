@@ -2,401 +2,170 @@
 @tailwind components;
 @tailwind utilities;
 
-* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
+body { -webkit-font-smoothing: antialiased; }
 
-/* ============ REVEAL ON SCROLL ============ */
-.reveal {
-  opacity: 0;
-  transform: translateY(48px);
-  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0s);
-}
-.reveal.in, .reveal.in-view { opacity: 1; transform: translateY(0); }
+@layer utilities {
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
 
-.reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.reveal-stagger.in > .reveal-stagger.in-view > * {
-  opacity: 1;
-  transform: translateY(0);
-}
+  /* Coins decoratifs (angles fins) pour cadrer un bloc — ex: reservation, cartes infos */
+  .frame-corners { position: relative; }
+  .frame-corners::before,
+  .frame-corners::after {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    pointer-events: none;
+  }
+  .frame-corners::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid theme('colors.gold');
+    border-left: 2px solid theme('colors.gold');
+  }
+  .frame-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid theme('colors.gold');
+    border-right: 2px solid theme('colors.gold');
+  }
 
-/* ============ HERO REEL ============ */
-.reel-frame {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 2s ease-in-out;
-}
-.reel-frame.active { opacity: 1; }
-.reel-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.06);
-}
-.reel-frame.active img {
-  animation: kenburns 9s ease-out forwards;
-}
-@keyframes kenburns {
-  0% { transform: scale(1.06) translate(0, 0); }
-  100% { transform: scale(1.2) translate(-3%, -3%); }
-}
+  /* Champ de formulaire minimaliste (ligne du bas uniquement) */
+  .form-underline {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid theme('colors.line');
+    color: theme('colors.paper');
+    padding: 0.6rem 0;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .3s ease;
+  }
+  .form-underline:focus { border-color: theme('colors.tomato'); }
+  .form-underline::placeholder { color: theme('colors.inkdim'); }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 28%, rgba(10,10,10,0.55) 65%, rgba(10,10,10,0.98) 100%),
-    linear-gradient(90deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 50%, rgba(10,10,10,0.5) 100%),
-    radial-gradient(ellipse at 25% 60%, rgba(210, 73, 31, 0.15) 0%, transparent 55%);
-}
+  /* Carte qui se retourne (plats "A la une") */
+  .flip-card { perspective: 1400px; }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform .8s cubic-bezier(.4,.2,.2,1);
+    transform-style: preserve-3d;
+  }
+  .flip-card:hover .flip-card-inner,
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+  }
+  .flip-back { transform: rotateY(180deg); }
 
-.scan-line {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(0, 0, 0, 0.12) 3px,
-    rgba(0, 0, 0, 0.12) 4px
-  );
-  pointer-events: none;
-  z-index: 2;
-}
+  /* ===== Grain overlay (texture papier/pellicule sur tout le site) ===== */
+  .grain {
+    position: fixed;
+    inset: -10%;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='250'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
+    will-change: transform;
+  }
 
-/* ============ SECTION MARKER ============ */
-.section-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  color: #D2491F;
-  text-transform: uppercase;
-}
-.section-marker::before {
-  content: '';
-  width: 32px;
-  height: 1px;
-  background: #D2491F;
-}
+  /* ===== Coins "notch" (angles fins en L) sur une carte ===== */
+  .notch-corner { position: relative; }
+  .notch-corner::before,
+  .notch-corner::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1px solid theme('colors.tomato');
+    pointer-events: none;
+  }
+  .notch-corner::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .notch-corner::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-/* ============ TEXT EFFECTS ============ */
-.text-stroke {
-  -webkit-text-stroke: 1.5px #5a5a5a;
-  color: transparent;
-}
-.text-stroke-accent {
-  -webkit-text-stroke: 1.5px #D2491F;
-  color: transparent;
-}
+  /* ===== Ligne de scan (grain video subtil sur le hero) ===== */
+  .scan-line {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px);
+    pointer-events: none;
+    z-index: 2;
+  }
 
-/* ============ PROGRESS BAR ============ */
-.progress-bar {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: #D2491F;
-  width: 0%;
-  transition: width 0.1s linear;
-}
+  /* ===== Point REC clignotant (indicateur "en direct") ===== */
+  @keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
 
-/* ============ PULSE CTA ============ */
-@keyframes pulse-cta {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(210, 73, 31, 0.65), 0 0 40px rgba(210, 73, 31, 0.3); }
-  50% { box-shadow: 0 0 0 18px rgba(210, 73, 31, 0), 0 0 40px rgba(210, 73, 31, 0.3); }
-}
-.pulse-btn { animation: pulse-cta 2.4s ease-out infinite; }
+  /* ===== Bouton avec halo pulsant (CTA principal) ===== */
+  @keyframes pulse-cta {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(210,73,31,0.65), 0 0 40px rgba(210,73,31,0.3); }
+    50% { box-shadow: 0 0 0 18px rgba(210,73,31,0), 0 0 40px rgba(210,73,31,0.3); }
+  }
+  .pulse-btn { animation: pulse-cta 2.4s ease-out infinite; }
 
-/* ============ REC DOT ============ */
-@keyframes rec-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-.rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
+  /* ===== Carte "programme" (A la une) : legere elevation au survol ===== */
+  .program-card { transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  .program-card:hover { transform: translateY(-8px); }
+  .program-card .program-img { transition: transform .8s cubic-bezier(.22,1,.36,1); }
+  .program-card:hover .program-img { transform: scale(1.08); }
 
-/* ============ FLIP CARD ============ */
-.flip-card {
-  perspective: 1800px;
-  height: 580px;
-}
-@media (max-width: 768px) {
-  .flip-card { height: 480px; }
-}
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.9s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.flip-card:hover .flip-card-inner,
-.flip-card.flipped .flip-card-inner {
-  transform: rotateY(180deg);
-}
-.flip-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow: hidden;
-}
-.flip-back { transform: rotateY(180deg); }
+  /* ===== Texte "contour" (mot cle en relief) ===== */
+  .text-stroke { -webkit-text-stroke: 1.5px theme('colors.silverdim'); color: transparent; }
 
-/* ============ COACH / DISH IMG WRAP ============ */
-.dish-img-wrap {
-  position: relative;
-  height: 70%;
-  overflow: hidden;
-}
-.dish-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.8s;
-}
-.flip-card:hover .dish-img-wrap img,
-.flip-card.flipped .dish-img-wrap img {
-}
+  /* ===== Repere de section (petit trait + libelle avant un titre) ===== */
+  .section-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .2em;
+    color: theme('colors.tomato');
+    text-transform: uppercase;
+  }
+  .section-marker::before { content: ''; width: 32px; height: 1px; background: theme('colors.tomato'); }
 
-/* ============ INFO CARD ============ */
-.info-card {
-  background: #141414;
-  border: 1px solid #1f1f1f;
-  transition: border-color 0.4s, background 0.4s;
-}
-.info-card:hover {
-  border-color: #923315;
-  background: #1a1a1a;
-}
+  /* ===== Reel du hero (fondu entre les photos de fond) ===== */
+  .reel-frame { position: absolute; inset: 0; opacity: 0; transition: opacity 2s ease-in-out; }
+  .reel-frame.active { opacity: 1; }
+  .reel-frame img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
+  .reel-frame.active img { animation: kenburns 9s ease-out forwards; }
+  @keyframes kenburns {
+    0% { transform: scale(1.06) translate(0, 0); }
+    100% { transform: scale(1.2) translate(-3%, -3%); }
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 28%, rgba(10,10,10,0.55) 65%, rgba(10,10,10,0.98) 100%),
+      linear-gradient(90deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 50%, rgba(10,10,10,0.5) 100%),
+      radial-gradient(ellipse at 25% 60%, rgba(210,73,31,0.15) 0%, transparent 55%);
+  }
 
-/* ============ PROGRAM / FEATURED CARD ============ */
-.program-card {
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.program-card:hover { transform: translateY(-8px); }
-.program-card .program-img {
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.program-card:hover .program-img {
-  transform: scale(1.08);
-}
-.program-card:hover .program-number {
-  color: #D2491F;
-  -webkit-text-stroke-color: #D2491F;
-}
+  /* ===== Barre de progression du reel ===== */
+  .progress-bar { height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: theme('colors.tomato'); transition: width .1s linear; }
 
-/* ============ NOTCH CORNER ============ */
-.notch-corner { position: relative; }
-.notch-corner::before,
-.notch-corner::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1px solid #D2491F;
-  pointer-events: none;
+  /* ===== Lien souligne au survol ===== */
+  .link-underline { position: relative; display: inline-block; }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -3px;
+    width: 0; height: 1px;
+    background: theme('colors.tomato');
+    transition: width .4s ease;
+  }
+  .link-underline:hover::after { width: 100%; }
 }
-.notch-corner::before {
-  top: -1px; left: -1px;
-  border-right: none; border-bottom: none;
-}
-.notch-corner::after {
-  bottom: -1px; right: -1px;
-  border-left: none; border-top: none;
-}
-
-/* ============ BOOKING FRAME ============ */
-.booking-frame {
-  background: linear-gradient(135deg, rgba(210,73,31,0.04) 0%, transparent 50%, rgba(210,73,31,0.02) 100%);
-  border: 1px solid #1f1f1f;
-  position: relative;
-}
-.booking-frame::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 60px; height: 60px;
-  border-top: 2px solid #D2491F;
-  border-left: 2px solid #D2491F;
-}
-.booking-frame::after {
-  content: '';
-  position: absolute;
-  bottom: 0; right: 0;
-  width: 60px; height: 60px;
-  border-bottom: 2px solid #D2491F;
-  border-right: 2px solid #D2491F;
-}
-
-/* ============ FORM INPUT ============ */
-.form-input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #2a2a2a;
-  color: #f5f5f5;
-  padding: 0.85rem 0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.15rem;
-  width: 100%;
-  transition: border-color 0.3s;
-  letter-spacing: 0.04em;
-}
-.form-input:focus {
-  outline: none;
-  border-color: #D2491F;
-}
-.form-input::placeholder {
-  color: #6a6a6a;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-size: 0.85rem;
-}
-
-/* ============ GOAL / GUEST PILLS ============ */
-.guest-pill {
-  cursor: pointer;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid #2a2a2a;
-  background: transparent;
-  color: #c0c0c0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
-.guest-pill:hover {
-  border-color: #5a5a5a;
-  color: #f5f5f5;
-}
-.guest-pill.active {
-  background: #D2491F;
-  border-color: #D2491F;
-  color: #000;
-  font-weight: 600;
-}
-
-/* ============ STORY CARD (Reviews) ============ */
-.story-card {
-  flex: 0 0 auto;
-  width: 400px;
-  background: #141414;
-  border: 1px solid #1f1f1f;
-  transition: border-color 0.4s, transform 0.4s;
-}
-.story-card:hover {
-  border-color: #D2491F;
-}
-@media (max-width: 768px) {
-  .story-card { width: 300px; }
-}
-
-/* ============ IMG NOIR ============ */
-
-/* ============ LINK UNDERLINE ============ */
-.link-underline {
-  position: relative;
-  display: inline-block;
-}
-.link-underline::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -3px;
-  width: 0;
-  height: 1px;
-  background: #D2491F;
-  transition: width 0.4s ease;
-}
-.link-underline:hover::after { width: 100%; }
-
-/* ============ BACKGROUND TEXTURED ============ */
-.bg-textured {
-  background-color: #0a0a0a;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(210, 73, 31, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(80, 80, 80, 0.05) 0%, transparent 40%);
-}
-
-/* ============ NUMBER DISPLAY ============ */
-.number-display { font-variant-numeric: tabular-nums; }
-
-/* ============ FRAME CORNERS (legacy, adapted) ============ */
-.frame-corners { position: relative; }
-.frame-corners::before,
-.frame-corners::after {
-  content: '';
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  pointer-events: none;
-}
-.frame-corners::before {
-  top: -1px; left: -1px;
-  border-top: 2px solid #D2491F;
-  border-left: 2px solid #D2491F;
-}
-.frame-corners::after {
-  bottom: -1px; right: -1px;
-  border-bottom: 2px solid #D2491F;
-  border-right: 2px solid #D2491F;
-}
-
-/* ============ FORM UNDERLINE (legacy, adapted) ============ */
-.form-underline {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #2a2a2a;
-  color: #f5f5f5;
-  padding: 0.6rem 0;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-.form-underline:focus { border-color: #D2491F; }
-.form-underline::placeholder { color: #6a6a6a; }
-
-/* ============ SCROLLBAR ============ */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #923315; }
-::-webkit-scrollbar-thumb:hover { background: #D2491F; }
-
-/* ============ NAV LINK ============ */
-.nav-link {
-  position: relative;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #c0c0c0;
-  transition: color 0.3s;
-}
-.nav-link:hover { color: #f5f5f5; }
-.nav-link::before {
-  content: '';
-  position: absolute;
-  left: -14px;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 4px;
-  height: 4px;
-  background: #D2491F;
-  transition: transform 0.3s;
-}
-.nav-link:hover::before { transform: translateY(-50%) scaleY(1); }
