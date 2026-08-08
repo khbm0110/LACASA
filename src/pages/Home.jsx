@@ -1,34 +1,29 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { Link } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
-import MotionCarousel from "../components/MotionCarousel.jsx"
 import Reveal from "../components/Reveal.jsx"
 
-const DOCK = [
-  { to: "/reserver", icon: "fa-utensils", title: "Reserver", sub: "Table rapide" },
-  { to: "/livraison", icon: "fa-motorcycle", title: "Livraison", sub: "En 20 min" },
-  { to: "/menu", icon: "fa-book-open", title: "Notre carte", sub: "Pizzas & plats" },
-  { to: "/a-propos", icon: "fa-location-dot", title: "Nous trouver", sub: "Rue d'Oran" }
-]
-
-// Avis affiches tant que la table google_reviews (alimentee par la
-// synchronisation Google Places, voir supabase/functions) n est pas
-// encore remplie - a remplacer par vos vrais avis.
 const FALLBACK_REVIEWS = [
   { id: "r1", author_name: "Client Google", rating: 5, text: "Le poisson recommande par le serveur etait parfait." },
-  { id: "r2", author_name: "Client Google", rating: 4, text: "Bel endroit, l emince de boeuf est particulierement reussi." },
+  { id: "r2", author_name: "Client Google", rating: 4, text: "Bel endroit, l'emince de boeuf est particulierement reussi." },
   { id: "r3", author_name: "Client Google", rating: 4, text: "Jus frais tres bons, ambiance conviviale en soiree." },
   { id: "r4", author_name: "Client Google", rating: 3, text: "Bon potentiel sur les pizzas, a surveiller sur la cuisson." },
   { id: "r5", author_name: "Client Google", rating: 5, text: "Service tres attentionne, cadre chaleureux le soir." },
   { id: "r6", author_name: "Client Google", rating: 4, text: "Tres bon rapport qualite prix pour le quartier." }
 ]
 
-function Stars({ rating }) {
-  return <>{"★".repeat(rating)}{"☆".repeat(5 - rating)}</>
+const S = {
+  maxW: { maxWidth: 1600, margin: "0 auto" },
+  px: { padding: "0 1.5rem" },
+  sectionPad: { padding: "7rem 0" },
+  sectionPadDark: { padding: "7rem 0", borderTop: "1px solid #1f1f1f", background: "#050505" },
+  sectionBorder: { padding: "7rem 0", borderTop: "1px solid #1f1f1f" },
 }
 
 export default function Home() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [featured, setFeatured] = useState([])
   const [heroDishes, setHeroDishes] = useState([])
@@ -39,6 +34,22 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [reservation, setReservation] = useState({ name: "", phone: "", date: "", time: "", guests: 2 })
   const [resStatus, setResStatus] = useState(null)
+
+  // Hero reel state
+  const [currentFrame, setCurrentFrame] = useState(0)
+  const [reelProgress, setReelProgress] = useState(0)
+  const reelTimerRef = useRef(null)
+  const frameDuration = 5000
+
+  // Stories carousel refs
+  const storyTrackRef = useRef(null)
+  const [currentStory, setCurrentStory] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartX = useRef(0)
+  const dragOffset = useRef(0)
+  const currentTranslateX = useRef(0)
+  const [trackTransform, setTrackTransform] = useState(0)
+  const autoTimerRef = useRef(null)
 
   useEffect(() => {
     async function loadFeatured() {
@@ -58,7 +69,7 @@ export default function Home() {
       if (data && data.length > 0) setReviews(data)
     }
     async function loadGalleryHome() {
-      const { data } = await supabase.from("gallery_images").select("*").eq("show_on_home", true).order("sort_order").limit(6)
+      const { data } = await supabase.from("gallery_images").select("*").eq("show_on_home", true).order("sort_order").limit(10)
       if (data) setGalleryHome(data)
     }
     async function loadEvents() {
@@ -70,17 +81,41 @@ export default function Home() {
       if (data) setPosts(data)
     }
     async function loadHeroDishes() {
-      const { data } = await supabase.from("hero_dishes").select("*").order("sort_order")
-      if (data) setHeroDishes(data)
+      const { data } = await supabase.from("menu_items").select("id, name, image_url").eq("show_on_hero", true).limit(5)
+      if (data && data.length > 0) setHeroDishes(data)
     }
-    loadFeatured()
-    loadInfo()
-    loadReviews()
-    loadGalleryHome()
-    loadEvents()
-    loadPosts()
-    loadHeroDishes()
+    loadFeatured(); loadInfo(); loadReviews(); loadGalleryHome(); loadEvents(); loadPosts(); loadHeroDishes()
   }, [])
+
+  // Hero reel animation
+  useEffect(() => {
+    const totalFrames = heroImages.length
+    if (totalFrames <= 1) return
+    let start = performance.now()
+    function tick(now) {
+      const elapsed = now - start
+      const pct = Math.min((elapsed / frameDuration) * 100, 100)
+      setReelProgress(pct)
+      if (elapsed >= frameDuration) {
+        setCurrentFrame(f => (f + 1) % totalFrames)
+        start = now
+      }
+      reelTimerRef.current = requestAnimationFrame(tick)
+    }
+    reelTimerRef.current = requestAnimationFrame(tick)
+    return () => { if (reelTimerRef.current) cancelAnimationFrame(reelTimerRef.current) }
+  }, [heroDishes, galleryHome])
+
+  // Stories carousel auto-advance
+  useEffect(() => {
+    if (reviews.length <= 1) return
+    autoTimerRef.current = setInterval(() => {
+      if (!isDragging) {
+        setCurrentStory(prev => (prev + 1) % reviews.length)
+      }
+    }, 4500)
+    return () => { if (autoTimerRef.current) clearInterval(autoTimerRef.current) }
+  }, [reviews.length, isDragging])
 
   const updateReservation = (key) => (e) => setReservation((f) => ({ ...f, [key]: e.target.value }))
 
@@ -91,88 +126,116 @@ export default function Home() {
     setResStatus(error ? "error" : "success")
   }
 
-  // Reel du hero : fondu automatique entre les photos toutes les 5s, avec
-  // une barre de progression (meme logique que le gabarit fourni).
-  const [activeFrame, setActiveFrame] = useState(0)
-  const [reelProgress, setReelProgress] = useState(0)
+  const reviewsCount = info?.home_reviews_count || 6
+  const shownReviews = reviews.slice(0, reviewsCount)
   const heroImages = heroDishes.length > 0
     ? heroDishes
     : galleryHome.slice(0, 5).map((g) => ({ id: g.id, url: g.url, label: g.caption }))
 
-  useEffect(() => {
-    if (heroImages.length <= 1) return
-    const frameDuration = 5000
-    let start = performance.now()
-    let raf
-    function tick(ts) {
-      const elapsed = ts - start
-      setReelProgress(Math.min((elapsed / frameDuration) * 100, 100))
-      if (elapsed >= frameDuration) {
-        setActiveFrame((f) => (f + 1) % heroImages.length)
-        start = ts
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heroImages.length])
+  const cardWidth = typeof window !== "undefined" && window.innerWidth <= 768 ? 316 : 416
 
-  const reviewsCount = info?.home_reviews_count || 6
-  const shownReviews = reviews.slice(0, reviewsCount)
+  const goToStory = (idx) => {
+    const clamped = Math.max(0, Math.min(shownReviews.length - 1, idx))
+    setCurrentStory(clamped)
+    if (autoTimerRef.current) clearInterval(autoTimerRef.current)
+  }
+
+  const handleDragStart = useCallback((e) => {
+    setIsDragging(true)
+    const x = e.type.includes("touch") ? e.touches[0].pageX : e.pageX
+    dragStartX.current = x
+    dragOffset.current = currentTranslateX.current
+    if (autoTimerRef.current) clearInterval(autoTimerRef.current)
+  }, [])
+
+  const handleDragMove = useCallback((e) => {
+    if (!isDragging) return
+    const x = e.type.includes("touch") ? e.touches[0].pageX : e.pageX
+    const diff = x - dragStartX.current
+    currentTranslateX.current = dragOffset.current + diff
+    setTrackTransform(currentTranslateX.current)
+  }, [isDragging])
+
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return
+    setIsDragging(false)
+    const snapIndex = Math.round(Math.abs(currentTranslateX.current) / cardWidth)
+    const clamped = Math.max(0, Math.min(shownReviews.length - 1, snapIndex))
+    setCurrentStory(clamped)
+    currentTranslateX.current = -clamped * cardWidth
+    setTrackTransform(currentTranslateX.current)
+  }, [isDragging, shownReviews.length, cardWidth])
+
+  useEffect(() => {
+    const target = -currentStory * cardWidth
+    currentTranslateX.current = target
+    setTrackTransform(target)
+  }, [currentStory, cardWidth])
+
+  const selectGuest = (n) => setReservation((r) => ({ ...r, guests: n }))
+
+  const sectionHeading = { fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 5vw, 4.5rem)", lineHeight: 0.9, whiteSpace: "nowrap" }
+  const mono = { fontFamily: "'JetBrains Mono', monospace" }
+  const heading = { fontFamily: "'Oswald', sans-serif" }
 
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative h-screen min-h-[760px] w-full overflow-hidden">
-        <div className="absolute inset-0">
-          {heroImages.length > 0 ? (
-            heroImages.map((img, i) => (
-              <div key={img.id} className={`reel-frame ${i === activeFrame ? "active" : ""}`}>
-                <img src={img.url} alt={img.label || "La Casa Di Carta"} />
-              </div>
-            ))
-          ) : (
-            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }} />
+      <section style={{ position: "relative", height: "100vh", minHeight: 760, width: "100%", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0 }}>
+          {heroImages.length > 0 ? heroImages.map((img, i) => (
+            <div key={img.id} className={`reel-frame ${i === currentFrame ? "active" : ""}`}>
+              <img src={img.url} alt={img.label || "La Casa Di Carta"} />
+            </div>
+          )) : (
+            <div className="reel-frame active">
+              <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop" alt="Restaurant ambiance" />
+            </div>
           )}
         </div>
         <div className="hero-overlay" />
-        <div className="scan-line" />
 
-        <div className="relative z-10 h-full max-w-6xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 md:pb-20 pt-32">
+        <div style={{ position: "relative", zIndex: 10, height: "100%", ...S.maxW, padding: "8rem 1.5rem 5rem", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
           {heroImages.length > 1 && (
-            <div className="hidden md:flex items-center gap-3 absolute top-28 right-6 lg:right-10 font-mono text-[11px] text-inkdim">
-              <span className="rec-dot w-2 h-2 bg-tomato rounded-full inline-block" />
-              <span className="tracking-[0.2em]">GALERIE &middot; LIVE</span>
+            <div style={{ position: "absolute", top: "8rem", right: "1.5rem", display: "flex", alignItems: "center", gap: "1rem", zIndex: 20 }} className="hide-mobile">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", ...mono, fontSize: 11, color: "#c0c0c0" }}>
+                <span className="rec-dot" style={{ width: 8, height: 8, background: "#D2491F", borderRadius: "50%", display: "inline-block" }} />
+                <span style={{ letterSpacing: "0.2em" }}>GALERIE &middot; LIVE</span>
+              </div>
             </div>
           )}
 
-          <div className="max-w-3xl">
-            <div className="section-marker mb-6"><span>Trattoria &amp; Livraison</span></div>
-            <h1 className="font-serif leading-[0.85] mb-8 text-[14vw] md:text-[10vw] lg:text-[8.5vw]">
-              LA CASA<br /><span className="text-tomato">DI CARTA</span>
+          <div style={{ maxWidth: "64rem" }}>
+            <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>{t("hero.eyebrow")}</span></div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(14vw, 8.5vw, 8.5vw)", lineHeight: 0.85, marginBottom: "2rem" }}>
+              {t("hero.title_pre")}<span style={{ color: "#D2491F" }}>{t("hero.title_em")}</span>{t("hero.title_post")}
             </h1>
-            <p className="max-w-md text-inkdim text-lg leading-relaxed">
-              Pizza au feu de bois, specialites italo-marocaines et couscous du vendredi. Un cadre chaleureux au coeur de Rabat.
+            <p style={{ maxWidth: "36rem", color: "#c0c0c0", fontSize: "1.125rem", lineHeight: 1.625, fontFamily: "'Archivo', sans-serif" }}>
+              {t("hero.lede")}
             </p>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-end justify-between gap-8">
-            <div className="flex items-center gap-4 flex-wrap">
-              <Link to="/reserver" className="pulse-btn bg-tomato text-black px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
-                <span>Reserver</span><i className="fas fa-arrow-right text-xs" />
+          <div style={{ marginTop: "3rem", display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: "2rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+              <Link to="/reserver" className="pulse-btn" style={{ background: "#D2491F", color: "#000", padding: "0.875rem 2rem", ...heading, fontSize: "0.875rem", letterSpacing: "0.2em", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "0.75rem", whiteSpace: "nowrap" }}>
+                <span>{t("hero.cta_book")}</span>
+                <i className="fas fa-arrow-right" style={{ fontSize: "0.75rem" }} />
               </Link>
-              <Link to="/livraison" className="px-6 py-3.5 font-heading text-xs tracking-[0.2em] uppercase text-inkdim border border-linelight hover:border-tomato hover:text-ink transition flex items-center gap-3 whitespace-nowrap">
-                <span>Livraison</span><i className="fas fa-motorcycle text-xs text-tomato" />
+              <Link to="/livraison" style={{ padding: "0.875rem 1.5rem", ...heading, fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#c0c0c0", border: "1px solid #2a2a2a", display: "flex", alignItems: "center", gap: "0.75rem", whiteSpace: "nowrap", transition: "all 0.3s" }}>
+                <span>{t("hero.cta_delivery")}</span>
+                <i className="fas fa-motorcycle" style={{ fontSize: "0.75rem", color: "#D2491F" }} />
               </Link>
             </div>
+
             {heroImages.length > 1 && (
-              <div className="flex items-center gap-6 max-w-xs w-full">
-                <div className="font-mono text-[10px] text-muted tracking-[0.2em] whitespace-nowrap">
-                  {String(activeFrame + 1).padStart(2, "0")} / {String(heroImages.length).padStart(2, "0")}
+              <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", maxWidth: "16rem", width: "100%" }}>
+                <div style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em" }}>
+                  <span>{String(currentFrame + 1).padStart(2, "0")}</span> / <span>{String(heroImages.length).padStart(2, "0")}</span>
                 </div>
-                <div className="progress-bar flex-1"><div className="progress-bar-fill" style={{ width: `${reelProgress}%` }} /></div>
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] whitespace-nowrap">GALERIE</div>
+                <div className="progress-bar" style={{ flex: 1 }}>
+                  <div className="progress-bar-fill" style={{ width: `${reelProgress}%` }} />
+                </div>
+                <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em" }}>GALLERIE</div>
               </div>
             )}
           </div>
@@ -180,78 +243,86 @@ export default function Home() {
       </section>
 
       {/* ============ QUICK DOCK ============ */}
-      <div className="px-6 lg:px-10 relative z-10 -mt-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-sm p-3">
-          {DOCK.map((item) => (
-            <Link key={item.to} to={item.to} className="flex items-center gap-4 p-4 hover:bg-white/5 transition rounded-sm">
-              <div className="w-10 h-10 border border-linelight flex items-center justify-center shrink-0">
-                <i className={`fas ${item.icon} text-sm`} />
+      <div style={{ padding: "0 1.5rem", position: "relative", zIndex: 10, marginTop: "-1.5rem" }}>
+        <div style={{ ...S.maxW, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem", background: "#141414", border: "1px solid #1f1f1f", borderRadius: 2, padding: "0.75rem" }}>
+          {[
+            { to: "/reserver", icon: "fa-utensils", label: t("dock.book"), sub: t("dock.book_sub") },
+            { to: "/livraison", icon: "fa-motorcycle", label: t("dock.delivery"), sub: t("dock.delivery_sub") },
+            { to: "/menu", icon: "fa-book-open", label: t("dock.menu"), sub: t("dock.menu_sub") },
+            { to: "/a-propos", icon: "fa-location-dot", label: t("dock.directions"), sub: t("dock.directions_sub") },
+          ].map((item) => (
+            <Link key={item.to} to={item.to} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1rem", transition: "background 0.3s" }} onMouseEnter={e => e.currentTarget.style.background = "#1a1a1a"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+              <div style={{ width: "2.5rem", height: "2.5rem", border: "1px solid #2a2a2a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <i className={`fas ${item.icon}`} style={{ fontSize: "0.875rem" }} />
               </div>
               <div>
-                <b className="font-heading text-sm tracking-[0.1em] block">{item.title}</b>
-                <span className="font-mono text-xs text-muted">{item.sub}</span>
+                <b style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.1em", display: "block" }}>{item.label}</b>
+                <span style={{ ...mono, fontSize: "0.75rem", color: "#6a6a6a" }}>{item.sub}</span>
               </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ============ A LA UNE ============ */}
+      {/* ============ FEATURED MENU ============ */}
       {featured.length > 0 && (
-        <section>
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-12 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>01 — Notre carte</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">
-                  A la une. <span className="text-stroke">Saveurs</span> du <span className="text-tomato">moment.</span>
-                </h2>
-              </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <p className="text-inkdim mb-6">Nos plats signatures, prepares avec des ingredients frais et de saison. Chaque assiette raconte une histoire entre tradition italienne et heritage marocain.</p>
-                <Link to="/menu" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Voir tout le menu</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
+        <section id="menu" style={S.sectionPad}>
+          <div style={{ ...S.maxW, ...S.px }}>
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "5rem", alignItems: "flex-end" }}>
+                <div>
+                  <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>01 — Notre carte</span></div>
+                  <h2 style={sectionHeading}>
+                    A la une. <span className="text-stroke">Saveurs</span> du <span style={{ color: "#D2491F" }}>moment.</span>
+                  </h2>
+                </div>
+                <div style={{ gridColumnStart: 9 }}>
+                  <p style={{ color: "#c0c0c0", fontSize: "1rem", lineHeight: 1.625, marginBottom: "1.5rem" }}>
+                    Nos plats signatures, prepares avec des ingredients frais et de saison. Chaque assiette raconte une histoire entre tradition italienne et heritage marocain.
+                  </p>
+                  <Link to="/menu" className="link-underline" style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#c0c0c0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>Voir tout le menu</span>
+                    <i className="fas fa-arrow-right" style={{ color: "#D2491F" }} />
+                  </Link>
+                </div>
               </div>
             </Reveal>
 
-            {/* 3 premiers plats : carte statique (survol = zoom + elevation) */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            {/* Program cards (first 3) */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
               {featured.slice(0, 3).map((item, i) => (
-                <Reveal key={item.id} delay={i * 90}>
-                  <article className="program-card info-card notch-corner h-full flex flex-col">
-                    <div className="relative h-36 md:h-72 overflow-hidden">
+                <Reveal key={item.id} delay={i * 120}>
+                  <article className="program-card info-card notch-corner" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                    <div style={{ position: "relative", height: "18rem", overflow: "hidden" }}>
                       {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="program-img w-full h-full object-cover" />
+                        <img src={item.image_url} alt={item.name} className="program-img" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                          <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
-                        </div>
+                        <div style={{ width: "100%", height: "100%", background: "#1a1a1a" }} />
                       )}
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #141414, transparent)" }} />
-                      <div className="absolute top-3 md:top-4 left-3 md:left-4 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(i + 1).padStart(2, "0")}</div>
-                      <div className="absolute top-3 md:top-4 right-3 md:right-4 px-2 py-1 bg-black/60 backdrop-blur-sm font-mono text-[10px] text-ink tracking-[0.15em]">{item.category}</div>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #141414, transparent)" }} />
+                      <div style={{ position: "absolute", top: "1rem", left: "1rem", ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em" }}>/ {String(i + 1).padStart(2, "0")}</div>
+                      <div style={{ position: "absolute", top: "1rem", right: "1rem", padding: "0.25rem 0.5rem", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", ...mono, fontSize: 10, color: "#f5f5f5", letterSpacing: "0.15em" }}>{item.category}</div>
                     </div>
-                    <div className="p-3 md:p-6 flex-1 flex flex-col">
-                      <div className="mb-2 md:mb-4">
-                        <div className="grid grid-cols-2 gap-2 md:gap-4 mb-2 md:mb-4">
+                    <div style={{ padding: "1.5rem", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <div style={{ marginBottom: "1rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
                           <div>
-                            <div className="font-mono text-[9px] md:text-[10px] text-muted tracking-[0.2em] uppercase">Prix</div>
-                            <div className="font-heading text-xs md:text-base">{item.price} MAD</div>
+                            <div style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Prix</div>
+                            <div style={{ ...heading, fontSize: "1rem" }}>{item.price} MAD</div>
                           </div>
                           <div>
-                            <div className="font-mono text-[9px] md:text-[10px] text-muted tracking-[0.2em] uppercase">Categorie</div>
-                            <div className="font-heading text-xs md:text-base truncate">{item.category}</div>
+                            <div style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Categorie</div>
+                            <div style={{ ...heading, fontSize: "1rem" }}>{item.category}</div>
                           </div>
                         </div>
-                        <p className="hidden md:block text-inkdim text-sm leading-relaxed line-clamp-3">
+                        <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                           {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
                         </p>
                       </div>
-                      <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-linelight">
-                        <span className="hidden md:inline font-mono text-[10px] text-muted tracking-[0.15em]">SUR COMMANDE</span>
-                        <Link to="/menu" className="font-heading text-xs md:text-sm tracking-[0.15em] uppercase flex items-center gap-2">
-                          Commander <i className="fas fa-arrow-right text-tomato text-xs" />
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: "1rem", borderTop: "1px solid #2a2a2a" }}>
+                        <span style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.15em" }}>SUR COMMANDE</span>
+                        <Link to="/menu" style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                          Commander <i className="fas fa-arrow-right" style={{ color: "#D2491F", marginLeft: "0.5rem", fontSize: "0.75rem" }} />
                         </Link>
                       </div>
                     </div>
@@ -260,49 +331,40 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Plats suivants : cartes retournables */}
+            {/* Flip cards (next 3) */}
             {featured.length > 3 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-6">
-                {featured.slice(3).map((item, i) => (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginTop: "1.5rem" }}>
+                {featured.slice(3, 6).map((item, i) => (
                   <Reveal key={item.id} delay={i * 90}>
-                    <div className="flip-card h-64 md:h-[420px]"
-                      onClick={(e) => { if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped") }}>
+                    <div className="flip-card" onClick={(e) => { if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped") }}>
                       <div className="flip-card-inner">
-                        <div className="flip-face info-card flex flex-col">
+                        <div className="flip-face info-card" style={{ display: "flex", flexDirection: "column" }}>
                           <div className="dish-img-wrap">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                                <span className="font-serif text-2xl text-gold/40">{item.name?.[0]}</span>
-                              </div>
-                            )}
-                            <div className="absolute top-3 md:top-4 left-3 md:left-4 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(i + 4).padStart(2, "0")}</div>
-                            <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-3 md:right-4">
-                              <div className="font-mono text-[10px] text-silverdim tracking-[0.2em] uppercase">{item.category}</div>
+                            {item.image_url ? <img src={item.image_url} alt={item.name} /> : <div style={{ width: "100%", height: "100%", background: "#1a1a1a" }} />}
+                            <div style={{ position: "absolute", top: "1rem", left: "1rem", ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em" }}>/ {String(i + 4).padStart(2, "0")}</div>
+                            <div style={{ position: "absolute", bottom: "1rem", left: "1rem", right: "1rem" }}>
+                              <div style={{ ...mono, fontSize: 10, color: "#5a5a5a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{item.category}</div>
                             </div>
                           </div>
-                          <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
+                          <div style={{ padding: "1.5rem", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                             <div>
-                              <h3 className="font-serif text-lg md:text-3xl leading-tight">{item.name}</h3>
-                              <p className="font-heading text-muted text-[10px] md:text-xs mt-1 md:mt-2 tracking-[0.1em] uppercase">{item.category}</p>
+                              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.875rem", lineHeight: 1 }}>{item.name}</h3>
+                              <p style={{ ...heading, color: "#6a6a6a", fontSize: "0.75rem", marginTop: "0.5rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>{item.category}</p>
                             </div>
-                            <div className="flex items-center justify-between mt-2 md:mt-4 pt-2 md:pt-4 border-t border-linelight">
-                              <span className="font-mono text-[10px] text-muted tracking-[0.15em]">{item.price} MAD</span>
-                              <span className="hidden md:inline font-mono text-[10px] text-tomato tracking-[0.15em]">SURVOLER &rarr;</span>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #2a2a2a" }}>
+                              <span style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.15em" }}>{item.price} MAD</span>
+                              <span style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.15em" }}>SURVOLER &rarr;</span>
                             </div>
                           </div>
                         </div>
-                        <div className="flip-face flip-back info-card p-4 md:p-7 flex flex-col">
-                          <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2 md:mb-4">/ {item.name}</div>
-                          <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-5">Description</h3>
-                          <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
-                            {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
-                          </p>
-                          <div className="mt-auto pt-2 md:pt-5 border-t border-linelight">
-                            <div className="flex items-center justify-between">
-                              <div className="font-serif text-lg md:text-2xl text-tomato">{item.price} MAD</div>
-                              <Link to="/menu" className="font-mono text-[10px] tracking-[0.15em] uppercase text-tomato">Commander &rarr;</Link>
+                        <div className="flip-face flip-back info-card" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", background: "#141414" }}>
+                          <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1rem" }}>/ {item.name}</div>
+                          <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "1.25rem" }}>Description</h3>
+                          <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625, flex: 1 }}>{item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}</p>
+                          <div style={{ marginTop: "auto", paddingTop: "1.25rem", borderTop: "1px solid #2a2a2a" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: "#D2491F" }}>{item.price} MAD</div>
+                              <Link to="/menu" style={{ ...mono, fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: "#D2491F" }}>Commander &rarr;</Link>
                             </div>
                           </div>
                         </div>
@@ -316,280 +378,323 @@ export default function Home() {
         </section>
       )}
 
-      {/* ============ AVIS (carrousel) ============ */}
-      <section className="border-t border-line overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 mb-10 lg:mb-16 pt-14 lg:pt-28">
-          <Reveal className="grid md:grid-cols-12 gap-8 items-end">
-            <div className="md:col-span-7">
-              <div className="section-marker mb-6"><span>02 — Avis</span></div>
-              <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Ce qu en pensent <span className="text-tomato">nos clients.</span></h2>
-            </div>
-            <div className="md:col-span-4 md:col-start-9">
-              <div className="flex items-center gap-4 mb-3">
-                <span className="font-serif text-5xl">{info?.google_rating ?? "4.5"}</span>
-                <div>
-                  <p className="text-gold text-sm"><Stars rating={Math.round(info?.google_rating || 4)} /></p>
-                  <p className="font-mono text-muted text-xs">{info?.google_review_count ?? shownReviews.length} avis Google</p>
-                </div>
+      {/* ============ REVIEWS ============ */}
+      <section id="reviews" style={{ ...S.sectionBorder, overflow: "hidden" }}>
+        <div style={{ ...S.maxW, ...S.px, marginBottom: "4rem" }}>
+          <Reveal>
+            <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", alignItems: "flex-end" }}>
+              <div>
+                <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>02 — Avis</span></div>
+                <h2 style={sectionHeading}>
+                  Ce qu'en pensent <span style={{ color: "#D2491F" }}>nos clients.</span>
+                </h2>
               </div>
-              <div className="hidden md:flex items-center gap-3 font-mono text-[10px] text-muted tracking-[0.2em] uppercase">
-                <i className="fas fa-hand-pointer text-tomato" />
-                <span>Glisser &middot; Avancer automatique</span>
+              <div style={{ gridColumnStart: 9 }}>
+                {info && (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "3rem" }}>{info.google_rating}</span>
+                      <div>
+                        <div style={{ color: "#D2491F", fontSize: "0.875rem" }}>{"★ ".repeat(Math.round(info.google_rating || 0))}</div>
+                        <div style={{ ...mono, color: "#6a6a6a", fontSize: "0.75rem" }}>{info.google_review_count} avis Google</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>
+                      <i className="fas fa-hand-pointer" style={{ color: "#D2491F" }} />
+                      <span>Glisser &middot; Avancer automatique</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Reveal>
         </div>
-        <div className="pb-14 lg:pb-28">
-          <MotionCarousel
-            items={shownReviews}
-            renderItem={(r, i) => (
-              <div className="story-card p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-serif text-2xl">{r.author_name}</h3>
-                  <span className="font-mono text-[10px] text-muted tracking-[0.15em] whitespace-nowrap">AVIS / {String(i + 1).padStart(2, "0")}</span>
-                </div>
-                <p className="text-gold text-sm mb-3"><Stars rating={r.rating} /></p>
-                <p className="text-inkdim text-sm leading-relaxed mb-5 italic">&quot;{r.text}&quot;</p>
-                <div className="grid grid-cols-2 gap-2 pt-4 border-t border-linelight">
-                  <div>
-                    <div className="font-serif text-xl text-tomato">{r.rating}/5</div>
-                    <div className="font-mono text-[9px] text-muted tracking-[0.15em] uppercase">Note</div>
+
+        <div style={{ position: "relative", overflow: "hidden" }}>
+          <div
+            ref={storyTrackRef}
+            style={{ display: "flex", gap: "1.5rem", cursor: "grab", userSelect: "none", willChange: "transform", padding: "0 1.5rem", transform: `translateX(${trackTransform}px)`, transition: isDragging ? "none" : "transform 700ms cubic-bezier(0.16, 1, 0.3, 1)" }}
+            onMouseDown={handleDragStart} onMouseMove={handleDragMove} onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
+            onTouchStart={handleDragStart} onTouchMove={handleDragMove} onTouchEnd={handleDragEnd}
+          >
+            {shownReviews.map((r, i) => (
+              <article key={r.id} className="story-card" style={{ pointerEvents: isDragging ? "none" : "auto" }}>
+                <div style={{ padding: "1.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+                    <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem" }}>{r.author_name}</h3>
+                    <span style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.15em" }}>AVIS / {String(i + 1).padStart(2, "0")}</span>
                   </div>
-                  <div>
-                    <div className="font-serif text-xl">Google</div>
-                    <div className="font-mono text-[9px] text-muted tracking-[0.15em] uppercase">Source</div>
+                  <div style={{ color: "#D2491F", fontSize: "0.875rem", marginBottom: "0.75rem" }}>{"★ ".repeat(r.rating)}{"☆ ".repeat(5 - r.rating)}</div>
+                  <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625, marginBottom: "1.25rem", fontStyle: "italic" }}>
+                    &ldquo;{r.text}&rdquo;
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", paddingTop: "1rem", borderTop: "1px solid #2a2a2a" }}>
+                    <div>
+                      <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem", color: "#D2491F" }}>{r.rating}/5</div>
+                      <div style={{ ...mono, fontSize: 9, color: "#6a6a6a", letterSpacing: "0.15em", textTransform: "uppercase" }}>Note</div>
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem" }}>Google</div>
+                      <div style={{ ...mono, fontSize: 9, color: "#6a6a6a", letterSpacing: "0.15em", textTransform: "uppercase" }}>Source</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          />
+              </article>
+            ))}
+          </div>
+
+          <div style={{ ...S.maxW, ...S.px, marginTop: "2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              {shownReviews.map((_, i) => (
+                <button key={i} onClick={() => goToStory(i)} style={{ width: i === currentStory ? 32 : 8, height: 2, background: i === currentStory ? "#D2491F" : "#2a2a2a", border: "none", cursor: "pointer", transition: "all 0.3s" }} />
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <button onClick={() => goToStory(currentStory - 1)} style={{ width: "2.75rem", height: "2.75rem", border: "1px solid #2a2a2a", background: "transparent", color: "#f5f5f5", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}>
+                <i className="fas fa-arrow-left" style={{ fontSize: "0.75rem" }} />
+              </button>
+              <button onClick={() => goToStory(currentStory + 1)} style={{ width: "2.75rem", height: "2.75rem", border: "1px solid #2a2a2a", background: "transparent", color: "#f5f5f5", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}>
+                <i className="fas fa-arrow-right" style={{ fontSize: "0.75rem" }} />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ============ GALERIE ============ */}
+      {/* ============ GALLERY ============ */}
       {galleryHome.length > 0 && (
-        <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>03 — Ambiance</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Un apercu <span className="text-stroke">en images.</span></h2>
-              </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <p className="text-inkdim mb-6">Decouvrez l atmosphere unique de La Casa Di Carta. Un cadre chaleureux ou chaque repas devient un moment d exception.</p>
-                <Link to="/galerie" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Toute la galerie</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
+        <section id="gallery" style={S.sectionBorder}>
+          <div style={{ ...S.maxW, ...S.px }}>
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
+                <div>
+                  <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>03 — Ambiance</span></div>
+                  <h2 style={sectionHeading}>
+                    Un apercu <span className="text-stroke">en images.</span>
+                  </h2>
+                </div>
+                <div style={{ gridColumnStart: 9 }}>
+                  <p style={{ color: "#c0c0c0", fontSize: "1rem", lineHeight: 1.625, marginBottom: "1.5rem" }}>
+                    Decouvrez l'atmosphere unique de La Casa Di Carta. Un cadre chaleureux ou chaque repas devient un moment d'exception.
+                  </p>
+                  <Link to="/galerie" className="link-underline" style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#c0c0c0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>Toute la galerie</span>
+                    <i className="fas fa-arrow-right" style={{ color: "#D2491F" }} />
+                  </Link>
+                </div>
               </div>
             </Reveal>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {galleryHome.map((img, i) => (
-                <Reveal key={img.id} delay={(i % 3) * 100}>
-                  <div className="info-card overflow-hidden aspect-[4/5] group">
-                    <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+                {galleryHome.map((img, i) => (
+                  <div key={img.id} className="info-card" style={{ overflow: "hidden", aspectRatio: "4/5" }}>
+                    <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
                   </div>
-                </Reveal>
-              ))}
-            </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
       )}
 
-      {/* ============ EVENEMENTS ============ */}
+      {/* ============ EVENTS ============ */}
       {events.length > 0 && (
-        <section className="border-t border-line" style={{ background: "#050505" }}>
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
-            <Reveal className="mb-10 lg:mb-16">
-              <div className="section-marker mb-6"><span>04 — Evenements</span></div>
-              <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">A ne pas <span className="text-tomato">manquer.</span></h2>
+        <section style={S.sectionPadDark}>
+          <div style={{ ...S.maxW, ...S.px }}>
+            <Reveal style={{ marginBottom: "4rem" }}>
+              <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>04 — Evenements</span></div>
+              <h2 style={sectionHeading}>A ne pas <span style={{ color: "#D2491F" }}>manquer.</span></h2>
             </Reveal>
-            <div className="grid md:grid-cols-2 gap-6">
-              {events.map((e, i) => (
-                <Reveal key={e.id} delay={i * 90}>
-                  <div className="info-card overflow-hidden flex flex-row h-full group">
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1.5rem" }}>
+                {events.map((e) => (
+                  <div key={e.id} className="info-card" style={{ overflow: "hidden", display: "flex", flexDirection: "row", height: "100%" }}>
                     {e.image_url && (
-                      <div className="w-32 md:w-48 shrink-0 overflow-hidden">
-                        <img src={e.image_url} alt={e.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <div style={{ width: "12rem", flexShrink: 0, overflow: "hidden" }}>
+                        <img src={e.image_url} alt={e.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} onMouseEnter={e2 => e2.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e2 => e2.currentTarget.style.transform = "scale(1)"} />
                       </div>
                     )}
-                    <div className="p-4 md:p-6 flex-1">
+                    <div style={{ padding: "1.5rem", flex: 1 }}>
                       {e.event_date && !e.is_offer && (
-                        <p className="font-mono text-xs text-tomato mb-2">
+                        <p style={{ ...mono, fontSize: "0.75rem", color: "#D2491F", marginBottom: "0.5rem" }}>
                           {new Date(e.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
                         </p>
                       )}
-                      {e.is_offer && <p className="font-mono text-xs text-basil mb-2">Offre permanente</p>}
-                      <h3 className="font-serif text-xl md:text-2xl mb-2">{e.title}</h3>
-                      <p className="text-inkdim text-sm leading-relaxed">{e.description}</p>
+                      {e.is_offer && <p style={{ ...mono, fontSize: "0.75rem", color: "#7C9A5C", marginBottom: "0.5rem" }}>Offre permanente</p>}
+                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "0.5rem" }}>{e.title}</h3>
+                      <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625 }}>{e.description}</p>
                     </div>
                   </div>
-                </Reveal>
-              ))}
-            </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
       )}
 
       {/* ============ BLOG ============ */}
       {posts.length > 0 && (
-        <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>05 — Actualites</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Notre <span className="text-stroke">blog.</span></h2>
-              </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <Link to="/blog" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Tous les articles</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
+        <section style={S.sectionBorder}>
+          <div style={{ ...S.maxW, ...S.px }}>
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
+                <div>
+                  <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>05 — Actualites</span></div>
+                  <h2 style={sectionHeading}>Notre <span className="text-stroke">blog.</span></h2>
+                </div>
+                <div style={{ gridColumnStart: 9 }}>
+                  <Link to="/blog" className="link-underline" style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#c0c0c0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>Tous les articles</span>
+                    <i className="fas fa-arrow-right" style={{ color: "#D2491F" }} />
+                  </Link>
+                </div>
               </div>
             </Reveal>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-              {posts.map((p, i) => (
-                <Reveal key={p.id} delay={i * 90}>
-                  <Link to={`/blog/${p.slug}`} className="info-card block overflow-hidden group h-full">
+            <Reveal>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+                {posts.map((p) => (
+                  <Link key={p.id} to={`/blog/${p.slug}`} className="info-card" style={{ display: "block", overflow: "hidden" }}>
                     {p.cover_image && (
-                      <div className="h-48 overflow-hidden">
-                        <img src={p.cover_image} alt={p.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <div style={{ height: "12rem", overflow: "hidden" }}>
+                        <img src={p.cover_image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
                       </div>
                     )}
-                    <div className="p-6">
-                      <p className="font-mono text-xs text-tomato mb-2">
+                    <div style={{ padding: "1.5rem" }}>
+                      <p style={{ ...mono, fontSize: "0.75rem", color: "#D2491F", marginBottom: "0.5rem" }}>
                         {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
                       </p>
-                      <h3 className="font-serif text-2xl mb-2">{p.title}</h3>
-                      <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
+                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "0.5rem" }}>{p.title}</h3>
+                      <p style={{ color: "#c0c0c0", fontSize: "0.875rem", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.excerpt}</p>
                     </div>
                   </Link>
-                </Reveal>
-              ))}
-            </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
       )}
 
-      {/* ============ RESERVATION & INFOS ============ */}
-      <section className="border-t border-line" style={{ background: "#050505" }}>
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
-          <Reveal className="mb-10 lg:mb-16">
-            <div className="section-marker mb-6"><span>06 — Reservation</span></div>
-            <h2 className="font-serif text-6xl md:text-7xl leading-[0.9]">
-              RESERVEZ. <span className="text-stroke">VENEZ</span> <span className="text-tomato">GOUTER.</span>
+      {/* ============ RESERVATION & INFO ============ */}
+      <section id="booking" style={S.sectionPadDark}>
+        <div style={{ ...S.maxW, ...S.px }}>
+          <Reveal style={{ marginBottom: "4rem" }}>
+            <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>06 — Reservation</span></div>
+            <h2 style={{ ...sectionHeading, fontSize: "clamp(3rem, 6vw, 7rem)" }}>
+              RESERVEZ. <span className="text-stroke">VENEZ</span> <span style={{ color: "#D2491F" }}>GOUTER.</span>
             </h2>
           </Reveal>
 
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Formulaire */}
-            <Reveal className="lg:col-span-7">
-              <div className="booking-frame p-8 md:p-12">
-                <div className="font-mono text-[11px] text-tomato tracking-[0.2em] uppercase mb-3">// Reservation rapide</div>
-                <h3 className="font-serif text-3xl md:text-4xl mb-2">RESERVEZ VOTRE TABLE</h3>
-                <p className="text-inkdim text-sm mb-8">Confirmation par telephone. Aucune avance requise.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "7fr 5fr", gap: "2rem 3rem" }}>
+            {/* Form */}
+            <Reveal>
+              <div className="booking-frame" style={{ padding: "2rem 3rem" }}>
+                <div style={{ ...mono, fontSize: 11, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.75rem" }}>// Reservation rapide</div>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.25rem", marginBottom: "0.5rem" }}>RESERVEZ VOTRE TABLE</h3>
+                <p style={{ color: "#c0c0c0", fontSize: "0.875rem", marginBottom: "2rem" }}>Confirmation par telephone. Aucune avance requise.</p>
 
                 {resStatus === "success" ? (
-                  <div className="flex items-center gap-4 p-6 border border-tomato/30">
-                    <div className="w-10 h-10 bg-tomato flex items-center justify-center shrink-0">
-                      <i className="fas fa-check text-black text-sm" />
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1.5rem", border: "1px solid rgba(210,73,31,0.3)" }}>
+                    <div style={{ width: "2.5rem", height: "2.5rem", background: "#D2491F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <i className="fas fa-check" style={{ color: "#000", fontSize: "0.875rem" }} />
                     </div>
                     <div>
-                      <div className="font-heading text-sm tracking-[0.1em] uppercase">Demande recue</div>
-                      <div className="text-inkdim text-xs mt-1">Nous vous appelons pour confirmer.</div>
+                      <div style={{ ...heading, fontSize: "0.875rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>Demande recue</div>
+                      <div style={{ color: "#c0c0c0", fontSize: "0.75rem", marginTop: "0.25rem" }}>Nous vous appelons pour confirmer.</div>
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={submitReservation} className="flex flex-col gap-6">
-                    <div className="grid md:grid-cols-2 gap-6">
+                  <form onSubmit={submitReservation} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Nom complet</label>
+                        <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Nom complet</label>
                         <input required placeholder="Votre nom" value={reservation.name} onChange={updateReservation("name")} className="form-input" />
                       </div>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Telephone</label>
+                        <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Telephone</label>
                         <input required placeholder="+212 6 00 00 00 00" value={reservation.phone} onChange={updateReservation("phone")} className="form-input" />
                       </div>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Date</label>
+                        <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Date</label>
                         <input required type="date" min={new Date().toISOString().split("T")[0]} value={reservation.date} onChange={updateReservation("date")} className="form-input" />
                       </div>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Heure</label>
+                        <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Heure</label>
                         <input required type="time" value={reservation.time} onChange={updateReservation("time")} className="form-input" />
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase block mb-3">Convives</label>
-                      <div className="flex flex-wrap gap-2">
+                      <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase", display: "block", marginBottom: "0.75rem" }}>Convives</label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                         {[2, 4, 6, 8].map((n) => (
-                          <button type="button" key={n} onClick={() => setReservation((r) => ({ ...r, guests: n }))}
-                            className={`guest-pill ${reservation.guests === n ? "active" : ""}`}>
+                          <button type="button" key={n} onClick={() => selectGuest(n)} className={`guest-pill ${reservation.guests === n ? "active" : ""}`}>
                             {n === 8 ? "8+" : n}
                           </button>
                         ))}
                       </div>
                     </div>
-                    <button type="submit" disabled={resStatus === "loading"}
-                      className="pulse-btn bg-tomato text-black py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60">
-                      <span>{resStatus === "loading" ? "ENVOI..." : "RESERVER MA TABLE"}</span>
+                    <button type="submit" disabled={resStatus === "loading"} className="pulse-btn" style={{ background: "#D2491F", color: "#000", padding: "1.25rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.1em", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginTop: "1rem", width: "100%" }}>
+                      <span>{resStatus === "loading" ? "Envoi..." : "RESERVER MA TABLE"}</span>
                       <i className="fas fa-arrow-right" />
                     </button>
-                    {resStatus === "error" && <p className="text-xs text-red-400">Verifiez la configuration Supabase.</p>}
+                    {resStatus === "error" && <p style={{ textAlign: "center", ...mono, fontSize: 10, color: "#f87171", letterSpacing: "0.15em", textTransform: "uppercase" }}>Verifiez la configuration Supabase.</p>}
                   </form>
                 )}
               </div>
             </Reveal>
 
-            {/* Infos pratiques */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
-              <Reveal className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Adresse</div>
-                <h4 className="font-serif text-2xl mb-3">NOUS TROUVER</h4>
-                <p className="text-inkdim text-sm leading-relaxed mb-4">{info?.address || "Rue d'Oran, Rabat"}</p>
-                <div className="flex items-center gap-3 font-mono text-[11px] text-silver">
-                  <i className="fas fa-location-dot text-tomato" />
-                  <span>RABAT, MAROC</span>
-                </div>
-              </Reveal>
-
-              <Reveal delay={100} className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Horaires</div>
-                <h4 className="font-serif text-2xl mb-3">OUVERTURE</h4>
-                <div className="flex flex-col gap-2 text-sm">
-                  <div className="flex justify-between border-b border-linelight pb-2">
-                    <span className="text-inkdim">Lundi &mdash; Dimanche</span>
-                    <span className="font-mono text-silver">{info?.hours || "08:00 — 23:00"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-inkdim">Couscous</span>
-                    <span className="font-mono text-tomato">VENDREDI</span>
+            {/* Info panel */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <Reveal style={{ "--delay": "0.1s" }}>
+                <div className="info-card" style={{ padding: "1.75rem" }}>
+                  <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.5rem" }}>/ Adresse</div>
+                  <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "0.75rem" }}>NOUS TROUVER</h4>
+                  <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625, marginBottom: "1rem" }}>{info?.address || "Rue d'Oran, Rabat"}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", ...mono, fontSize: 11, color: "#C8C8C8" }}>
+                    <i className="fas fa-location-dot" style={{ color: "#D2491F" }} />
+                    <span>RABAT, MAROC</span>
                   </div>
                 </div>
               </Reveal>
 
-              <Reveal delay={200} className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Contact</div>
-                <h4 className="font-serif text-2xl mb-3">NOUS APPELER</h4>
-                <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
-                  className="flex items-center gap-3 text-ink hover:text-tomato transition-colors">
-                  <i className="fas fa-phone text-tomato w-4" />
-                  <span className="font-mono">{info?.phone || "+212 5 37 26 26 58"}</span>
-                </a>
-                <p className="font-mono text-inkdim text-xs mt-2">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
+              <Reveal style={{ "--delay": "0.2s" }}>
+                <div className="info-card" style={{ padding: "1.75rem" }}>
+                  <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.5rem" }}>/ Horaires</div>
+                  <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "0.75rem" }}>OUVERTURE</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.875rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2a2a2a", paddingBottom: "0.5rem" }}>
+                      <span style={{ color: "#c0c0c0" }}>Lundi &mdash; Dimanche</span>
+                      <span style={{ ...mono, color: "#C8C8C8" }}>{info?.hours || "08:00 — 23:00"}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "#c0c0c0" }}>Couscous</span>
+                      <span style={{ ...mono, color: "#D2491F" }}>VENDREDI</span>
+                    </div>
+                  </div>
+                </div>
               </Reveal>
 
-              <Reveal delay={300} className="notch-corner overflow-hidden border border-line h-56">
-                <iframe
-                  title="Carte"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
-                  className="w-full h-full border-0"
-                  style={{ filter: "grayscale(100%) contrast(1.2) brightness(0.7)" }}
-                />
+              <Reveal style={{ "--delay": "0.3s" }}>
+                <div className="info-card" style={{ padding: "1.75rem" }}>
+                  <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.5rem" }}>/ Contact</div>
+                  <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "0.75rem" }}>NOUS APPELER</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem", fontSize: "0.875rem" }}>
+                    <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`} style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: "#f5f5f5" }}>
+                      <i className="fas fa-phone" style={{ color: "#D2491F", width: "1rem" }} />
+                      <span style={{ ...mono }}>{info?.phone || "+212 5 37 26 26 58"}</span>
+                    </a>
+                    <p style={{ ...mono, color: "#c0c0c0", fontSize: "0.75rem", marginTop: "0.5rem" }}>Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal style={{ "--delay": "0.4s" }} className="notch-corner" >
+                <div style={{ overflow: "hidden", border: "1px solid #1f1f1f", height: "14rem" }}>
+                  <iframe title="Carte" loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
+                    style={{ width: "100%", height: "100%", border: 0, filter: "grayscale(100%) contrast(1.2) brightness(0.7)" }} />
+                </div>
               </Reveal>
             </div>
           </div>

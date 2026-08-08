@@ -57,8 +57,7 @@ export default function App() {
       <Route
         path="/"
         element={
-          <div className="min-h-screen bg-bg text-ink">
-            <div className="grain" aria-hidden="true" />
+          <div className="min-h-screen bg-bg text-fg font-body">
             <Header />
             <Home />
             <Footer />
@@ -127,8 +126,7 @@ export default function App() {
 
 function PublicPage({ children }) {
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <div className="grain" aria-hidden="true" />
+    <div className="min-h-screen bg-bg text-fg font-body">
       <Header />
       {children}
       <Footer />
