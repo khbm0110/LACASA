@@ -86,14 +86,16 @@ export default function Menu() {
               }}>
               <div className="flip-card-inner">
                 {/* Face avant : photo + prix */}
-                <div className="flip-face bg-bgsoft border border-line rounded-2xl flex flex-col">
+                <div className="flip-face bg-bgsoft border border-line notch-corner flex flex-col">
                   {item.image_url ? (
-                    <div className="h-36 md:h-56 overflow-hidden rounded-t-2xl">
+                    <div className="relative h-36 md:h-56 overflow-hidden">
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   ) : (
-                    <div className="h-36 md:h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                    <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
                       <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                      <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   )}
                   <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
