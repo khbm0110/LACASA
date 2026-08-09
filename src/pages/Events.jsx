@@ -18,19 +18,20 @@ export default function Events() {
   const upcoming = events.filter((e) => !e.is_offer)
 
   return (
-    <section className="max-w-5xl mx-auto px-6 md:px-8 py-20">
-      <h1 className="font-serif text-4xl mb-10">Evenements & Offres</h1>
+    <section className="page-wrap-lg">
+      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>A ne pas manquer</span></div>
+      <h1 className="page-title" style={{ marginBottom: "3rem" }}>EVENEMENTS <span className="text-stroke">&amp; OFFRES.</span></h1>
 
       {offers.length > 0 && (
         <div className="mb-14">
-          <h2 className="font-serif text-2xl mb-5 text-gold">Offres en cours</h2>
+          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1.25rem" }}>Offres en cours</p>
           <div className="grid md:grid-cols-2 gap-4">
             {offers.map((e) => <EventCard key={e.id} event={e} />)}
           </div>
         </div>
       )}
 
-      <h2 className="font-serif text-2xl mb-5 text-gold">A venir</h2>
+      <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1.25rem" }}>A venir</p>
       <div className="grid md:grid-cols-2 gap-4">
         {upcoming.map((e) => <EventCard key={e.id} event={e} />)}
       </div>
@@ -43,7 +44,7 @@ export default function Events() {
 
 function EventCard({ event }) {
   return (
-    <div className="group bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300">
+    <div className="group info-card overflow-hidden">
       {event.image_url && (
         <div className="h-40 overflow-hidden">
           <img src={event.image_url} alt={event.title}
@@ -54,7 +55,7 @@ function EventCard({ event }) {
         {event.event_date && (
           <p className="font-mono text-xs text-gold mb-2">{new Date(event.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</p>
         )}
-        <h3 className="font-serif text-xl mb-1">{event.title}</h3>
+        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-2xl mb-1">{event.title}</h3>
         <p className="text-inkdim text-sm">{event.description}</p>
       </div>
     </div>

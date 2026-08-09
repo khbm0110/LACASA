@@ -49,10 +49,11 @@ export default function Menu() {
   const shownItems = items.filter((i) => i.category === activeCat)
 
   return (
-    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
+    <section className="page-wrap-lg">
       <Reveal>
-        <h1 className="font-serif text-4xl md:text-5xl mb-2">{t("menu_page.title")}</h1>
-        <p className="text-inkdim mb-8">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
+        <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Notre carte</span></div>
+        <h1 className="page-title">LA <span className="text-stroke">CARTE.</span></h1>
+        <p className="page-lede">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
       </Reveal>
 
       {/* Filtre par categorie - boutons qui filtrent reellement la liste,
@@ -64,9 +65,7 @@ export default function Menu() {
             <button
               key={cat}
               onClick={() => setActiveCat(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
-                activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
-              }`}
+              className={`cat-pill ${activeCat === cat ? "active" : ""}`}
             >
               {cat}
             </button>
@@ -77,44 +76,44 @@ export default function Menu() {
       {/* Grille de cartes retournables - meme traitement que "A la une" sur
           l'accueil, pour une experience visuelle coherente partout ou les
           photos du menu apparaissent */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {shownItems.map((item, ii) => (
           <Reveal key={item.id} delay={Math.min(ii, 6) * 70}>
-            <div className="flip-card h-64 md:h-80"
+            <div className="flip-card"
               onClick={(e) => {
                 if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
               }}>
               <div className="flip-card-inner">
                 {/* Face avant : photo + prix */}
-                <div className="flip-face bg-bgsoft border border-line rounded-2xl flex flex-col">
+                <div className="flip-face info-card flex flex-col">
                   {item.image_url ? (
-                    <div className="h-36 md:h-56 overflow-hidden rounded-t-2xl">
+                    <div className="h-24 md:h-32 overflow-hidden">
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="h-36 md:h-56 flex items-center justify-center rounded-t-2xl" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                      <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                    <div className="h-24 md:h-32 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                      <span style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-2xl text-gold/40">{item.name?.[0]}</span>
                     </div>
                   )}
-                  <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
+                  <div className="p-2 md:p-3 flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-inkdim mb-1">{item.category}</p>
-                      <h3 className="font-serif text-base md:text-xl leading-tight">{item.name}</h3>
+                      <p className="font-mono text-[8px] md:text-[9px] uppercase tracking-widest text-inkdim mb-0.5">{item.category}</p>
+                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-sm md:text-lg leading-tight">{item.name}</h3>
                     </div>
-                    <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-line mt-2 md:mt-3">
-                      <p className="font-mono text-gold text-sm md:text-base">{item.price} MAD</p>
-                      <span className="hidden md:inline font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
+                    <div className="flex items-center justify-between pt-1 md:pt-2 border-t border-line mt-1 md:mt-2">
+                      <p className="font-mono text-gold text-xs md:text-sm">{item.price} MAD</p>
+                      <span className="hidden md:inline font-mono text-[9px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
                     </div>
                   </div>
                 </div>
                 {/* Face arriere : description */}
-                <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-4 md:p-7 flex flex-col">
-                  <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gold mb-2 md:mb-3">/ {item.category}</p>
-                  <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-4">{item.name}</h3>
-                  <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
+                <div className="flip-face flip-back info-card p-2.5 md:p-4 flex flex-col">
+                  <p className="font-mono text-[8px] md:text-[9px] uppercase tracking-[0.15em] text-gold mb-1 md:mb-2">/ {item.category}</p>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-base md:text-xl mb-1 md:mb-2">{item.name}</h3>
+                  <p className="text-inkdim text-[11px] md:text-xs leading-relaxed flex-1 line-clamp-3 md:line-clamp-4">
                     {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
                   </p>
-                  <p className="font-mono text-gold text-sm md:text-lg pt-2 md:pt-4 border-t border-line mt-2 md:mt-4">{item.price} MAD</p>
+                  <p className="font-mono text-gold text-xs md:text-sm pt-1 md:pt-2 border-t border-line mt-1 md:mt-2">{item.price} MAD</p>
                 </div>
               </div>
             </div>

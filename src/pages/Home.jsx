@@ -207,7 +207,7 @@ export default function Home() {
 
           <div style={{ maxWidth: "64rem" }}>
             <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>{t("hero.eyebrow")}</span></div>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(14vw, 8.5vw, 8.5vw)", lineHeight: 0.85, marginBottom: "2rem" }}>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.75rem, 9vw, 7.5rem)", lineHeight: 0.85, marginBottom: "2rem" }}>
               {t("hero.title_pre")}<span style={{ color: "#D2491F" }}>{t("hero.title_em")}</span>{t("hero.title_post")}
             </h1>
             <p style={{ maxWidth: "36rem", color: "#c0c0c0", fontSize: "1.125rem", lineHeight: 1.625, fontFamily: "'Archivo', sans-serif" }}>
@@ -244,7 +244,7 @@ export default function Home() {
 
       {/* ============ QUICK DOCK ============ */}
       <div style={{ padding: "0 1.5rem", position: "relative", zIndex: 10, marginTop: "-1.5rem" }}>
-        <div style={{ ...S.maxW, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem", background: "#141414", border: "1px solid #1f1f1f", borderRadius: 2, padding: "0.75rem" }}>
+        <div className="rg-quick-dock" style={{ ...S.maxW, gap: "0.75rem", background: "#141414", border: "1px solid #1f1f1f", borderRadius: 2, padding: "0.75rem" }}>
           {[
             { to: "/reserver", icon: "fa-utensils", label: t("dock.book"), sub: t("dock.book_sub") },
             { to: "/livraison", icon: "fa-motorcycle", label: t("dock.delivery"), sub: t("dock.delivery_sub") },
@@ -266,10 +266,10 @@ export default function Home() {
 
       {/* ============ FEATURED MENU ============ */}
       {featured.length > 0 && (
-        <section id="menu" style={S.sectionPad}>
+        <section id="menu" className="section-pad-fix" style={S.sectionPad}>
           <div style={{ ...S.maxW, ...S.px }}>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "5rem", alignItems: "flex-end" }}>
+              <div className="rg-split-header" style={{ gap: "2rem", marginBottom: "5rem", alignItems: "flex-end" }}>
                 <div>
                   <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>01 — Notre carte</span></div>
                   <h2 style={sectionHeading}>
@@ -289,11 +289,11 @@ export default function Home() {
             </Reveal>
 
             {/* Program cards (first 3) */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+            <div className="rg-grid-3" style={{ gap: "1.5rem" }}>
               {featured.slice(0, 3).map((item, i) => (
                 <Reveal key={item.id} delay={i * 120}>
                   <article className="program-card info-card notch-corner" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                    <div style={{ position: "relative", height: "18rem", overflow: "hidden" }}>
+                    <div style={{ position: "relative", height: "11rem", overflow: "hidden" }}>
                       {item.image_url ? (
                         <img src={item.image_url} alt={item.name} className="program-img" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
@@ -333,7 +333,7 @@ export default function Home() {
 
             {/* Flip cards (next 3) */}
             {featured.length > 3 && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginTop: "1.5rem" }}>
+              <div className="rg-grid-3" style={{ gap: "1.5rem", marginTop: "1.5rem" }}>
                 {featured.slice(3, 6).map((item, i) => (
                   <Reveal key={item.id} delay={i * 90}>
                     <div className="flip-card" onClick={(e) => { if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped") }}>
@@ -346,25 +346,25 @@ export default function Home() {
                               <div style={{ ...mono, fontSize: 10, color: "#5a5a5a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{item.category}</div>
                             </div>
                           </div>
-                          <div style={{ padding: "1.5rem", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                          <div style={{ padding: "0.85rem", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                             <div>
-                              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.875rem", lineHeight: 1 }}>{item.name}</h3>
-                              <p style={{ ...heading, color: "#6a6a6a", fontSize: "0.75rem", marginTop: "0.5rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>{item.category}</p>
+                              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", lineHeight: 1 }}>{item.name}</h3>
+                              <p style={{ ...heading, color: "#6a6a6a", fontSize: "0.65rem", marginTop: "0.3rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>{item.category}</p>
                             </div>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #2a2a2a" }}>
-                              <span style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.15em" }}>{item.price} MAD</span>
-                              <span style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.15em" }}>SURVOLER &rarr;</span>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid #2a2a2a" }}>
+                              <span style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.1em" }}>{item.price} MAD</span>
+                              <span style={{ ...mono, fontSize: 9, color: "#D2491F", letterSpacing: "0.1em" }}>SURVOLER &rarr;</span>
                             </div>
                           </div>
                         </div>
-                        <div className="flip-face flip-back info-card" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", background: "#141414" }}>
-                          <div style={{ ...mono, fontSize: 10, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1rem" }}>/ {item.name}</div>
-                          <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", marginBottom: "1.25rem" }}>Description</h3>
-                          <p style={{ color: "#c0c0c0", fontSize: "0.875rem", lineHeight: 1.625, flex: 1 }}>{item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}</p>
-                          <div style={{ marginTop: "auto", paddingTop: "1.25rem", borderTop: "1px solid #2a2a2a" }}>
+                        <div className="flip-face flip-back info-card" style={{ padding: "1rem", display: "flex", flexDirection: "column", background: "#141414" }}>
+                          <div style={{ ...mono, fontSize: 9, color: "#D2491F", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.5rem" }}>/ {item.category}</div>
+                          <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", marginBottom: "0.5rem" }}>{item.name}</h3>
+                          <p style={{ color: "#c0c0c0", fontSize: "0.75rem", lineHeight: 1.5, flex: 1, overflow: "hidden" }}>{item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}</p>
+                          <div style={{ marginTop: "auto", paddingTop: "0.6rem", borderTop: "1px solid #2a2a2a" }}>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: "#D2491F" }}>{item.price} MAD</div>
-                              <Link to="/menu" style={{ ...mono, fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: "#D2491F" }}>Commander &rarr;</Link>
+                              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem", color: "#D2491F" }}>{item.price} MAD</div>
+                              <Link to="/menu" style={{ ...mono, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "#D2491F" }}>Commander &rarr;</Link>
                             </div>
                           </div>
                         </div>
@@ -382,7 +382,7 @@ export default function Home() {
       <section id="reviews" style={{ ...S.sectionBorder, overflow: "hidden" }}>
         <div style={{ ...S.maxW, ...S.px, marginBottom: "4rem" }}>
           <Reveal>
-            <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", alignItems: "flex-end" }}>
+            <div className="rg-split-header" style={{ gap: "2rem", alignItems: "flex-end" }}>
               <div>
                 <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>02 — Avis</span></div>
                 <h2 style={sectionHeading}>
@@ -463,10 +463,10 @@ export default function Home() {
 
       {/* ============ GALLERY ============ */}
       {galleryHome.length > 0 && (
-        <section id="gallery" style={S.sectionBorder}>
+        <section id="gallery" className="section-pad-fix" style={S.sectionBorder}>
           <div style={{ ...S.maxW, ...S.px }}>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
+              <div className="rg-split-header" style={{ gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
                 <div>
                   <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>03 — Ambiance</span></div>
                   <h2 style={sectionHeading}>
@@ -485,7 +485,7 @@ export default function Home() {
               </div>
             </Reveal>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+              <div className="rg-grid-3" style={{ gap: "1rem" }}>
                 {galleryHome.map((img, i) => (
                   <div key={img.id} className="info-card" style={{ overflow: "hidden", aspectRatio: "4/5" }}>
                     <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
@@ -499,18 +499,18 @@ export default function Home() {
 
       {/* ============ EVENTS ============ */}
       {events.length > 0 && (
-        <section style={S.sectionPadDark}>
+        <section className="section-pad-fix" style={S.sectionPadDark}>
           <div style={{ ...S.maxW, ...S.px }}>
             <Reveal style={{ marginBottom: "4rem" }}>
               <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>04 — Evenements</span></div>
               <h2 style={sectionHeading}>A ne pas <span style={{ color: "#D2491F" }}>manquer.</span></h2>
             </Reveal>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1.5rem" }}>
+              <div className="rg-grid-2" style={{ gap: "1.5rem" }}>
                 {events.map((e) => (
-                  <div key={e.id} className="info-card" style={{ overflow: "hidden", display: "flex", flexDirection: "row", height: "100%" }}>
+                  <div key={e.id} className="info-card rg-event-card" style={{ overflow: "hidden", height: "100%" }}>
                     {e.image_url && (
-                      <div style={{ width: "12rem", flexShrink: 0, overflow: "hidden" }}>
+                      <div className="rg-event-img" style={{ overflow: "hidden" }}>
                         <img src={e.image_url} alt={e.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} onMouseEnter={e2 => e2.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e2 => e2.currentTarget.style.transform = "scale(1)"} />
                       </div>
                     )}
@@ -534,10 +534,10 @@ export default function Home() {
 
       {/* ============ BLOG ============ */}
       {posts.length > 0 && (
-        <section style={S.sectionBorder}>
+        <section className="section-pad-fix" style={S.sectionBorder}>
           <div style={{ ...S.maxW, ...S.px }}>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "7fr 4fr", gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
+              <div className="rg-split-header" style={{ gap: "2rem", marginBottom: "4rem", alignItems: "flex-end" }}>
                 <div>
                   <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>05 — Actualites</span></div>
                   <h2 style={sectionHeading}>Notre <span className="text-stroke">blog.</span></h2>
@@ -551,7 +551,7 @@ export default function Home() {
               </div>
             </Reveal>
             <Reveal>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+              <div className="rg-grid-3" style={{ gap: "1.5rem" }}>
                 {posts.map((p) => (
                   <Link key={p.id} to={`/blog/${p.slug}`} className="info-card" style={{ display: "block", overflow: "hidden" }}>
                     {p.cover_image && (
@@ -575,7 +575,7 @@ export default function Home() {
       )}
 
       {/* ============ RESERVATION & INFO ============ */}
-      <section id="booking" style={S.sectionPadDark}>
+      <section id="booking" className="section-pad-fix" style={S.sectionPadDark}>
         <div style={{ ...S.maxW, ...S.px }}>
           <Reveal style={{ marginBottom: "4rem" }}>
             <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>06 — Reservation</span></div>
@@ -584,7 +584,7 @@ export default function Home() {
             </h2>
           </Reveal>
 
-          <div style={{ display: "grid", gridTemplateColumns: "7fr 5fr", gap: "2rem 3rem" }}>
+          <div className="rg-split-booking" style={{ gap: "2rem 3rem" }}>
             {/* Form */}
             <Reveal>
               <div className="booking-frame" style={{ padding: "2rem 3rem" }}>
@@ -604,7 +604,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <form onSubmit={submitReservation} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                    <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                       <div>
                         <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Nom complet</label>
                         <input required placeholder="Votre nom" value={reservation.name} onChange={updateReservation("name")} className="form-input" />
@@ -614,7 +614,7 @@ export default function Home() {
                         <input required placeholder="+212 6 00 00 00 00" value={reservation.phone} onChange={updateReservation("phone")} className="form-input" />
                       </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                    <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                       <div>
                         <label style={{ ...mono, fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Date</label>
                         <input required type="date" min={new Date().toISOString().split("T")[0]} value={reservation.date} onChange={updateReservation("date")} className="form-input" />
@@ -634,7 +634,7 @@ export default function Home() {
                         ))}
                       </div>
                     </div>
-                    <button type="submit" disabled={resStatus === "loading"} className="pulse-btn" style={{ background: "#D2491F", color: "#000", padding: "1.25rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.1em", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginTop: "1rem", width: "100%" }}>
+                    <button type="submit" disabled={resStatus === "loading"} style={{ background: "#D2491F", color: "#000", padding: "1.25rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "0.1em", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginTop: "1rem", width: "100%" }}>
                       <span>{resStatus === "loading" ? "Envoi..." : "RESERVER MA TABLE"}</span>
                       <i className="fas fa-arrow-right" />
                     </button>

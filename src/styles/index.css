@@ -18,16 +18,6 @@ body {
 }
 .reveal.in, .reveal.in-view { opacity: 1; transform: translateY(0); }
 
-.reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.reveal-stagger.in > .reveal-stagger.in-view > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ============ HERO REEL ============ */
 .reel-frame {
   position: absolute;
@@ -96,10 +86,6 @@ body {
   -webkit-text-stroke: 1.5px #5a5a5a;
   color: transparent;
 }
-.text-stroke-accent {
-  -webkit-text-stroke: 1.5px #D2491F;
-  color: transparent;
-}
 
 /* ============ PROGRESS BAR ============ */
 .progress-bar {
@@ -128,13 +114,13 @@ body {
 }
 .rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
 
-/* ============ FLIP CARD ============ */
+/* ============ FLIP CARD (e-commerce compact size) ============ */
 .flip-card {
   perspective: 1800px;
-  height: 580px;
+  height: 300px;
 }
 @media (max-width: 768px) {
-  .flip-card { height: 480px; }
+  .flip-card { height: 260px; }
 }
 .flip-card-inner {
   position: relative;
@@ -159,7 +145,7 @@ body {
 /* ============ COACH / DISH IMG WRAP ============ */
 .dish-img-wrap {
   position: relative;
-  height: 70%;
+  height: 60%;
   overflow: hidden;
 }
 .dish-img-wrap img {
@@ -194,11 +180,6 @@ body {
 .program-card:hover .program-img {
   transform: scale(1.08);
 }
-.program-card:hover .program-number {
-  color: #D2491F;
-  -webkit-text-stroke-color: #D2491F;
-}
-
 /* ============ NOTCH CORNER ============ */
 .notch-corner { position: relative; }
 .notch-corner::before,
@@ -305,8 +286,6 @@ body {
   .story-card { width: 300px; }
 }
 
-/* ============ IMG NOIR ============ */
-
 /* ============ LINK UNDERLINE ============ */
 .link-underline {
   position: relative;
@@ -332,50 +311,159 @@ body {
     radial-gradient(circle at 80% 70%, rgba(80, 80, 80, 0.05) 0%, transparent 40%);
 }
 
-/* ============ NUMBER DISPLAY ============ */
-.number-display { font-variant-numeric: tabular-nums; }
-
-/* ============ FRAME CORNERS (legacy, adapted) ============ */
-.frame-corners { position: relative; }
-.frame-corners::before,
-.frame-corners::after {
-  content: '';
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  pointer-events: none;
-}
-.frame-corners::before {
-  top: -1px; left: -1px;
-  border-top: 2px solid #D2491F;
-  border-left: 2px solid #D2491F;
-}
-.frame-corners::after {
-  bottom: -1px; right: -1px;
-  border-bottom: 2px solid #D2491F;
-  border-right: 2px solid #D2491F;
-}
-
-/* ============ FORM UNDERLINE (legacy, adapted) ============ */
-.form-underline {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #2a2a2a;
-  color: #f5f5f5;
-  padding: 0.6rem 0;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-.form-underline:focus { border-color: #D2491F; }
-.form-underline::placeholder { color: #6a6a6a; }
-
 /* ============ SCROLLBAR ============ */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #050505; }
 ::-webkit-scrollbar-thumb { background: #923315; }
 ::-webkit-scrollbar-thumb:hover { background: #D2491F; }
+
+/* ============ RESPONSIVE GRID HELPERS (Home page) ============ */
+.rg-quick-dock { display: grid; grid-template-columns: repeat(2, 1fr); }
+.rg-split-header { display: grid; grid-template-columns: 7fr 4fr; }
+.rg-split-booking { display: grid; grid-template-columns: 7fr 5fr; }
+.rg-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); }
+.rg-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); }
+.rg-event-card { display: flex; flex-direction: row; }
+.rg-event-img { width: 12rem; flex-shrink: 0; overflow: hidden; }
+
+@media (max-width: 1024px) {
+  .rg-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .rg-quick-dock { grid-template-columns: repeat(2, 1fr); }
+  .rg-split-header { grid-template-columns: 1fr; gap: 1.5rem !important; }
+  .rg-split-header > div:last-child { grid-column-start: 1 !important; }
+  .rg-split-booking { grid-template-columns: 1fr; }
+  .rg-grid-3 { grid-template-columns: 1fr; }
+  .rg-grid-2 { grid-template-columns: 1fr; }
+  .rg-event-card { flex-direction: column; }
+  .rg-event-img { width: 100%; height: 12rem; }
+  .rg-form-2col { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .rg-quick-dock { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .section-pad-fix { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+}
+
+/* ============ UNIFIED PAGE HEADER (secondary pages) ============ */
+.page-wrap { max-width: 1100px; margin: 0 auto; padding: 7rem 1.5rem; }
+.page-wrap-lg { max-width: 1400px; margin: 0 auto; padding: 7rem 1.5rem; }
+@media (max-width: 768px) {
+  .page-wrap, .page-wrap-lg { padding: 4rem 1.25rem; }
+}
+h1.page-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  line-height: 0.9;
+  margin: 1.25rem 0 0.75rem;
+}
+.page-lede {
+  color: #c0c0c0;
+  font-size: 1.05rem;
+  max-width: 40rem;
+  margin-bottom: 3.5rem;
+  line-height: 1.6;
+}
+
+/* ============ KEY/VALUE ROW (info-card content) ============ */
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.15rem 1.75rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+.kv-row:last-child { border-bottom: none; }
+.kv-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6a6a6a;
+  flex-shrink: 0;
+}
+.kv-value {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+/* ============ PILL FILTER (category tabs etc) ============ */
+.cat-pill {
+  cursor: pointer;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid #2a2a2a;
+  background: transparent;
+  color: #c0c0c0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.cat-pill:hover { border-color: #5a5a5a; color: #f5f5f5; }
+.cat-pill.active { background: #D2491F; border-color: #D2491F; color: #000; font-weight: 600; }
+
+/* ============ BADGE ============ */
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid #2a2a2a;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #c0c0c0;
+}
+.info-badge i { color: #D2491F; }
+
+/* ============ ARABIC / RTL TYPOGRAPHY FIX ============
+   Bebas Neue, Oswald and JetBrains Mono have no Arabic glyphs, so the
+   browser silently falls back to a generic system Arabic font while
+   KEEPING the large Latin-calibrated font-size / tight line-height /
+   letter-spacing / text-stroke - this is what produced the oversized,
+   "zoomed", disorganised look in Arabic. We swap the whole display
+   stack for Cairo (which does have Arabic glyphs) and use sane
+   Arabic-appropriate sizing whenever the page is in RTL mode. */
+html[dir="rtl"] {
+  --font-display: 'Cairo', 'Archivo', sans-serif;
+}
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] .page-title,
+html[dir="rtl"] .section-marker,
+html[dir="rtl"] .kv-label,
+html[dir="rtl"] .kv-value,
+html[dir="rtl"] .cat-pill,
+html[dir="rtl"] .info-badge,
+html[dir="rtl"] label,
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] select,
+html[dir="rtl"] .form-input {
+  font-family: 'Cairo', 'Archivo', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+html[dir="rtl"] h1,
+html[dir="rtl"] .page-title {
+  font-size: clamp(1.9rem, 6vw, 3.5rem) !important;
+  line-height: 1.25 !important;
+}
+html[dir="rtl"] .text-stroke {
+  -webkit-text-stroke: 0 !important;
+  color: inherit !important;
+}
+html[dir="rtl"] .section-marker::before { margin-left: 0.75rem; }
 
 /* ============ NAV LINK ============ */
 .nav-link {

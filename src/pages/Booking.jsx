@@ -77,67 +77,83 @@ export default function Booking() {
   }
 
   return (
-    <section className="max-w-2xl mx-auto px-6 md:px-8 py-20">
-      <h1 className="font-serif text-4xl mb-2">{t("booking_page.title")}</h1>
-      <p className="text-inkdim mb-10">{t("booking_page.subtitle")}</p>
+    <section className="page-wrap" style={{ maxWidth: 640 }}>
+      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Reservation</span></div>
+      <h1 className="page-title">{t("booking_page.title")}</h1>
+      <p className="page-lede" style={{ marginBottom: "3rem" }}>{t("booking_page.subtitle")}</p>
 
       {status === "success" ? (
-        <div className="bg-bgsoft border border-line rounded-2xl p-8 text-center">
-          <p className="font-serif text-2xl mb-2">{t("booking_page.success_title")}</p>
-          <p className="text-inkdim">{t("booking_page.success_text")}</p>
+        <div className="info-card notch-corner" style={{ padding: "2.5rem", textAlign: "center" }}>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.75rem", marginBottom: "0.5rem" }}>{t("booking_page.success_title")}</p>
+          <p style={{ color: "#c0c0c0" }}>{t("booking_page.success_text")}</p>
         </div>
       ) : reservations_enabled === false ? (
-        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
+        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#D4A84B", background: "rgba(212,168,75,0.08)", border: "1px solid rgba(212,168,75,0.3)", padding: "1rem 1.25rem" }}>
           Les reservations en ligne sont temporairement en pause. Appelez-nous directement
           pour reserver une table.
         </p>
       ) : (
-        <form onSubmit={submit} className="grid gap-4">
-          <input required placeholder={t("booking_page.name")} value={form.name} onChange={update("name")}
-            className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
-          <input required placeholder={t("booking_page.phone")} value={form.phone} onChange={update("phone")}
-            className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
-          <div className="grid grid-cols-2 gap-4">
-            <input required type="date" min={new Date().toISOString().split("T")[0]} value={form.date} onChange={update("date")}
-              className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
-            <input required type="time" value={form.time} onChange={update("time")}
-              className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
+        <form onSubmit={submit} className="booking-frame" style={{ padding: "2rem 2.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div>
+            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t("booking_page.name")}</label>
+            <input required placeholder={t("booking_page.name")} value={form.name} onChange={update("name")} className="form-input" />
           </div>
-          <input required type="number" min="1" max="20" value={form.guests} onChange={update("guests")}
-            placeholder={t("booking_page.guests")}
-            className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
+          <div>
+            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t("booking_page.phone")}</label>
+            <input required placeholder={t("booking_page.phone")} value={form.phone} onChange={update("phone")} className="form-input" />
+          </div>
+          <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+            <div>
+              <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Date</label>
+              <input required type="date" min={new Date().toISOString().split("T")[0]} value={form.date} onChange={update("date")} className="form-input" />
+            </div>
+            <div>
+              <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Heure</label>
+              <input required type="time" value={form.time} onChange={update("time")} className="form-input" />
+            </div>
+          </div>
+          <div>
+            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t("booking_page.guests")}</label>
+            <input required type="number" min="1" max="20" value={form.guests} onChange={update("guests")}
+              placeholder={t("booking_page.guests")} className="form-input" />
+          </div>
           {tables.length > 0 && (
-            <select value={form.table_id} onChange={update("table_id")}
-              className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato">
-              <option value="">{t("booking_page.table_any")}</option>
-              {tables.map((tb) => {
-                const taken = busyTableIds.includes(tb.id)
-                return (
-                  <option key={tb.id} value={tb.id} disabled={taken}>
-                    Table {tb.number} - {tb.capacity} places {tb.zone ? `(${tb.zone})` : ""} {taken ? "- deja reservee a cette heure" : ""}
-                  </option>
-                )
-              })}
-            </select>
+            <div>
+              <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Table</label>
+              <select value={form.table_id} onChange={update("table_id")} className="form-input">
+                <option value="">{t("booking_page.table_any")}</option>
+                {tables.map((tb) => {
+                  const taken = busyTableIds.includes(tb.id)
+                  return (
+                    <option key={tb.id} value={tb.id} disabled={taken}>
+                      Table {tb.number} - {tb.capacity} places {tb.zone ? `(${tb.zone})` : ""} {taken ? "- deja reservee a cette heure" : ""}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
           )}
           {form.date && form.time && busyTableIds.length > 0 && (
-            <p className="text-xs text-gold">
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#D4A84B" }}>
               Certaines tables sont deja reservees a proximite de cet horaire - choisissez-en une autre ou laissez "peu importe la table".
             </p>
           )}
-          <textarea placeholder={t("booking_page.notes")} value={form.notes} onChange={update("notes")}
-            className="bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" rows={3} />
+          <div>
+            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t("booking_page.notes")}</label>
+            <textarea placeholder={t("booking_page.notes")} value={form.notes} onChange={update("notes")} className="form-input" rows={3} style={{ resize: "vertical" }} />
+          </div>
           <button
+            type="submit"
             disabled={status === "loading"}
-            className="mt-2 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60"
+            style={{ background: "#D2491F", color: "#000", padding: "1.1rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.35rem", letterSpacing: "0.1em", border: "none", cursor: "pointer", marginTop: "0.5rem", width: "100%" }}
           >
             {status === "loading" ? t("booking_page.submitting") : t("booking_page.submit")}
           </button>
           {status === "error" && (
-            <p className="text-sm text-red-400">{t("booking_page.error")}</p>
+            <p style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f87171", letterSpacing: "0.15em", textTransform: "uppercase" }}>{t("booking_page.error")}</p>
           )}
           {status === "table_taken" && (
-            <p className="text-sm text-red-400">
+            <p style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f87171", letterSpacing: "0.15em", textTransform: "uppercase" }}>
               Cette table vient d etre reservee par quelqu un d autre - choisissez-en une autre.
             </p>
           )}

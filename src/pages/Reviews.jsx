@@ -29,21 +29,22 @@ export default function Reviews() {
   }, [])
 
   return (
-    <section className="max-w-5xl mx-auto px-6 md:px-8 py-20">
-      <h1 className="font-serif text-4xl mb-2">Avis Google</h1>
-      <div className="flex items-center gap-4 mb-12">
-        <span className="font-serif text-5xl">{info?.google_rating ?? "-"}</span>
+    <section className="page-wrap-lg">
+      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Avis</span></div>
+      <h1 className="page-title">CE QU'EN PENSENT <span className="text-stroke">NOS CLIENTS.</span></h1>
+      <div className="flex items-center gap-4 mb-12 mt-6">
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-5xl">{info?.google_rating ?? "-"}</span>
         <div>
-          <p className="text-gold">{"* ".repeat(Math.round(info?.google_rating || 0))}</p>
-          <p className="text-inkdim text-sm">Base sur {info?.google_review_count ?? reviews.length} avis</p>
+          <p style={{ color: "#D2491F" }}>{"★ ".repeat(Math.round(info?.google_rating || 0))}</p>
+          <p className="font-mono text-inkdim text-xs">Base sur {info?.google_review_count ?? reviews.length} avis Google</p>
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-4">
         {reviews.map((r) => (
-          <div key={r.id} className="bg-bgsoft border border-line rounded-2xl p-5">
-            <p className="text-gold text-sm mb-2">{"* ".repeat(r.rating)}</p>
+          <div key={r.id} className="info-card p-5">
+            <p style={{ color: "#D2491F" }} className="text-sm mb-2">{"★ ".repeat(r.rating)}</p>
             <p className="text-sm text-inkdim">{r.text}</p>
-            <p className="text-xs text-inkdim mt-3 opacity-70">{r.author_name}</p>
+            <p className="font-mono text-xs text-muted mt-3 uppercase tracking-widest opacity-70">{r.author_name}</p>
           </div>
         ))}
       </div>
