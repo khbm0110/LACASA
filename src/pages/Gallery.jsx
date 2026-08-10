@@ -33,10 +33,9 @@ export default function Gallery() {
   const filtered = category === "Toutes" ? images : images.filter((i) => (i.category || "Restaurant") === category)
 
   return (
-    <section className="page-wrap-lg">
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Ambiance</span></div>
-      <h1 className="page-title">EN <span className="text-stroke">IMAGES.</span></h1>
-      <p className="page-lede">Un apercu du restaurant, des plats et des soirees.</p>
+    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+      <h1 className="font-serif text-4xl mb-2">Galerie</h1>
+      <p className="text-inkdim mb-8">Un apercu du restaurant, des plats et des soirees.</p>
 
       {images.length === 0 ? (
         <p className="text-inkdim text-sm">
@@ -44,10 +43,12 @@ export default function Gallery() {
         </p>
       ) : (
         <>
-          <div className="flex gap-2 mb-8 flex-wrap">
+          <div className="flex gap-2 mb-6 flex-wrap">
             {categories.map((c) => (
               <button key={c} onClick={() => { setCategory(c); }}
-                className={`cat-pill ${category === c ? "active" : ""}`}>
+                className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+                  category === c ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
+                }`}>
                 {c}
               </button>
             ))}
@@ -55,7 +56,7 @@ export default function Gallery() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {filtered.map((img, i) => (
               <button key={img.id} onClick={() => setLightboxIndex(i)}
-                className="info-card overflow-hidden group cursor-zoom-in" style={{ aspectRatio: "4/5" }}>
+                className="rounded-2xl overflow-hidden border border-line aspect-square group cursor-zoom-in hover:border-tomato hover:-translate-y-1.5 transition-all duration-300">
                 <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </button>

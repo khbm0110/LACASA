@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabaseClient"
 export default function Account() {
   const { user, profile, signIn, signUp, signOut } = useAuth()
 
-  if (user === undefined) return <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}><p className="text-inkdim">Chargement...</p></div>
+  if (user === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Chargement...</div>
   if (!user) return <AuthForms signIn={signIn} signUp={signUp} />
   return <Dashboard user={user} profile={profile} signOut={signOut} />
 }
@@ -29,31 +29,33 @@ function AuthForms({ signIn, signUp }) {
   }
 
   return (
-    <section className="page-wrap" style={{ maxWidth: 480 }}>
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Mon compte</span></div>
-      <h1 className="page-title" style={{ marginBottom: "0.5rem" }}>{mode === "login" ? "SE CONNECTER." : "CREER UN COMPTE."}</h1>
+    <section className="max-w-md mx-auto px-6 py-24">
+      <h1 className="font-serif text-3xl mb-1">{mode === "login" ? "Se connecter" : "Creer un compte"}</h1>
       <p className="text-inkdim text-sm mb-8">
         Suivez vos commandes, cumulez des points de fidelite, reservez plus vite.
       </p>
 
-      <form onSubmit={submit} className="booking-frame" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+      <form onSubmit={submit} className="grid gap-3">
         {mode === "signup" && (
           <>
-            <input placeholder="Nom complet" value={form.name} onChange={update("name")} className="form-input" />
-            <input placeholder="Telephone" value={form.phone} onChange={update("phone")} className="form-input" />
+            <input placeholder="Nom complet" value={form.name} onChange={update("name")}
+              className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+            <input placeholder="Telephone" value={form.phone} onChange={update("phone")}
+              className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
           </>
         )}
-        <input required type="email" placeholder="Email" value={form.email} onChange={update("email")} className="form-input" />
-        <input required type="password" placeholder="Mot de passe" value={form.password} onChange={update("password")} className="form-input" />
+        <input required type="email" placeholder="Email" value={form.email} onChange={update("email")}
+          className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+        <input required type="password" placeholder="Mot de passe" value={form.password} onChange={update("password")}
+          className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
         {error && <p className="text-red-400 text-xs">{error}</p>}
-        <button type="submit" disabled={loading}
-          style={{ background: "#D2491F", color: "#000", padding: "1rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.08em", border: "none", cursor: "pointer", marginTop: "0.25rem" }}
-          className="disabled:opacity-60">
+        <button disabled={loading}
+          className="mt-2 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
           {loading ? "..." : mode === "login" ? "Se connecter" : "Creer mon compte"}
         </button>
       </form>
 
-      <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="link-underline text-sm text-inkdim mt-6">
+      <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm text-inkdim mt-6 underline">
         {mode === "login" ? "Pas encore de compte ? Inscrivez-vous" : "Deja un compte ? Connectez-vous"}
       </button>
     </section>
@@ -77,28 +79,27 @@ function Dashboard({ user, profile, signOut }) {
   }, [user.id])
 
   return (
-    <section className="page-wrap-lg" style={{ maxWidth: 860 }}>
-      <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
+    <section className="max-w-3xl mx-auto px-6 py-20">
+      <div className="flex items-center justify-between mb-10">
         <div>
-          <div className="section-marker" style={{ marginBottom: "0.75rem" }}><span>Mon compte</span></div>
-          <h1 className="page-title" style={{ margin: 0 }}>{profile?.name || "Mon compte"}</h1>
-          <p className="text-inkdim text-sm mt-2">{user.email}</p>
+          <h1 className="font-serif text-3xl">{profile?.name || "Mon compte"}</h1>
+          <p className="text-inkdim text-sm">{user.email}</p>
         </div>
-        <button onClick={signOut} className="link-underline text-sm text-inkdim">Se deconnecter</button>
+        <button onClick={signOut} className="text-sm text-inkdim underline">Se deconnecter</button>
       </div>
 
-      <div className="info-card notch-corner p-6 mb-10 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-gradient-to-br from-bgsoft to-[#241b14] border border-line rounded-2xl p-6 mb-10 flex items-center justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">Points de fidelite</p>
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-4xl">{profile?.loyalty_points ?? 0} pts</p>
+          <p className="font-serif text-4xl">{profile?.loyalty_points ?? 0} pts</p>
         </div>
         <p className="text-inkdim text-sm max-w-[16ch] text-right">1 point tous les 10 MAD depenses, credites a la livraison.</p>
       </div>
 
-      <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1.25rem" }}>Mes commandes</p>
+      <h2 className="font-serif text-xl mb-4">Mes commandes</h2>
       <div className="grid gap-2 mb-10">
         {orders.map((o) => (
-          <Link key={o.id} to={`/suivi/${o.id}`} className="info-card px-4 py-3 flex justify-between text-sm">
+          <Link key={o.id} to={`/suivi/${o.id}`} className="bg-bgsoft border border-line rounded-xl px-4 py-3 flex justify-between text-sm hover:border-tomato transition">
             <span>{o.order_type === "dine_in" ? "Sur place" : "Livraison"} - {o.total} MAD</span>
             <span className="text-inkdim">{o.status}</span>
           </Link>
@@ -106,10 +107,10 @@ function Dashboard({ user, profile, signOut }) {
         {orders.length === 0 && <p className="text-inkdim text-sm">Aucune commande pour le moment.</p>}
       </div>
 
-      <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#D2491F", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "1.25rem" }}>Mes reservations</p>
+      <h2 className="font-serif text-xl mb-4">Mes reservations</h2>
       <div className="grid gap-2">
         {reservations.map((r) => (
-          <div key={r.id} className="info-card px-4 py-3 flex justify-between text-sm">
+          <div key={r.id} className="bg-bgsoft border border-line rounded-xl px-4 py-3 flex justify-between text-sm">
             <span>{r.date} a {r.time} - {r.guests} pers.</span>
             <span className="text-inkdim">{r.status}</span>
           </div>

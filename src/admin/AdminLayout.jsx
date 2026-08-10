@@ -112,7 +112,7 @@ function AdminLayoutInner() {
     return (
       <div className="min-h-screen bg-bg text-ink flex items-center justify-center px-6 text-center">
         <div>
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem" }} className="mb-2">Acces non autorise</p>
+          <p className="font-serif text-2xl mb-2">Acces non autorise</p>
           <p className="text-inkdim text-sm max-w-sm">
             Votre compte n est pas encore rattache a l equipe. Demandez a un administrateur
             de vous ajouter depuis Admin &gt; Equipe &amp; permissions.
@@ -148,15 +148,15 @@ function AdminLayoutInner() {
         key={item.to}
         to={item.to}
         onClick={onClick}
-        className={`px-3 py-2.5 text-sm flex items-center gap-3 transition ${
-          active ? "bg-tomato text-black" : "text-inkdim hover:bg-white/5 hover:text-ink"
+        className={`px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 transition ${
+          active ? "bg-tomato text-paper" : "text-inkdim hover:bg-white/5 hover:text-ink"
         }`}
       >
         <Icon size={18} className="shrink-0" />
         <span className="flex-1 truncate">{item.label}</span>
         {count > 0 && (
-          <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 min-w-[18px] text-center ${
-            active ? "bg-black/20 text-black" : "bg-tomato/20 text-tomatoglow"
+          <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+            active ? "bg-black/20 text-paper" : "bg-tomato/20 text-tomatoglow"
           }`}>
             {count}
           </span>
@@ -176,12 +176,12 @@ function AdminLayoutInner() {
             <IconMenuLines size={22} />
           </button>
           <Link to="/admin" className="flex items-center gap-2.5 min-w-0">
-            <span className="w-9 h-9 bg-tomato flex items-center justify-center text-sm font-bold text-black shrink-0" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem" }}>
+            <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#1a0d05] shrink-0">
               C
             </span>
             <span className="min-w-0 hidden sm:block">
-              <span className="block leading-tight truncate" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.03em" }}>La Casa Di Carta</span>
-              <span className="block text-[10px] text-gold leading-tight truncate font-mono uppercase tracking-widest">Cuisine Italienne</span>
+              <span className="block font-serif font-semibold text-base leading-tight truncate">La Casa Di Carta</span>
+              <span className="block text-[11px] text-gold leading-tight truncate">Cuisine Italienne</span>
             </span>
           </Link>
         </div>
@@ -191,7 +191,7 @@ function AdminLayoutInner() {
             <select
               value={activeBranchId || ""}
               onChange={(e) => setActiveBranchId(e.target.value)}
-              className="hidden sm:block bg-bg border border-line px-2.5 py-1.5 text-xs outline-none focus:border-tomato max-w-[160px]"
+              className="hidden sm:block bg-bg border border-line rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-tomato max-w-[160px]"
             >
               {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
@@ -201,7 +201,7 @@ function AdminLayoutInner() {
               <button
                 key={l}
                 onClick={() => changeLang(l)}
-                className={`px-2.5 py-1.5 border ${i18n.language === l ? "bg-tomato border-tomato text-black" : "border-line text-inkdim hover:text-ink"}`}
+                className={`px-2.5 py-1.5 rounded-md border ${i18n.language === l ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink"}`}
               >
                 {l.toUpperCase()}
               </button>
@@ -212,13 +212,13 @@ function AdminLayoutInner() {
             <button onClick={() => setNotifOpen((v) => !v)} className="relative text-inkdim hover:text-ink p-2" aria-label="Notifications">
               <IconBell size={20} />
               {badgeAlertCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-tomato text-black text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-tomato text-paper text-[9px] font-bold flex items-center justify-center">
                   {badgeAlertCount > 9 ? "9+" : badgeAlertCount}
                 </span>
               )}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 info-card notch-corner shadow-2xl p-2 z-50">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-bgsoft border border-line rounded-2xl shadow-2xl p-2 z-50">
                 {alerts.length === 0 ? (
                   <p className="text-inkdim text-xs p-3">Aucune alerte pour le moment.</p>
                 ) : (
@@ -229,7 +229,7 @@ function AdminLayoutInner() {
                     </div>
                     <div className="grid gap-1 max-h-72 overflow-y-auto">
                       {alerts.map((a) => (
-                        <div key={a.id} className="flex items-start justify-between gap-2 px-2 py-2 hover:bg-white/5 text-xs">
+                        <div key={a.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/5 text-xs">
                           <span className="text-ink">{a.message}</span>
                           <button onClick={() => dismiss(a.id)} className="text-inkdim hover:text-ink shrink-0">&times;</button>
                         </div>
@@ -245,7 +245,7 @@ function AdminLayoutInner() {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-widest border border-line hover:border-line-light transition"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border border-line hover:bg-white/5 transition"
           >
             Voir le site
             <span aria-hidden>&rarr;</span>
@@ -261,7 +261,7 @@ function AdminLayoutInner() {
           </nav>
           <div className="pt-3 mt-3 border-t border-line">
             <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim px-3 mb-2">{role}</p>
-            <button onClick={logout} className="w-full px-3 py-2.5 text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10 transition">
+            <button onClick={logout} className="w-full px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10 transition">
               <IconPower size={18} />
               Se deconnecter
             </button>
@@ -280,13 +280,13 @@ function AdminLayoutInner() {
                 <div className="flex gap-1 font-mono text-[11px] px-1 mb-3">
                   {LANGS.map((l) => (
                     <button key={l} onClick={() => changeLang(l)}
-                      className={`px-2.5 py-1.5 border ${i18n.language === l ? "bg-tomato border-tomato text-black" : "border-line text-inkdim"}`}>
+                      className={`px-2.5 py-1.5 rounded-md border ${i18n.language === l ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim"}`}>
                       {l.toUpperCase()}
                     </button>
                   ))}
                 </div>
                 <p className="font-mono text-[10px] uppercase tracking-widest text-inkdim px-3 mb-2">{role}</p>
-                <button onClick={logout} className="w-full px-3 py-2.5 text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10">
+                <button onClick={logout} className="w-full px-3 py-2.5 rounded-xl text-sm flex items-center gap-3 text-red-400 hover:bg-red-400/10">
                   <IconPower size={18} />
                   Se deconnecter
                 </button>
@@ -307,7 +307,7 @@ function AdminLayoutInner() {
           </button>
         )}
         {alerts.slice(0, 4).map((a) => (
-          <div key={a.id} className="info-card border-tomato px-4 py-3 text-sm shadow-2xl flex items-start justify-between gap-3">
+          <div key={a.id} className="bg-bgsoft border border-tomato rounded-xl px-4 py-3 text-sm shadow-2xl flex items-start justify-between gap-3">
             <span>{a.message}</span>
             <button onClick={() => dismiss(a.id)} className="text-inkdim hover:text-ink shrink-0">x</button>
           </div>

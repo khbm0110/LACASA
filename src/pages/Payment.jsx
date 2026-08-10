@@ -72,33 +72,37 @@ export default function Payment() {
     navigate(`/suivi/${id}?paiement=succes`, { replace: true })
   }
 
-  if (order === undefined) return <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}><p className="text-inkdim">Chargement...</p></div>
-  if (!order) return <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}><p className="text-inkdim">Commande introuvable.</p></div>
+  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Chargement...</div>
+  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Commande introuvable.</div>
 
   return (
-    <section className="page-wrap" style={{ maxWidth: 480 }}>
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Paiement securise</span></div>
-      <h1 className="page-title" style={{ marginBottom: "0.5rem" }}>{order.total} MAD</h1>
+    <section className="max-w-md mx-auto px-6 py-20">
+      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Paiement securise</p>
+      <h1 className="font-serif text-3xl mb-1">{order.total} MAD</h1>
       <p className="text-inkdim text-sm mb-8">
         Le paiement est requis pour confirmer votre commande en livraison.
       </p>
 
-      <form onSubmit={submit} className="booking-frame" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-        <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-          <input required placeholder="Prenom" value={form.firstName} onChange={update("firstName")} className="form-input" />
-          <input required placeholder="Nom" value={form.lastName} onChange={update("lastName")} className="form-input" />
+      <form onSubmit={submit} className="bg-bgsoft border border-line rounded-2xl p-5 grid gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          <input required placeholder="Prenom" value={form.firstName} onChange={update("firstName")}
+            className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+          <input required placeholder="Nom" value={form.lastName} onChange={update("lastName")}
+            className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         </div>
-        <input required placeholder="Numero de carte" inputMode="numeric" value={form.pan} onChange={update("pan")} className="form-input" />
-        <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-          <input required placeholder="MM/AA" value={form.expiry} onChange={update("expiry")} className="form-input" />
-          <input required placeholder="CVV" inputMode="numeric" maxLength={3} value={form.cvv} onChange={update("cvv")} className="form-input" />
+        <input required placeholder="Numero de carte" inputMode="numeric" value={form.pan} onChange={update("pan")}
+          className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+        <div className="grid grid-cols-2 gap-3">
+          <input required placeholder="MM/AA" value={form.expiry} onChange={update("expiry")}
+            className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+          <input required placeholder="CVV" inputMode="numeric" maxLength={3} value={form.cvv} onChange={update("cvv")}
+            className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         </div>
 
         {error && <p className="text-xs text-red-400">{error}</p>}
 
-        <button type="submit" disabled={status === "loading"}
-          style={{ background: "#D2491F", color: "#000", padding: "1rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.08em", border: "none", cursor: "pointer", marginTop: "0.25rem" }}
-          className="disabled:opacity-60">
+        <button disabled={status === "loading"}
+          className="mt-1 px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
           {status === "loading" ? "Verification..." : `Payer ${order.total} MAD`}
         </button>
         <p className="text-[11px] text-inkdim text-center">

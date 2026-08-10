@@ -2,489 +2,245 @@
 @tailwind components;
 @tailwind utilities;
 
-* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
+body { -webkit-font-smoothing: antialiased; }
 
-/* ============ REVEAL ON SCROLL ============ */
-.reveal {
-  opacity: 0;
-  transform: translateY(48px);
-  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0s);
-}
-.reveal.in, .reveal.in-view { opacity: 1; transform: translateY(0); }
+@layer utilities {
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
 
-/* ============ HERO REEL ============ */
-.reel-frame {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 2s ease-in-out;
-}
-.reel-frame.active { opacity: 1; }
-.reel-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.06);
-}
-.reel-frame.active img {
-  animation: kenburns 9s ease-out forwards;
-}
-@keyframes kenburns {
-  0% { transform: scale(1.06) translate(0, 0); }
-  100% { transform: scale(1.2) translate(-3%, -3%); }
-}
+  /* Coins decoratifs (angles fins) pour cadrer un bloc — ex: reservation, cartes infos */
+  .frame-corners { position: relative; }
+  .frame-corners::before,
+  .frame-corners::after {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    pointer-events: none;
+  }
+  .frame-corners::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid theme('colors.gold');
+    border-left: 2px solid theme('colors.gold');
+  }
+  .frame-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid theme('colors.gold');
+    border-right: 2px solid theme('colors.gold');
+  }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 28%, rgba(10,10,10,0.55) 65%, rgba(10,10,10,0.98) 100%),
-    linear-gradient(90deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 50%, rgba(10,10,10,0.5) 100%),
-    radial-gradient(ellipse at 25% 60%, rgba(210, 73, 31, 0.15) 0%, transparent 55%);
-}
+  /* Champ de formulaire minimaliste (ligne du bas uniquement) */
+  .form-underline {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid theme('colors.line');
+    color: theme('colors.paper');
+    padding: 0.6rem 0;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .3s ease;
+  }
+  .form-underline:focus { border-color: theme('colors.tomato'); }
+  .form-underline::placeholder { color: theme('colors.inkdim'); }
 
-.scan-line {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(0, 0, 0, 0.12) 3px,
-    rgba(0, 0, 0, 0.12) 4px
-  );
-  pointer-events: none;
-  z-index: 2;
-}
+  /* Carte qui se retourne (plats "A la une") */
+  .flip-card { perspective: 1400px; }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform .8s cubic-bezier(.4,.2,.2,1);
+    transform-style: preserve-3d;
+  }
+  .flip-card:hover .flip-card-inner,
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+  }
+  .flip-back { transform: rotateY(180deg); }
 
-/* ============ SECTION MARKER ============ */
-.section-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  color: #D2491F;
-  text-transform: uppercase;
-}
-.section-marker::before {
-  content: '';
-  width: 32px;
-  height: 1px;
-  background: #D2491F;
-}
+  /* ===== Grain overlay (texture papier/pellicule sur tout le site) ===== */
+  .grain {
+    position: fixed;
+    inset: -10%;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='250'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
+    will-change: transform;
+  }
 
-/* ============ TEXT EFFECTS ============ */
-.text-stroke {
-  -webkit-text-stroke: 1.5px #5a5a5a;
-  color: transparent;
-}
+  /* ===== Coins "notch" (angles fins en L) sur une carte ===== */
+  .notch-corner { position: relative; }
+  .notch-corner::before,
+  .notch-corner::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1px solid theme('colors.tomato');
+    pointer-events: none;
+  }
+  .notch-corner::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .notch-corner::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-/* ============ PROGRESS BAR ============ */
-.progress-bar {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: #D2491F;
-  width: 0%;
-  transition: width 0.1s linear;
-}
+  /* ===== Ligne de scan (grain video subtil sur le hero) ===== */
+  .scan-line {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px);
+    pointer-events: none;
+    z-index: 2;
+  }
 
-/* ============ PULSE CTA ============ */
-@keyframes pulse-cta {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(210, 73, 31, 0.65), 0 0 40px rgba(210, 73, 31, 0.3); }
-  50% { box-shadow: 0 0 0 18px rgba(210, 73, 31, 0), 0 0 40px rgba(210, 73, 31, 0.3); }
-}
-.pulse-btn { animation: pulse-cta 2.4s ease-out infinite; }
+  /* ===== Point REC clignotant (indicateur "en direct") ===== */
+  @keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
 
-/* ============ REC DOT ============ */
-@keyframes rec-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-.rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
+  /* ===== Bouton avec halo pulsant (CTA principal) ===== */
+  @keyframes pulse-cta {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(210,73,31,0.65), 0 0 40px rgba(210,73,31,0.3); }
+    50% { box-shadow: 0 0 0 18px rgba(210,73,31,0), 0 0 40px rgba(210,73,31,0.3); }
+  }
+  .pulse-btn { animation: pulse-cta 2.4s ease-out infinite; }
 
-/* ============ FLIP CARD (e-commerce compact size) ============ */
-.flip-card {
-  perspective: 1800px;
-  height: 300px;
-}
-@media (max-width: 768px) {
-  .flip-card { height: 260px; }
-}
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.9s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.flip-card:hover .flip-card-inner,
-.flip-card.flipped .flip-card-inner {
-  transform: rotateY(180deg);
-}
-.flip-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow: hidden;
-}
-.flip-back { transform: rotateY(180deg); }
+  /* ===== Carte "programme" (A la une) : legere elevation au survol ===== */
+  .program-card { transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  .program-card:hover { transform: translateY(-8px); }
+  .program-card .program-img { transition: transform .8s cubic-bezier(.22,1,.36,1); }
+  .program-card:hover .program-img { transform: scale(1.08); }
 
-/* ============ COACH / DISH IMG WRAP ============ */
-.dish-img-wrap {
-  position: relative;
-  height: 60%;
-  overflow: hidden;
-}
-.dish-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.8s;
-}
-.flip-card:hover .dish-img-wrap img,
-.flip-card.flipped .dish-img-wrap img {
-}
+  /* ===== Texte "contour" (mot cle en relief) ===== */
+  .text-stroke { -webkit-text-stroke: 1.5px theme('colors.silverdim'); color: transparent; }
 
-/* ============ INFO CARD ============ */
-.info-card {
-  background: #141414;
-  border: 1px solid #1f1f1f;
-  transition: border-color 0.4s, background 0.4s;
-}
-.info-card:hover {
-  border-color: #923315;
-  background: #1a1a1a;
-}
+  /* ===== Repere de section (petit trait + libelle avant un titre) ===== */
+  .section-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .2em;
+    color: theme('colors.tomato');
+    text-transform: uppercase;
+  }
+  .section-marker::before { content: ''; width: 32px; height: 1px; background: theme('colors.tomato'); }
 
-/* ============ PROGRAM / FEATURED CARD ============ */
-.program-card {
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.program-card:hover { transform: translateY(-8px); }
-.program-card .program-img {
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.program-card:hover .program-img {
-  transform: scale(1.08);
-}
-/* ============ NOTCH CORNER ============ */
-.notch-corner { position: relative; }
-.notch-corner::before,
-.notch-corner::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1px solid #D2491F;
-  pointer-events: none;
-}
-.notch-corner::before {
-  top: -1px; left: -1px;
-  border-right: none; border-bottom: none;
-}
-.notch-corner::after {
-  bottom: -1px; right: -1px;
-  border-left: none; border-top: none;
-}
+  /* ===== Reel du hero (fondu entre les photos de fond) ===== */
+  .reel-frame { position: absolute; inset: 0; opacity: 0; transition: opacity 2s ease-in-out; }
+  .reel-frame.active { opacity: 1; }
+  .reel-frame img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
+  .reel-frame.active img { animation: kenburns 9s ease-out forwards; }
+  @keyframes kenburns {
+    0% { transform: scale(1.06) translate(0, 0); }
+    100% { transform: scale(1.2) translate(-3%, -3%); }
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 28%, rgba(10,10,10,0.55) 65%, rgba(10,10,10,0.98) 100%),
+      linear-gradient(90deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 50%, rgba(10,10,10,0.5) 100%),
+      radial-gradient(ellipse at 25% 60%, rgba(210,73,31,0.15) 0%, transparent 55%);
+  }
 
-/* ============ BOOKING FRAME ============ */
-.booking-frame {
-  background: linear-gradient(135deg, rgba(210,73,31,0.04) 0%, transparent 50%, rgba(210,73,31,0.02) 100%);
-  border: 1px solid #1f1f1f;
-  position: relative;
-}
-.booking-frame::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 60px; height: 60px;
-  border-top: 2px solid #D2491F;
-  border-left: 2px solid #D2491F;
-}
-.booking-frame::after {
-  content: '';
-  position: absolute;
-  bottom: 0; right: 0;
-  width: 60px; height: 60px;
-  border-bottom: 2px solid #D2491F;
-  border-right: 2px solid #D2491F;
-}
+  /* ===== Barre de progression du reel ===== */
+  .progress-bar { height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: theme('colors.tomato'); transition: width .1s linear; }
 
-/* ============ FORM INPUT ============ */
-.form-input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #2a2a2a;
-  color: #f5f5f5;
-  padding: 0.85rem 0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.15rem;
-  width: 100%;
-  transition: border-color 0.3s;
-  letter-spacing: 0.04em;
-}
-.form-input:focus {
-  outline: none;
-  border-color: #D2491F;
-}
-.form-input::placeholder {
-  color: #6a6a6a;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-size: 0.85rem;
-}
+  /* ===== Lien souligne au survol ===== */
+  .link-underline { position: relative; display: inline-block; }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -3px;
+    width: 0; height: 1px;
+    background: theme('colors.tomato');
+    transition: width .4s ease;
+  }
+  .link-underline:hover::after { width: 100%; }
 
-/* ============ GOAL / GUEST PILLS ============ */
-.guest-pill {
-  cursor: pointer;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid #2a2a2a;
-  background: transparent;
-  color: #c0c0c0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
-.guest-pill:hover {
-  border-color: #5a5a5a;
-  color: #f5f5f5;
-}
-.guest-pill.active {
-  background: #D2491F;
-  border-color: #D2491F;
-  color: #000;
-  font-weight: 600;
-}
+  /* ===== Carte info (fond + bordure + survol) ===== */
+  .info-card {
+    background: theme('colors.bgsoft');
+    border: 1px solid theme('colors.line');
+    transition: border-color .4s, background .4s;
+  }
+  .info-card:hover { border-color: theme('colors.tomatodim'); background: theme('colors.bgsofthover'); }
 
-/* ============ STORY CARD (Reviews) ============ */
-.story-card {
-  flex: 0 0 auto;
-  width: 400px;
-  background: #141414;
-  border: 1px solid #1f1f1f;
-  transition: border-color 0.4s, transform 0.4s;
-}
-.story-card:hover {
-  border-color: #D2491F;
-}
-@media (max-width: 768px) {
-  .story-card { width: 300px; }
-}
+  /* ===== Image d'un plat (flip-card) : leger noir & blanc qui s'attenue au survol ===== */
+  .dish-img-wrap { position: relative; height: 70%; overflow: hidden; }
+  .dish-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(60%) contrast(1.3) brightness(0.8);
+    transition: filter .6s, transform .8s;
+  }
+  .flip-card:hover .dish-img-wrap img,
+  .flip-card.flipped .dish-img-wrap img { filter: grayscale(40%) contrast(1.35) brightness(0.85); }
 
-/* ============ LINK UNDERLINE ============ */
-.link-underline {
-  position: relative;
-  display: inline-block;
-}
-.link-underline::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -3px;
-  width: 0;
-  height: 1px;
-  background: #D2491F;
-  transition: width 0.4s ease;
-}
-.link-underline:hover::after { width: 100%; }
+  /* ===== Cadre de reservation avec coins accentues ===== */
+  .booking-frame {
+    background: linear-gradient(135deg, rgba(210,73,31,0.04) 0%, transparent 50%, rgba(210,73,31,0.02) 100%);
+    border: 1px solid theme('colors.line');
+    position: relative;
+  }
+  .booking-frame::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 60px; height: 60px;
+    border-top: 2px solid theme('colors.tomato'); border-left: 2px solid theme('colors.tomato');
+  }
+  .booking-frame::after {
+    content: ''; position: absolute; bottom: 0; right: 0; width: 60px; height: 60px;
+    border-bottom: 2px solid theme('colors.tomato'); border-right: 2px solid theme('colors.tomato');
+  }
 
-/* ============ BACKGROUND TEXTURED ============ */
-.bg-textured {
-  background-color: #0a0a0a;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(210, 73, 31, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(80, 80, 80, 0.05) 0%, transparent 40%);
-}
+  /* ===== Champ de formulaire (ligne du bas uniquement) ===== */
+  .form-input {
+    background: transparent; border: none;
+    border-bottom: 1px solid theme('colors.linelight');
+    color: theme('colors.paper');
+    padding: .85rem 0;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.15rem;
+    width: 100%;
+    transition: border-color .3s;
+    letter-spacing: .04em;
+  }
+  .form-input:focus { outline: none; border-color: theme('colors.tomato'); }
+  .form-input::placeholder { color: theme('colors.muted'); text-transform: uppercase; letter-spacing: .15em; font-size: .85rem; }
 
-/* ============ SCROLLBAR ============ */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #923315; }
-::-webkit-scrollbar-thumb:hover { background: #D2491F; }
+  /* ===== Pastilles "nombre de convives" ===== */
+  .guest-pill {
+    cursor: pointer;
+    padding: .55rem 1.1rem;
+    border: 1px solid theme('colors.linelight');
+    background: transparent;
+    color: theme('colors.inkdim');
+    font-family: 'Oswald', sans-serif;
+    font-size: .85rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    transition: all .3s;
+  }
+  .guest-pill:hover { border-color: theme('colors.silverdim'); color: theme('colors.paper'); }
+  .guest-pill.active { background: theme('colors.tomato'); border-color: theme('colors.tomato'); color: #000; font-weight: 600; }
 
-/* ============ RESPONSIVE GRID HELPERS (Home page) ============ */
-.rg-quick-dock { display: grid; grid-template-columns: repeat(2, 1fr); }
-.rg-split-header { display: grid; grid-template-columns: 7fr 4fr; }
-.rg-split-booking { display: grid; grid-template-columns: 7fr 5fr; }
-.rg-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); }
-.rg-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); }
-.rg-event-card { display: flex; flex-direction: row; }
-.rg-event-img { width: 12rem; flex-shrink: 0; overflow: hidden; }
-
-@media (max-width: 1024px) {
-  .rg-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  /* ===== Carte "avis client" du carrousel =====
+     Largeur geree par le wrapper MotionCarousel (w-[78%] sm:w-[42%]
+     md:w-[31%]) - cette classe ne fixe que l'apparence. */
+  .story-card {
+    height: 100%;
+    background: theme('colors.bgsoft');
+    border: 1px solid theme('colors.line');
+    transition: border-color .4s, transform .4s;
+  }
+  .story-card:hover { border-color: theme('colors.tomato'); }
 }
-
-@media (max-width: 768px) {
-  .rg-quick-dock { grid-template-columns: repeat(2, 1fr); }
-  .rg-split-header { grid-template-columns: 1fr; gap: 1.5rem !important; }
-  .rg-split-header > div:last-child { grid-column-start: 1 !important; }
-  .rg-split-booking { grid-template-columns: 1fr; }
-  .rg-grid-3 { grid-template-columns: 1fr; }
-  .rg-grid-2 { grid-template-columns: 1fr; }
-  .rg-event-card { flex-direction: column; }
-  .rg-event-img { width: 100%; height: 12rem; }
-  .rg-form-2col { grid-template-columns: 1fr !important; }
-}
-
-@media (max-width: 480px) {
-  .rg-quick-dock { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-  .section-pad-fix { padding-top: 4rem !important; padding-bottom: 4rem !important; }
-}
-
-/* ============ UNIFIED PAGE HEADER (secondary pages) ============ */
-.page-wrap { max-width: 1100px; margin: 0 auto; padding: 7rem 1.5rem; }
-.page-wrap-lg { max-width: 1400px; margin: 0 auto; padding: 7rem 1.5rem; }
-@media (max-width: 768px) {
-  .page-wrap, .page-wrap-lg { padding: 4rem 1.25rem; }
-}
-h1.page-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2.75rem, 7vw, 5.5rem);
-  line-height: 0.9;
-  margin: 1.25rem 0 0.75rem;
-}
-.page-lede {
-  color: #c0c0c0;
-  font-size: 1.05rem;
-  max-width: 40rem;
-  margin-bottom: 3.5rem;
-  line-height: 1.6;
-}
-
-/* ============ KEY/VALUE ROW (info-card content) ============ */
-.kv-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 1.15rem 1.75rem;
-  border-bottom: 1px solid #2a2a2a;
-}
-.kv-row:last-child { border-bottom: none; }
-.kv-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #6a6a6a;
-  flex-shrink: 0;
-}
-.kv-value {
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.95rem;
-  text-align: right;
-}
-
-/* ============ PILL FILTER (category tabs etc) ============ */
-.cat-pill {
-  cursor: pointer;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid #2a2a2a;
-  background: transparent;
-  color: #c0c0c0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-.cat-pill:hover { border-color: #5a5a5a; color: #f5f5f5; }
-.cat-pill.active { background: #D2491F; border-color: #D2491F; color: #000; font-weight: 600; }
-
-/* ============ BADGE ============ */
-.info-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem;
-  border: 1px solid #2a2a2a;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: #c0c0c0;
-}
-.info-badge i { color: #D2491F; }
-
-/* ============ ARABIC / RTL TYPOGRAPHY FIX ============
-   Bebas Neue, Oswald and JetBrains Mono have no Arabic glyphs, so the
-   browser silently falls back to a generic system Arabic font while
-   KEEPING the large Latin-calibrated font-size / tight line-height /
-   letter-spacing / text-stroke - this is what produced the oversized,
-   "zoomed", disorganised look in Arabic. We swap the whole display
-   stack for Cairo (which does have Arabic glyphs) and use sane
-   Arabic-appropriate sizing whenever the page is in RTL mode. */
-html[dir="rtl"] {
-  --font-display: 'Cairo', 'Archivo', sans-serif;
-}
-html[dir="rtl"] h1,
-html[dir="rtl"] h2,
-html[dir="rtl"] h3,
-html[dir="rtl"] .page-title,
-html[dir="rtl"] .section-marker,
-html[dir="rtl"] .kv-label,
-html[dir="rtl"] .kv-value,
-html[dir="rtl"] .cat-pill,
-html[dir="rtl"] .info-badge,
-html[dir="rtl"] label,
-html[dir="rtl"] button,
-html[dir="rtl"] input,
-html[dir="rtl"] textarea,
-html[dir="rtl"] select,
-html[dir="rtl"] .form-input {
-  font-family: 'Cairo', 'Archivo', sans-serif !important;
-  letter-spacing: 0 !important;
-}
-html[dir="rtl"] h1,
-html[dir="rtl"] .page-title {
-  font-size: clamp(1.9rem, 6vw, 3.5rem) !important;
-  line-height: 1.25 !important;
-}
-html[dir="rtl"] .text-stroke {
-  -webkit-text-stroke: 0 !important;
-  color: inherit !important;
-}
-html[dir="rtl"] .section-marker::before { margin-left: 0.75rem; }
-
-/* ============ NAV LINK ============ */
-.nav-link {
-  position: relative;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #c0c0c0;
-  transition: color 0.3s;
-}
-.nav-link:hover { color: #f5f5f5; }
-.nav-link::before {
-  content: '';
-  position: absolute;
-  left: -14px;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 4px;
-  height: 4px;
-  background: #D2491F;
-  transition: transform 0.3s;
-}
-.nav-link:hover::before { transform: translateY(-50%) scaleY(1); }

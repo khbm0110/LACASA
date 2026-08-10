@@ -122,20 +122,19 @@ export default function Delivery() {
   }
 
   return (
-    <section className="page-wrap-lg">
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Livraison</span></div>
-      <h1 className="page-title" style={{ marginBottom: "0.5rem" }}>{t("delivery_page.title")}</h1>
+    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+      <h1 className="font-serif text-4xl mb-2">{t("delivery_page.title")}</h1>
       <p className="text-inkdim mb-2">
         {t("delivery_page.subtitle", { min: MIN_ORDER, threshold: FREE_DELIVERY_THRESHOLD })}
       </p>
       {!user && (
         <p className="text-inkdim text-sm mb-8">
-          <Link to="/compte" className="link-underline" style={{ color: "#D4A84B" }}>{t("delivery_page.login_hint")}</Link>
+          <Link to="/compte" className="text-gold underline">{t("delivery_page.login_hint")}</Link>
         </p>
       )}
 
       {delivery_enabled === false && (
-        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#D4A84B", background: "rgba(212,168,75,0.08)", border: "1px solid rgba(212,168,75,0.3)", padding: "1rem 1.25rem", marginBottom: "2rem" }}>
+        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 mb-8">
           La livraison est temporairement en pause. Vous pouvez consulter le menu, mais la
           commande n est pas disponible pour le moment - reessayez plus tard ou appelez-nous.
         </p>
@@ -145,15 +144,14 @@ export default function Delivery() {
         <p className="text-red-400 text-sm mb-8">{t("booking_page.error")}</p>
       ) : null}
 
-      <div className="grid md:grid-cols-3 gap-8 mt-8">
+      <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <div className="flex flex-wrap gap-3 mb-5">
             <input
               placeholder={t("delivery_page.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="form-input"
-              style={{ minWidth: 180 }}
+              className="flex-1 min-w-[180px] bg-bgsoft border border-line rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato"
             />
           </div>
 
@@ -162,7 +160,9 @@ export default function Delivery() {
               <button
                 key={cat}
                 onClick={() => setActiveCat(cat)}
-                className={`cat-pill ${activeCat === cat ? "active" : ""}`}
+                className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+                  activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
+                }`}
               >
                 {cat}
               </button>
@@ -172,26 +172,26 @@ export default function Delivery() {
           <div className="grid gap-3">
             {loading && <p className="text-inkdim text-sm">{t("menu_page.loading")}</p>}
             {filtered.map((item) => (
-              <div key={item.id} className="info-card p-3 flex items-center gap-4">
+              <div key={item.id} className="bg-bgsoft border border-line rounded-2xl p-3 flex items-center gap-4">
                 {item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover shrink-0" />
+                  <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-20 h-20 shrink-0 flex items-center justify-center"
+                  <div className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center"
                     style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
-                    <span style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-xl text-gold/40">{item.name?.[0]}</span>
+                    <span className="font-serif text-xl text-gold/40">{item.name?.[0]}</span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-lg truncate">{item.name}</p>
+                  <p className="font-serif text-lg truncate">{item.name}</p>
                   {item.description && <p className="text-inkdim text-xs mt-1 line-clamp-2">{item.description}</p>}
                   <p className="font-mono text-gold text-sm mt-1">{item.price} MAD</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <button onClick={() => removeFromCart(item.id)} disabled={!cart[item.id]}
-                    className="w-8 h-8 border border-line-light disabled:opacity-30">-</button>
+                    className="w-8 h-8 rounded-full border border-line disabled:opacity-30">-</button>
                   <span className="w-5 text-center">{cart[item.id] || 0}</span>
                   <button onClick={() => addToCart(item.id)} disabled={delivery_enabled === false}
-                    className="w-8 h-8 border border-line-light disabled:opacity-30">+</button>
+                    className="w-8 h-8 rounded-full border border-line disabled:opacity-30">+</button>
                 </div>
               </div>
             ))}
@@ -201,7 +201,7 @@ export default function Delivery() {
           </div>
         </div>
 
-        <div className="info-card notch-corner p-5 h-fit sticky top-24">
+        <div className="bg-bgsoft border border-line rounded-2xl p-5 h-fit sticky top-24">
           {cartLines.length === 0 ? (
             <p className="text-inkdim text-sm mb-4">{t("delivery_page.empty_cart")}</p>
           ) : (
@@ -217,13 +217,13 @@ export default function Delivery() {
 
           <div className="flex gap-2 mb-3">
             <input placeholder={t("delivery_page.promo_placeholder")} value={promoInput} onChange={(e) => setPromoInput(e.target.value)}
-              className="form-input" style={{ flex: 1 }} />
-            <button onClick={applyPromo} className="cat-pill" style={{ padding: "0.5rem 0.9rem" }}>{t("delivery_page.apply")}</button>
+              className="flex-1 bg-bg border border-line rounded-xl px-3 py-2 text-sm outline-none focus:border-tomato" />
+            <button onClick={applyPromo} className="px-3 py-2 rounded-xl text-xs border border-line">{t("delivery_page.apply")}</button>
           </div>
           {promoError && <p className="text-xs text-red-400 mb-2">{promoError}</p>}
           {promo && <p className="text-xs text-basil mb-2">Code {promo.code}</p>}
 
-          <div style={{ borderTop: "1px solid #2a2a2a" }} className="pt-3 mb-4 grid gap-1.5 text-sm">
+          <div className="border-t border-line pt-3 mb-4 grid gap-1.5 text-sm">
             <div className="flex justify-between text-inkdim">
               <span>{t("delivery_page.subtotal")}</span><span>{subtotal} MAD</span>
             </div>
@@ -235,7 +235,7 @@ export default function Delivery() {
                 <span>{t("delivery_page.discount")}</span><span>-{discount} MAD</span>
               </div>
             )}
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="flex justify-between text-xl pt-1">
+            <div className="flex justify-between font-serif text-xl pt-1">
               <span>{t("delivery_page.total")}</span><span>{total} MAD</span>
             </div>
           </div>
@@ -250,17 +250,16 @@ export default function Delivery() {
           )}
 
           <input placeholder={t("delivery_page.address_placeholder")} value={address} onChange={(e) => setAddress(e.target.value)}
-            className="form-input w-full mb-3" />
+            className="w-full mb-3 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <input placeholder={t("delivery_page.phone_placeholder")} value={phone} onChange={(e) => setPhone(e.target.value)}
-            className="form-input w-full mb-3" />
+            className="w-full mb-3 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <textarea placeholder={t("delivery_page.notes_placeholder")} value={notes} onChange={(e) => setNotes(e.target.value)}
-            rows={2} className="form-input w-full mb-4" style={{ resize: "vertical" }} />
+            rows={2} className="w-full mb-4 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
 
           <button
             onClick={submitOrder}
             disabled={!canOrder || status === "loading"}
-            style={{ background: "#D2491F", color: "#000", padding: "1rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "0.08em", border: "none", cursor: "pointer", width: "100%" }}
-            className="disabled:opacity-50"
+            className="w-full px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50"
           >
             {status === "loading" ? t("delivery_page.submitting") : `${t("delivery_page.submit")} - ${total} MAD`}
           </button>

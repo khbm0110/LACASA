@@ -21,13 +21,13 @@ export default function BlogPost() {
   if (!post) return <div className="max-w-2xl mx-auto px-6 py-24 text-inkdim">Article introuvable.</div>
 
   return (
-    <article className="page-wrap" style={{ maxWidth: 720 }}>
-      <Link to="/blog" className="link-underline" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: "#c0c0c0", marginBottom: "2.5rem", display: "inline-block" }}>&larr; Retour au blog</Link>
-      {post.cover_image && <img src={post.cover_image} alt={post.title} className="notch-corner w-full h-64 object-cover mb-8" style={{ border: "1px solid #1f1f1f" }} />}
+    <article className="max-w-2xl mx-auto px-6 md:px-8 py-20">
+      <Link to="/blog" className="text-sm text-inkdim mb-8 inline-block">&larr; Retour au blog</Link>
+      {post.cover_image && <img src={post.cover_image} alt={post.title} className="w-full h-64 object-cover rounded-2xl mb-8" />}
       <p className="font-mono text-xs text-gold mb-2">
         {post.published_at ? new Date(post.published_at).toLocaleDateString("fr-FR") : ""}
       </p>
-      <h1 className="page-title" style={{ marginTop: 0, marginBottom: "2rem" }}>{post.title}</h1>
+      <h1 className="font-serif text-4xl mb-6">{post.title}</h1>
       <div className="text-inkdim leading-relaxed whitespace-pre-line">{post.content}</div>
     </article>
   )

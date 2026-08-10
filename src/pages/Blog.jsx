@@ -17,16 +17,15 @@ export default function Blog() {
   }, [])
 
   return (
-    <section className="page-wrap-lg">
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Actualites</span></div>
-      <h1 className="page-title" style={{ marginBottom: "3rem" }}>NOTRE <span className="text-stroke">BLOG.</span></h1>
+    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
+      <h1 className="font-serif text-4xl mb-10">Blog & Actualites</h1>
 
       {/* Meme carte que le bloc "Blog" de l accueil, pour une experience
           coherente entre l apercu et la liste complete. */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
         {posts.map((p, i) => (
           <Reveal key={p.id} delay={Math.min(i, 6) * 90}>
-            <Link to={`/blog/${p.slug}`} className="group block info-card overflow-hidden h-full">
+            <Link to={`/blog/${p.slug}`} className="group block bg-bgsoft border border-line rounded-2xl overflow-hidden hover:border-tomato hover:-translate-y-1.5 transition-all duration-300 h-full">
               {p.cover_image && (
                 <div className="h-36 overflow-hidden">
                   <img src={p.cover_image} alt={p.title}
@@ -37,7 +36,7 @@ export default function Blog() {
                 <p className="font-mono text-xs text-gold mb-2">
                   {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
                 </p>
-                <h2 style={{ fontFamily: "'Bebas Neue', sans-serif" }} className="text-xl mb-1">{p.title}</h2>
+                <h2 className="font-serif text-lg mb-1">{p.title}</h2>
                 <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
               </div>
             </Link>

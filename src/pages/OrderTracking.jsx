@@ -42,12 +42,12 @@ export default function OrderTracking() {
     return () => { cancelled = true; clearInterval(interval) }
   }, [id])
 
-  if (order === undefined) return <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}><p className="text-inkdim">Chargement...</p></div>
-  if (!order) return <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}><p className="text-inkdim">Commande introuvable.</p></div>
+  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Chargement...</div>
+  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Commande introuvable.</div>
   if (order.status === "cancelled") {
     return (
-      <div className="page-wrap" style={{ maxWidth: 480, textAlign: "center" }}>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.75rem", marginBottom: "0.5rem" }}>Commande annulee</p>
+      <div className="max-w-md mx-auto px-6 py-24 text-center">
+        <p className="font-serif text-2xl mb-2">Commande annulee</p>
         <p className="text-inkdim text-sm">Contactez-nous si vous avez une question : +212 5 37 26 26 58</p>
       </div>
     )
@@ -59,24 +59,24 @@ export default function OrderTracking() {
   const paymentJustSucceeded = searchParams.get("paiement") === "succes"
 
   return (
-    <section className="page-wrap" style={{ maxWidth: 480 }}>
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Suivi de commande</span></div>
-      <h1 className="page-title" style={{ marginBottom: "2rem" }}>{order.total} MAD</h1>
+    <section className="max-w-md mx-auto px-6 py-20">
+      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Suivi de commande</p>
+      <h1 className="font-serif text-3xl mb-4">{order.total} MAD</h1>
 
       {isDelivery && (
         <div className="mb-8">
           {order.payment_status === "paid" && (
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#6fbf73", background: "rgba(111,191,115,0.08)", border: "1px solid rgba(111,191,115,0.3)", padding: "1rem 1.25rem" }}>
+            <p className="text-sm text-basil bg-basil/10 border border-basil/30 rounded-xl px-4 py-3">
               Paiement confirme{paymentJustSucceeded ? " - merci !" : ""}. Votre commande part en cuisine.
             </p>
           )}
           {order.payment_status === "pending" && (
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#D4A84B", background: "rgba(212,168,75,0.08)", border: "1px solid rgba(212,168,75,0.3)", padding: "1rem 1.25rem" }}>
+            <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
               Paiement en cours de verification...
             </p>
           )}
           {order.payment_status === "failed" && (
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#f87171", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.3)", padding: "1rem 1.25rem" }}>
+            <p className="text-sm text-red-400 bg-red-400/10 border border-red-400/30 rounded-xl px-4 py-3">
               Le paiement a echoue. Contactez-nous au +212 5 37 26 26 58 pour reessayer.
             </p>
           )}
@@ -87,15 +87,15 @@ export default function OrderTracking() {
         {steps.map((s, i) => (
           <div key={s.keys[0]} className="flex items-center gap-3">
             <div className="flex flex-col items-center">
-              <div className="w-4 h-4" style={{ background: i <= currentIndex ? "#D2491F" : "#2a2a2a" }} />
-              {i < steps.length - 1 && <div className="w-0.5 h-8" style={{ background: i < currentIndex ? "#D2491F" : "#2a2a2a" }} />}
+              <div className={`w-4 h-4 rounded-full ${i <= currentIndex ? "bg-tomato" : "bg-line"}`} />
+              {i < steps.length - 1 && <div className={`w-0.5 h-8 ${i < currentIndex ? "bg-tomato" : "bg-line"}`} />}
             </div>
-            <p className="text-sm pb-8" style={{ color: i <= currentIndex ? "#f5f5f5" : "#6a6a6a" }}>{s.label}</p>
+            <p className={`text-sm pb-8 ${i <= currentIndex ? "text-ink" : "text-inkdim"}`}>{s.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="info-card p-5">
+      <div className="bg-bgsoft border border-line rounded-2xl p-5">
         <p className="font-mono text-[11px] uppercase tracking-widest text-inkdim mb-3">Details</p>
         <ul className="text-sm grid gap-1">
           {(order.items || []).map((it, idx) => (

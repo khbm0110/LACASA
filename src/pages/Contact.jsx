@@ -17,48 +17,36 @@ export default function Contact() {
   }
 
   return (
-    <section className="page-wrap" style={{ maxWidth: 640 }}>
-      <div className="section-marker" style={{ marginBottom: "1.5rem" }}><span>Contact</span></div>
-      <h1 className="page-title">ECRIVEZ-<span className="text-stroke">NOUS.</span></h1>
-      <p className="page-lede" style={{ marginBottom: "3rem" }}>
-        Une question, un evenement prive, un groupe ? Nous vous repondons rapidement.
+    <section className="max-w-xl mx-auto px-6 md:px-8 py-20">
+      <h1 className="font-serif text-4xl mb-2">Contact</h1>
+      <p className="text-inkdim mb-10">
+        Une question, un evenement prive, un groupe ? Ecrivez-nous, nous repondons rapidement.
       </p>
 
       {status === "success" ? (
-        <div className="info-card notch-corner" style={{ padding: "2.5rem", textAlign: "center" }}>
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.75rem", marginBottom: "0.5rem" }}>Message envoye !</p>
-          <p style={{ color: "#c0c0c0" }}>Nous vous repondons des que possible.</p>
+        <div className="bg-bgsoft border border-line rounded-2xl p-8 text-center">
+          <p className="font-serif text-2xl mb-2">Message envoye !</p>
+          <p className="text-inkdim">Nous vous repondons des que possible.</p>
         </div>
       ) : (
-        <form onSubmit={submit} className="booking-frame" style={{ padding: "2rem 2.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div>
-            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Nom</label>
-            <input required placeholder="Votre nom" value={form.name} onChange={update("name")} className="form-input" />
+        <form onSubmit={submit} className="grid gap-3">
+          <input required placeholder="Nom" value={form.name} onChange={update("name")}
+            className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+          <div className="grid grid-cols-2 gap-3">
+            <input type="email" placeholder="Email" value={form.email} onChange={update("email")}
+              className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+            <input placeholder="Telephone" value={form.phone} onChange={update("phone")}
+              className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
           </div>
-          <div className="rg-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-            <div>
-              <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Email</label>
-              <input type="email" placeholder="vous@exemple.com" value={form.email} onChange={update("email")} className="form-input" />
-            </div>
-            <div>
-              <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Telephone</label>
-              <input placeholder="+212 6 00 00 00 00" value={form.phone} onChange={update("phone")} className="form-input" />
-            </div>
-          </div>
-          <div>
-            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Sujet</label>
-            <input placeholder="Objet de votre message" value={form.subject} onChange={update("subject")} className="form-input" />
-          </div>
-          <div>
-            <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#6a6a6a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Message</label>
-            <textarea required rows={4} placeholder="Votre message" value={form.message} onChange={update("message")}
-              className="form-input" style={{ resize: "vertical" }} />
-          </div>
-          <button type="submit" disabled={status === "loading"}
-            style={{ background: "#D2491F", color: "#000", padding: "1.1rem 0", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.35rem", letterSpacing: "0.1em", border: "none", cursor: "pointer", marginTop: "0.5rem", width: "100%" }}>
-            {status === "loading" ? "Envoi..." : "ENVOYER LE MESSAGE"}
+          <input placeholder="Sujet" value={form.subject} onChange={update("subject")}
+            className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+          <textarea required rows={5} placeholder="Votre message" value={form.message} onChange={update("message")}
+            className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+          <button disabled={status === "loading"}
+            className="mt-2 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
+            {status === "loading" ? "Envoi..." : "Envoyer"}
           </button>
-          {status === "error" && <p style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f87171", letterSpacing: "0.15em", textTransform: "uppercase" }}>Une erreur est survenue, reessayez.</p>}
+          {status === "error" && <p className="text-xs text-red-400">Une erreur est survenue, reessayez.</p>}
         </form>
       )}
     </section>

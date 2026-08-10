@@ -41,7 +41,7 @@ export default function Customers() {
         className="w-full max-w-sm mb-6 bg-bgsoft border border-line rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato" />
 
       <div className="grid gap-2">
-        <div className="hidden sm:grid grid-cols-5 gap-3 px-4 text-xs text-inkdim font-mono uppercase tracking-wide">
+        <div className="grid grid-cols-5 gap-3 px-4 text-xs text-inkdim font-mono uppercase tracking-wide">
           <span className="col-span-2">Client</span>
           <span>Commandes</span>
           <span>Depense</span>
@@ -49,17 +49,11 @@ export default function Customers() {
         </div>
         {filtered.map((c) => (
           <button key={c.id} onClick={() => setSelected(c)}
-            className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm text-left hover:border-tomato transition">
+            className="grid grid-cols-5 gap-3 bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm text-left hover:border-tomato transition">
             <span className="col-span-2 truncate">{c.name || "Sans nom"} <span className="text-inkdim text-xs">{c.phone}</span></span>
-            <span className="text-inkdim text-xs sm:hidden">Commandes</span>
-            <span className="sm:hidden text-right">{c.ordersCount}</span>
-            <span className="hidden sm:block">{c.ordersCount}</span>
-            <span className="text-inkdim text-xs sm:hidden">Depense</span>
-            <span className="sm:hidden text-right font-mono text-gold">{c.totalSpent} MAD</span>
-            <span className="hidden sm:block font-mono text-gold">{c.totalSpent} MAD</span>
-            <span className="text-inkdim text-xs sm:hidden">Points</span>
-            <span className="sm:hidden text-right">{c.loyalty_points} pts</span>
-            <span className="hidden sm:block">{c.loyalty_points} pts</span>
+            <span>{c.ordersCount}</span>
+            <span className="font-mono text-gold">{c.totalSpent} MAD</span>
+            <span>{c.loyalty_points} pts</span>
           </button>
         ))}
         {filtered.length === 0 && <p className="text-inkdim text-sm px-4">Aucun client trouve.</p>}

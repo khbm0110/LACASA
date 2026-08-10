@@ -144,11 +144,10 @@ export default function Dashboard() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <div className="section-marker" style={{ marginBottom: "0.6rem" }}><span>Tableau de bord</span></div>
-          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.25rem", lineHeight: 1 }}>Bienvenue, La Casa Di Carta 👋</h1>
-          <p className="text-inkdim text-sm mt-2">Voici un aper\u00e7u de votre activit\u00e9 aujourd'hui.</p>
+          <h1 className="font-serif text-3xl mb-1">Bienvenue, La Casa Di Carta 👋</h1>
+          <p className="text-inkdim text-sm">Voici un aper\u00e7u de votre activit\u00e9 aujourd'hui.</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2.5 border border-line text-sm text-inkdim">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line text-sm text-inkdim">
           <IconCalendar size={16} />
           {today}
           <IconChevronDown size={16} />
@@ -181,15 +180,15 @@ export default function Dashboard() {
 
       <div className="grid lg:grid-cols-[1fr_1.3fr] gap-5 mb-6">
         {/* Activite recente */}
-        <div className="info-card p-5">
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem" }} className="mb-4">Activit\u00e9 r\u00e9cente</p>
+        <div className="bg-bgsoft border border-line rounded-2xl p-5">
+          <p className="font-serif text-lg mb-4">Activit\u00e9 r\u00e9cente</p>
           <div className="grid gap-1">
             {loading && <p className="text-inkdim text-sm">Chargement...</p>}
             {!loading && activity.length === 0 && <p className="text-inkdim text-sm">Aucune activit\u00e9 pour le moment.</p>}
             {activity.map((a) => (
-              <div key={a.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-line-light last:border-0">
+              <div key={a.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-line last:border-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className={`w-9 h-9 flex items-center justify-center shrink-0 ${
+                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                     a.kind === "review" ? "bg-gold/15 text-gold" : "bg-tomato/15 text-tomatoglow"
                   }`}>
                     {a.kind === "reservation" && <IconCalendar size={16} />}
@@ -208,21 +207,21 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-          <Link to="/admin/commandes" className="link-underline mt-4 flex items-center gap-1.5 text-sm text-inkdim hover:text-ink w-fit">
+          <Link to="/admin/commandes" className="mt-4 flex items-center gap-1.5 text-sm text-inkdim hover:text-ink w-fit">
             Voir toutes les activit\u00e9s <IconChevronDown size={14} />
           </Link>
         </div>
 
         {/* Apercu des ventes */}
-        <div className="info-card p-5">
+        <div className="bg-bgsoft border border-line rounded-2xl p-5">
           <div className="flex items-center justify-between mb-1">
-            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem" }}>Aper\u00e7u des ventes</p>
-            <span className="flex items-center gap-1 text-xs text-inkdim border border-line px-3 py-1.5">
+            <p className="font-serif text-lg">Aper\u00e7u des ventes</p>
+            <span className="flex items-center gap-1 text-xs text-inkdim border border-line rounded-full px-3 py-1.5">
               Aujourd'hui <IconChevronDown size={13} />
             </span>
           </div>
           <div className="flex items-baseline gap-2 mb-4">
-            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.5rem" }}>{salesToday.toLocaleString("fr-FR")} MAD</span>
+            <span className="font-serif text-4xl">{salesToday.toLocaleString("fr-FR")} MAD</span>
             <span className={`text-xs font-mono ${salesTrend >= 0 ? "text-basil" : "text-red-400"}`}>
               {salesTrend >= 0 ? "+" : ""}{salesTrend}% vs hier
             </span>
@@ -233,12 +232,12 @@ export default function Dashboard() {
 
       <div className="grid lg:grid-cols-[1.3fr_1fr] gap-5">
         {/* Acces rapides */}
-        <div className="info-card p-5">
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem" }} className="mb-4">Acc\u00e8s rapides</p>
+        <div className="bg-bgsoft border border-line rounded-2xl p-5">
+          <p className="font-serif text-lg mb-4">Acc\u00e8s rapides</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {visibleActions.map((a) => (
               <Link key={a.label} to={a.to}
-                className="flex flex-col items-center justify-center gap-2 text-center bg-bg border border-line px-3 py-5 hover:border-tomato hover:-translate-y-0.5 transition">
+                className="flex flex-col items-center justify-center gap-2 text-center bg-bg border border-line rounded-xl px-3 py-5 hover:border-tomato hover:-translate-y-0.5 transition">
                 <a.icon size={22} className="text-gold" />
                 <span className="text-xs text-inkdim leading-tight">{a.label}</span>
               </Link>
@@ -247,16 +246,16 @@ export default function Dashboard() {
         </div>
 
         {/* Evenements & Offres */}
-        <div className="info-card p-5">
-          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.25rem" }} className="mb-4">\u00c9v\u00e9nements & Offres</p>
+        <div className="bg-bgsoft border border-line rounded-2xl p-5">
+          <p className="font-serif text-lg mb-4">\u00c9v\u00e9nements & Offres</p>
           <div className="grid gap-3">
             {events.length === 0 && <p className="text-inkdim text-sm">Aucun \u00e9v\u00e9nement actif.</p>}
             {events.map((e) => (
-              <div key={e.id} className="flex gap-3 items-center bg-bg border border-line p-3">
+              <div key={e.id} className="flex gap-3 items-center bg-bg border border-line rounded-xl p-3">
                 {e.image_url ? (
-                  <img src={e.image_url} alt={e.title} className="w-14 h-14 object-cover shrink-0" />
+                  <img src={e.image_url} alt={e.title} className="w-14 h-14 rounded-lg object-cover shrink-0" />
                 ) : (
-                  <span className="w-14 h-14 bg-tomato/15 flex items-center justify-center shrink-0">
+                  <span className="w-14 h-14 rounded-lg bg-tomato/15 flex items-center justify-center shrink-0">
                     <IconClipboard size={20} className="text-tomatoglow" />
                   </span>
                 )}
@@ -268,7 +267,7 @@ export default function Dashboard() {
             ))}
           </div>
           {canManageEvents && (
-            <Link to="/admin/evenements" className="link-underline mt-4 inline-flex items-center gap-1.5 text-sm text-gold">
+            <Link to="/admin/evenements" className="mt-4 inline-flex items-center gap-1.5 text-sm text-gold hover:underline">
               Voir tous <IconArrowRight size={14} />
             </Link>
           )}
@@ -280,13 +279,13 @@ export default function Dashboard() {
 
 function StatCard({ icon: Icon, label, value, trend, trendLabel, subtitle }) {
   return (
-    <div className="info-card p-5 flex items-start gap-4">
-      <span className="w-12 h-12 bg-tomato/15 text-tomatoglow flex items-center justify-center shrink-0">
+    <div className="bg-bgsoft border border-line rounded-2xl p-5 flex items-start gap-4">
+      <span className="w-12 h-12 rounded-xl bg-tomato/15 text-tomatoglow flex items-center justify-center shrink-0">
         <Icon size={22} />
       </span>
       <div className="min-w-0">
         <p className="text-sm text-inkdim mb-1">{label}</p>
-        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", lineHeight: 1 }} className="mb-1.5">{value}</p>
+        <p className="font-serif text-3xl leading-none mb-1.5">{value}</p>
         {typeof trend === "number" && (
           <p className={`text-xs font-mono ${trend >= 0 ? "text-basil" : "text-red-400"}`}>
             {trend >= 0 ? "+" : ""}{trend}% {trendLabel}
