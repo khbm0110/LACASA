@@ -506,6 +506,10 @@ as $$
 declare
   r record;
 begin
+  if not is_staff() then
+    raise exception 'Acces reserve a l equipe.';
+  end if;
+
   update purchases
   set status = 'received',
       received_at = now(),
@@ -733,6 +737,10 @@ declare
   ci record;
   was_in_kitchen boolean;
 begin
+  if not is_staff() then
+    raise exception 'Acces reserve a l equipe.';
+  end if;
+
   select * into ord from orders where id = p_order_id;
   if ord.id is null then raise exception 'Commande introuvable'; end if;
   if ord.status = 'cancelled' then return; end if;
@@ -765,46 +773,6 @@ end;
 $$;
 
 grant execute on function void_order(uuid, text) to authenticated;
-
--- Cloture une session de caisse : fige le montant attendu (fond de
--- depart + ventes especes - remboursements especes de cette session) et
--- l ecart avec le montant reellement compte par l employe.
-create or replace function close_shift(p_shift_id uuid, p_closing_cash numeric, p_closed_by uuid default null, p_notes text default null)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_opening numeric;
-  v_cash_sales numeric;
-  v_cash_refunds numeric;
-  v_expected numeric;
-begin
-  select opening_cash into v_opening from shifts where id = p_shift_id;
-
-  select coalesce(sum(total), 0) into v_cash_sales
-  from orders where shift_id = p_shift_id and payment_provider = 'cash' and status <> 'cancelled';
-
-  select coalesce(sum(r.amount), 0) into v_cash_refunds
-  from order_refunds r join orders o on o.id = r.order_id
-  where o.shift_id = p_shift_id and r.payment_method = 'cash';
-
-  v_expected := coalesce(v_opening, 0) + v_cash_sales - v_cash_refunds;
-
-  update shifts set
-    status = 'closed',
-    closing_cash = p_closing_cash,
-    expected_cash = v_expected,
-    cash_difference = p_closing_cash - v_expected,
-    closed_by = p_closed_by,
-    notes = p_notes,
-    closed_at = now()
-  where id = p_shift_id;
-end;
-$$;
-
-grant execute on function close_shift(uuid, numeric, uuid, text) to authenticated;
 
 -- ============================================================
 -- Lot "Paiement partage (split payment)"
@@ -853,6 +821,10 @@ declare
   v_cash_refunds numeric;
   v_expected numeric;
 begin
+  if not is_staff() then
+    raise exception 'Acces reserve a l equipe.';
+  end if;
+
   select opening_cash into v_opening from shifts where id = p_shift_id;
 
   select coalesce(sum(p.amount), 0) into v_cash_sales
