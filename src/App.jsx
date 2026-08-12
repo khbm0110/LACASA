@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from "react-router-dom"
+import { AnimatePresence, motion } from "framer-motion"
 import Header from "./components/Header.jsx"
 import Footer from "./components/Footer.jsx"
 import WhatsAppButton from "./components/WhatsAppButton.jsx"
@@ -51,77 +52,97 @@ import SalesHistory from "./admin/pages/SalesHistory.jsx"
 import Shifts from "./admin/pages/Shifts.jsx"
 import Reports from "./admin/pages/Reports.jsx"
 
-export default function App() {
+// Page transition animation variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  enter: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -15 }
+}
+const pageTransition = { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: 0.4 }
+
+function PageWrapper({ children }) {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <div className="min-h-screen bg-bg text-ink">
-            <div className="grain" aria-hidden="true" />
-            <Header />
-            <Home />
-            <Footer />
-            <WhatsAppButton />
-            <ConnectionStatus />
-            <ViewLogger />
-          </div>
-        }
-      />
-      <Route path="/menu" element={<PublicPage><Menu /></PublicPage>} />
-      <Route path="/reserver" element={<PublicPage><Booking /></PublicPage>} />
-      <Route path="/livraison" element={<PublicPage><Delivery /></PublicPage>} />
-      <Route path="/a-propos" element={<PublicPage><About /></PublicPage>} />
-      <Route path="/avis" element={<PublicPage><Reviews /></PublicPage>} />
-      <Route path="/contact" element={<PublicPage><Contact /></PublicPage>} />
-      <Route path="/galerie" element={<PublicPage><Gallery /></PublicPage>} />
-      <Route path="/evenements" element={<PublicPage><Events /></PublicPage>} />
-      <Route path="/blog" element={<PublicPage><Blog /></PublicPage>} />
-      <Route path="/blog/:slug" element={<PublicPage><BlogPost /></PublicPage>} />
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="enter"
+      exit="exit"
+      transition={pageTransition}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
-      {/* Page ouverte en scannant le QR code d une table */}
-      <Route path="/table/:id" element={<TableMenu />} />
+export default function App() {
+  const location = useLocation()
+  const isAdmin = location.pathname.startsWith("/admin")
 
-      {/* Compte client (login/inscription + tableau de bord) */}
-      <Route path="/compte" element={<PublicPage><Account /></PublicPage>} />
-
-      {/* Suivi de commande en direct, accessible sans compte via le lien recu */}
-      <Route path="/suivi/:id" element={<PublicPage><OrderTracking /></PublicPage>} />
-      <Route path="/paiement/:id" element={<PublicPage><Payment /></PublicPage>} />
-
-      <Route path="/admin/login" element={<Login />} />
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="menu" element={<MenuManager />} />
-        <Route path="reservations" element={<Reservations />} />
-        <Route path="commandes" element={<Orders />} />
-        <Route path="tables" element={<Tables />} />
-        <Route path="comptabilite" element={<Accounting />} />
-        <Route path="codes-promo" element={<PromoCodes />} />
-        <Route path="cuisine" element={<Kitchen />} />
-        <Route path="pos" element={<POS />} />
-        <Route path="inventaire" element={<InventoryItems />} />
-        <Route path="fournisseurs" element={<Suppliers />} />
-        <Route path="achats" element={<Purchases />} />
-        <Route path="recettes" element={<Recipes />} />
-        <Route path="modificateurs" element={<Modifiers />} />
-        <Route path="formules" element={<Combos />} />
-        <Route path="etablissements" element={<Branches />} />
-        <Route path="ventes" element={<SalesHistory />} />
-        <Route path="caisses" element={<Shifts />} />
-        <Route path="rapports" element={<Reports />} />
-        <Route path="clients" element={<Customers />} />
-        <Route path="equipe" element={<StaffManager />} />
-        <Route path="galerie" element={<GalleryManager />} />
-        <Route path="evenements" element={<EventsManager />} />
-        <Route path="blog" element={<BlogManager />} />
-        <Route path="messages" element={<ContactMessages />} />
-        <Route path="analytics" element={<Analytics />} />
-        <Route path="confirmation" element={<OrderConfirmation />} />
-        <Route path="contenu" element={<ContentEditor />} />
-        <Route path="traductions" element={<Translations />} />
-      </Route>
-    </Routes>
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <div className="min-h-screen bg-bg text-ink">
+              <div className="grain" aria-hidden="true" />
+              <Header />
+              <PageWrapper><Home /></PageWrapper>
+              <Footer />
+              <WhatsAppButton />
+              <ConnectionStatus />
+              <ViewLogger />
+            </div>
+          }
+        />
+        <Route path="/menu" element={<PublicPage><PageWrapper><Menu /></PageWrapper></PublicPage>} />
+        <Route path="/reserver" element={<PublicPage><PageWrapper><Booking /></PageWrapper></PublicPage>} />
+        <Route path="/livraison" element={<PublicPage><PageWrapper><Delivery /></PageWrapper></PublicPage>} />
+        <Route path="/a-propos" element={<PublicPage><PageWrapper><About /></PageWrapper></PublicPage>} />
+        <Route path="/avis" element={<PublicPage><PageWrapper><Reviews /></PageWrapper></PublicPage>} />
+        <Route path="/contact" element={<PublicPage><PageWrapper><Contact /></PageWrapper></PublicPage>} />
+        <Route path="/galerie" element={<PublicPage><PageWrapper><Gallery /></PageWrapper></PublicPage>} />
+        <Route path="/evenements" element={<PublicPage><PageWrapper><Events /></PageWrapper></PublicPage>} />
+        <Route path="/blog" element={<PublicPage><PageWrapper><Blog /></PageWrapper></PublicPage>} />
+        <Route path="/blog/:slug" element={<PublicPage><PageWrapper><BlogPost /></PageWrapper></PublicPage>} />
+        <Route path="/table/:id" element={<TableMenu />} />
+        <Route path="/compte" element={<PublicPage><PageWrapper><Account /></PageWrapper></PublicPage>} />
+        <Route path="/suivi/:id" element={<PublicPage><PageWrapper><OrderTracking /></PageWrapper></PublicPage>} />
+        <Route path="/paiement/:id" element={<PublicPage><PageWrapper><Payment /></PageWrapper></PublicPage>} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="menu" element={<MenuManager />} />
+          <Route path="reservations" element={<Reservations />} />
+          <Route path="commandes" element={<Orders />} />
+          <Route path="tables" element={<Tables />} />
+          <Route path="comptabilite" element={<Accounting />} />
+          <Route path="codes-promo" element={<PromoCodes />} />
+          <Route path="cuisine" element={<Kitchen />} />
+          <Route path="pos" element={<POS />} />
+          <Route path="inventaire" element={<InventoryItems />} />
+          <Route path="fournisseurs" element={<Suppliers />} />
+          <Route path="achats" element={<Purchases />} />
+          <Route path="recettes" element={<Recipes />} />
+          <Route path="modificateurs" element={<Modifiers />} />
+          <Route path="formules" element={<Combos />} />
+          <Route path="etablissements" element={<Branches />} />
+          <Route path="ventes" element={<SalesHistory />} />
+          <Route path="caisses" element={<Shifts />} />
+          <Route path="rapports" element={<Reports />} />
+          <Route path="clients" element={<Customers />} />
+          <Route path="equipe" element={<StaffManager />} />
+          <Route path="galerie" element={<GalleryManager />} />
+          <Route path="evenements" element={<EventsManager />} />
+          <Route path="blog" element={<BlogManager />} />
+          <Route path="messages" element={<ContactMessages />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="confirmation" element={<OrderConfirmation />} />
+          <Route path="contenu" element={<ContentEditor />} />
+          <Route path="traductions" element={<Translations />} />
+        </Route>
+      </Routes>
+    </AnimatePresence>
   )
 }
 
@@ -139,7 +160,6 @@ function PublicPage({ children }) {
   )
 }
 
-// Enregistre une vue de page a chaque changement de route publique
 function ViewLogger() {
   const location = useLocation()
   usePageView(location.pathname)
