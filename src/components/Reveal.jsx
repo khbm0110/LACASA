@@ -1,33 +1,51 @@
-import { useEffect, useRef } from "react"
+import { motion } from "framer-motion"
 
-// Enveloppe un bloc et l anime en fondu + translation des qu il entre dans
-// l ecran (utilise la classe utilitaire .reveal deja definie dans index.css).
-// delay: decalage en ms, utile pour un effet en cascade sur une liste.
-export default function Reveal({ children, delay = 0, className = "", as: Tag = "div" }) {
-  const ref = useRef(null)
+// Presets de variation pour des effets differents selon le contexte
+const VARIANTS = {
+  fadeUp: {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 }
+  },
+  fadeDown: {
+    hidden: { opacity: 0, y: -30 },
+    visible: { opacity: 1, y: 0 }
+  },
+  fadeLeft: {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0 }
+  },
+  fadeRight: {
+    hidden: { opacity: 0, x: 50 },
+    visible: { opacity: 1, x: 0 }
+  },
+  scaleIn: {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 }
+  },
+  blurIn: {
+    hidden: { opacity: 0, filter: "blur(10px)" },
+    visible: { opacity: 1, filter: "blur(0px)" }
+  }
+}
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            el.style.transitionDelay = `${delay}ms`
-            el.classList.add("in")
-            observer.unobserve(el)
-          }
-        })
-      },
-      { threshold: 0.15 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [delay])
+export default function Reveal({ children, delay = 0, className = "", as: Tag = "div", variant = "fadeUp", once = true }) {
+  const v = VARIANTS[variant] || VARIANTS.fadeUp
 
   return (
-    <Tag ref={ref} className={`reveal ${className}`}>
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once, amount: 0.15, margin: "-40px" }}
+      variants={v}
+      transition={{
+        duration: 0.7,
+        delay: delay / 1000,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      className={className}
+      style={{ willChange: "opacity, transform, filter" }}
+    >
       {children}
-    </Tag>
+    </motion.div>
   )
 }

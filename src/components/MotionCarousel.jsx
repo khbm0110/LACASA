@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState } from "react"
+import { motion } from "framer-motion"
 
-// Slider "peek" auto-defilant : glisse en continu, se met en pause au survol
-// ou au toucher, et peut etre entraine a la souris / au doigt.
-// - items: tableau de donnees
-// - renderItem(item, i): rendu de chaque carte
-// - cardWidth: largeur de carte en px sur desktop (classe tailwind gere le mobile)
 export default function MotionCarousel({ items, renderItem, autoPlayMs = 3500 }) {
   const trackRef = useRef(null)
   const [paused, setPaused] = useState(false)
   const dragState = useRef({ dragging: false, startX: 0, startScroll: 0 })
 
-  // Defilement automatique
   useEffect(() => {
     if (paused || items.length <= 1) return
     const el = trackRef.current
@@ -77,14 +72,22 @@ export default function MotionCarousel({ items, renderItem, autoPlayMs = 3500 })
 
       {items.length > 1 && (
         <div className="hidden sm:flex justify-end gap-2 mt-4">
-          <button type="button" aria-label="Precedent" onClick={() => scrollBy(-1)}
-            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition opacity-0 group-hover/carousel:opacity-100">
+          <motion.button
+            type="button" aria-label="Precedent" onClick={() => scrollBy(-1)}
+            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition"
+            whileHover={{ scale: 1.15, borderColor: "#D2491F" }}
+            whileTap={{ scale: 0.9 }}
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
-          <button type="button" aria-label="Suivant" onClick={() => scrollBy(1)}
-            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition opacity-0 group-hover/carousel:opacity-100">
+          </motion.button>
+          <motion.button
+            type="button" aria-label="Suivant" onClick={() => scrollBy(1)}
+            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition"
+            whileHover={{ scale: 1.15, borderColor: "#D2491F" }}
+            whileTap={{ scale: 0.9 }}
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
+          </motion.button>
         </div>
       )}
     </div>
