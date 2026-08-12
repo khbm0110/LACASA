@@ -17,7 +17,7 @@ export default function Blog() {
   }, [])
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 py-20">
+    <section className="max-w-wide mx-auto px-5 md:px-10 py-20">
       <h1 className="font-serif text-4xl mb-10">Blog & Actualites</h1>
 
       {/* Meme carte que le bloc "Blog" de l accueil, pour une experience
@@ -33,16 +33,16 @@ export default function Blog() {
                 </div>
               )}
               <div className="p-5">
-                <p className="font-mono text-xs text-clay mb-2">
+                <p className="font-mono text-xs text-gold mb-2">
                   {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
                 </p>
                 <h2 className="font-serif text-lg mb-1">{p.title}</h2>
-                <p className="text-barklight text-sm line-clamp-2">{p.excerpt}</p>
+                <p className="text-inkSoft text-sm line-clamp-2">{p.excerpt}</p>
               </div>
             </Link>
           </Reveal>
         ))}
-        {posts.length === 0 && <p className="text-barklight text-sm col-span-full">Aucun article publie pour le moment.</p>}
+        {posts.length === 0 && <p className="text-inkSoft text-sm col-span-full">Aucun article publie pour le moment.</p>}
       </div>
     </section>
   )

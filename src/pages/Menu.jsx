@@ -40,14 +40,14 @@ export default function Menu() {
   const shownItems = items.filter((i) => i.category === activeCat)
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 py-20">
+    <section className="max-w-wide mx-auto px-5 md:px-10 py-20">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-serif text-4xl md:text-5xl mb-2">{t("menu_page.title")}</h1>
-        <p className="text-barklight mb-8">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
+        <p className="text-inkSoft mb-8">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
       </motion.div>
 
       {/* Category filter with layout animation */}
@@ -65,8 +65,8 @@ export default function Menu() {
               transition={{ delay: i * 0.04 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition-colors ${
-                activeCat === cat ? "bg-terracotta border-tomato text-white" : "border-border text-barklight hover:text-bark hover:border-tomato"
+              className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition-colors ${
+                activeCat === cat ? "bg-gold border-tomato text-white" : "border-border text-inkSoft hover:text-ink hover:border-tomato"
               }`}
             >
               {cat}
@@ -107,39 +107,39 @@ export default function Menu() {
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.6 }}
                       />
-                      <div className="absolute top-3 left-3 font-mono text-[10px] text-terracotta tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
+                      <div className="absolute top-3 left-3 font-mono text-[10px] text-gold tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   ) : (
                     <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
-                      <span className="font-serif text-3xl text-clay/40">{item.name?.[0]}</span>
-                      <div className="absolute top-3 left-3 font-mono text-[10px] text-terracotta tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
+                      <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
+                      <div className="absolute top-3 left-3 font-mono text-[10px] text-gold tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   )}
                   <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-barklight mb-1">{item.category}</p>
+                      <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-inkSoft mb-1">{item.category}</p>
                       <h3 className="font-serif text-base md:text-xl leading-tight">{item.name}</h3>
                     </div>
                     <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border mt-2 md:mt-3">
                       <motion.p
-                        className="font-mono text-clay text-sm md:text-base"
+                        className="font-mono text-gold text-sm md:text-base"
                         whileHover={{ scale: 1.05, color: "#FF7A3D" }}
                       >
                         {item.price} MAD
                       </motion.p>
-                      <span className="hidden md:inline font-mono text-[10px] text-barklight uppercase tracking-widest">Survoler &rarr;</span>
+                      <span className="hidden md:inline font-mono text-[10px] text-inkSoft uppercase tracking-widest">Survoler &rarr;</span>
                     </div>
                   </div>
                 </div>
                 {/* Back face */}
                 <div className="flip-face flip-back bg-white border border-tomato/50 rounded-2xl p-4 md:p-7 flex flex-col">
-                  <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-clay mb-2 md:mb-3">/ {item.category}</p>
+                  <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gold mb-2 md:mb-3">/ {item.category}</p>
                   <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-4">{item.name}</h3>
-                  <p className="text-barklight text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
+                  <p className="text-inkSoft text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
                     {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
                   </p>
                   <motion.p
-                    className="font-mono text-clay text-sm md:text-lg pt-2 md:pt-4 border-t border-border mt-2 md:mt-4"
+                    className="font-mono text-gold text-sm md:text-lg pt-2 md:pt-4 border-t border-border mt-2 md:mt-4"
                     whileHover={{ color: "#FF7A3D" }}
                   >
                     {item.price} MAD
@@ -154,7 +154,7 @@ export default function Menu() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-barklight text-sm col-span-full"
+            className="text-inkSoft text-sm col-span-full"
           >
             {t("menu_page.note")}
           </motion.p>

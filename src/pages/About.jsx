@@ -35,7 +35,7 @@ export default function About() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-serif text-4xl mb-2">{t("about.title")}</h1>
-        <p className="text-barklight mb-10">{t("about.subtitle")}</p>
+        <p className="text-inkSoft mb-10">{t("about.subtitle")}</p>
       </motion.div>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -57,7 +57,7 @@ export default function About() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          whileHover={{ borderColor: "#C67B5C" }}
+          whileHover={{ borderColor: "#A16207" }}
         >
           <iframe
             title="Carte"
@@ -78,7 +78,7 @@ function Row({ label, value, last }) {
       variants={staggerItem}
       className={`flex justify-between py-3.5 text-sm ${last ? "" : "border-b border-border"}`}
     >
-      <span className="font-mono text-[11px] uppercase tracking-widest text-barklight">{label}</span>
+      <span className="font-mono text-[11px] uppercase tracking-widest text-inkSoft">{label}</span>
       <motion.span
         className="font-medium"
         whileHover={{ color: "#FF7A3D" }}

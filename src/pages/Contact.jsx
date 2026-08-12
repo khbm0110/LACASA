@@ -28,7 +28,7 @@ export default function Contact() {
     <section className="max-w-xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Contact</h1>
-        <p className="text-barklight mb-10">
+        <p className="text-inkSoft mb-10">
           Une question, un evenement prive, un groupe ? Ecrivez-nous, nous repondons rapidement.
         </p>
       </motion.div>
@@ -46,14 +46,14 @@ export default function Contact() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-              className="w-16 h-16 bg-terracotta rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-16 h-16 bg-gold  flex items-center justify-center mx-auto mb-4"
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </motion.div>
             <p className="font-serif text-2xl mb-2">Message envoye !</p>
-            <p className="text-barklight">Nous vous repondons des que possible.</p>
+            <p className="text-inkSoft">Nous vous repondons des que possible.</p>
           </motion.div>
         ) : (
           <motion.form
@@ -81,8 +81,8 @@ export default function Contact() {
             <motion.div custom={5} variants={fieldAnim} initial="hidden" animate="visible">
               <motion.button
                 disabled={status === "loading"}
-                className="mt-2 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60 w-full"
-                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(198,123,92,0.3)" }}
+                className="mt-2 px-6 py-3.5  text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60 w-full"
+                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(161,98,7,0.3)" }}
                 whileTap={{ scale: 0.98 }}
               >
                 {status === "loading" ? (

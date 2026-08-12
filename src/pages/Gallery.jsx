@@ -32,14 +32,14 @@ export default function Gallery() {
   const filtered = category === "Toutes" ? images : images.filter((i) => (i.category || "Restaurant") === category)
 
   return (
-    <section className="max-w-7xl mx-auto px-6 md:px-8 py-20">
+    <section className="max-w-wide mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Galerie</h1>
-        <p className="text-barklight mb-8">Un apercu du restaurant, des plats et des soirees.</p>
+        <p className="text-inkSoft mb-8">Un apercu du restaurant, des plats et des soirees.</p>
       </motion.div>
 
       {images.length === 0 ? (
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-barklight text-sm">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-inkSoft text-sm">
           Aucune photo pour le moment - ajoutez-en depuis Admin &gt; Galerie photo.
         </motion.p>
       ) : (
@@ -54,8 +54,8 @@ export default function Gallery() {
                 transition={{ delay: i * 0.03 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition-colors ${
-                  category === c ? "bg-terracotta border-tomato text-white" : "border-border text-barklight hover:text-bark hover:border-tomato"
+                className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition-colors ${
+                  category === c ? "bg-gold border-tomato text-white" : "border-border text-inkSoft hover:text-ink hover:border-tomato"
                 }`}>
                 {c}
               </motion.button>
@@ -73,7 +73,7 @@ export default function Gallery() {
                   transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
                   onClick={() => setLightboxIndex(i)}
                   className="rounded-2xl overflow-hidden border border-border aspect-square group cursor-zoom-in"
-                  whileHover={{ y: -6, borderColor: "#C67B5C" }}
+                  whileHover={{ y: -6, borderColor: "#A16207" }}
                 >
                   <motion.img
                     src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
@@ -103,15 +103,15 @@ export default function Gallery() {
               exit={{ scale: 0, rotate: -90 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               onClick={() => setLightboxIndex(null)}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full border border-white/20 text-white text-xl"
+              className="absolute top-6 right-6 w-10 h-10  border border-white/20 text-white text-xl"
             >
               &times;
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#C67B5C" }}
+              whileHover={{ scale: 1.1, borderColor: "#A16207" }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + filtered.length) % filtered.length) }}
-              className="absolute left-4 md:left-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"
+              className="absolute left-4 md:left-8 w-11 h-11  border border-white/20 text-white flex items-center justify-center"
             >
               &larr;
             </motion.button>
@@ -127,10 +127,10 @@ export default function Gallery() {
               className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl"
             />
             <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#C67B5C" }}
+              whileHover={{ scale: 1.1, borderColor: "#A16207" }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % filtered.length) }}
-              className="absolute right-4 md:right-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"
+              className="absolute right-4 md:right-8 w-11 h-11  border border-white/20 text-white flex items-center justify-center"
             >
               &rarr;
             </motion.button>
