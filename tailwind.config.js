@@ -3,37 +3,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        // === NEW PALETTE: "Sicilian Gold" - Warm Luxury ===
-        bg: '#0E0C0A',
-        bgdarker: '#080705',
-        bgsoft: '#1A1714',
-        bgsofthover: '#242019',
-        paper: '#FAF6EE',
-        ink: '#FAF6EE',
-        inkdim: '#B8B0A4',
-        muted: '#7A7268',
-        // Primary accent: Rich Amber Gold
-        tomato: '#C8963E',
-        tomatoglow: '#E8B94A',
-        tomatodim: '#8B6A2F',
-        // Secondary accent: Terracotta
-        gold: '#B85C3A',
-        silver: '#D6CFC5',
-        silverdim: '#5C5650',
-        // Herbal green
-        basil: '#6B8F5E',
+        // === "Nature Distilled" - Warm Mediterranean ===
+        bg: '#F5F0E1',
+        bgdarker: '#EDE6D3',
+        bgsoft: '#FFFFFF',
+        bgsofthover: '#FBF8F0',
+        paper: '#FFFFFF',
+        ink: '#2C1810',
+        inkdim: '#6B5B4E',
+        muted: '#9B8B7E',
+        // Primary accent: Terracotta
+        tomato: '#C67B5C',
+        tomatoglow: '#D4916F',
+        tomatodim: '#A65E3F',
+        // Secondary: Warm Clay
+        gold: '#B5651D',
+        silver: '#3D2E1F',
+        silverdim: '#C4B8A8',
+        // Herbal olive green
+        basil: '#6B7B3C',
+        basilsoft: '#8FA662',
+        // Sand beige
+        sand: '#D4C4A8',
+        sandlight: '#E8DCC8',
         // Lines & borders
-        line: '#262220',
-        linelight: '#332E29'
+        line: '#E2D5C3',
+        linelight: '#EDE6D3'
       },
       fontFamily: {
-        // Elegant serif for titles (replaces Bebas Neue)
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         display: ['"Playfair Display"', 'Georgia', 'serif'],
-        // Clean modern for subheadings
-        heading: ['"DM Sans"', 'sans-serif'],
-        // Body text
-        sans: ['"DM Sans"', 'sans-serif'],
+        heading: ['"Karla"', 'sans-serif'],
+        sans: ['"Karla"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace']
       }
     }

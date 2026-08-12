@@ -97,7 +97,7 @@ export default function Booking() {
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
               className="w-16 h-16 bg-tomato rounded-full flex items-center justify-center mx-auto mb-4"
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0E0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </motion.div>
@@ -167,8 +167,8 @@ export default function Booking() {
               <motion.button
                 type="submit"
                 disabled={status === "loading"}
-                className="mt-2 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-60 w-full"
-                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(200,150,62,0.3)" }}
+                className="mt-2 px-6 py-3.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60 w-full"
+                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(198,123,92,0.3)" }}
                 whileTap={{ scale: 0.98 }}
               >
                 {status === "loading" ? (

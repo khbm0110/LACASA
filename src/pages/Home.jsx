@@ -137,13 +137,13 @@ export default function Home() {
               </div>
             ))
           ) : (
-            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }} />
           )}
         </div>
         <div className="hero-overlay" />
         <div className="scan-line" />
 
-        <div className="relative z-10 h-full max-w-6xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 md:pb-20 pt-32">
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col justify-end pb-16 md:pb-20 pt-32">
           {heroImages.length > 1 && (
             <motion.div
               className="hidden md:flex items-center gap-3 absolute top-28 right-6 lg:right-10 font-mono text-[11px] text-inkdim"
@@ -174,11 +174,11 @@ export default function Home() {
           >
             <div className="flex items-center gap-4 flex-wrap">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Link to="/reserver" className="pulse-btn bg-tomato text-black px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
+                <Link to="/reserver" className="pulse-btn bg-tomato text-white px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
                   <span>Reserver</span><i className="fas fa-arrow-right text-xs" />
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.04, borderColor: "#D2491F" }} whileTap={{ scale: 0.97 }}>
+              <motion.div whileHover={{ scale: 1.04, borderColor: "#C67B5C" }} whileTap={{ scale: 0.97 }}>
                 <Link to="/livraison" className="px-6 py-3.5 font-heading text-xs tracking-[0.2em] uppercase text-inkdim border border-linelight transition flex items-center gap-3 whitespace-nowrap">
                   <span>Livraison</span><i className="fas fa-motorcycle text-xs text-tomato" />
                 </Link>
@@ -201,12 +201,12 @@ export default function Home() {
 
       {/* ============ QUICK DOCK ============ */}
       <motion.div
-        className="px-6 lg:px-10 relative z-10 -mt-6"
+        className="px-4 md:px-8 relative z-10 -mt-6"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.1, duration: 0.6 }}
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-sm p-3">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-sm p-3">
           {DOCK.map((item, i) => (
             <motion.div
               key={item.to}
@@ -216,7 +216,7 @@ export default function Home() {
               <Link to={item.to} className="flex items-center gap-4 p-4">
                 <motion.div
                   className="w-10 h-10 border border-linelight flex items-center justify-center shrink-0"
-                  whileHover={{ borderColor: "#D2491F", scale: 1.1 }}
+                  whileHover={{ borderColor: "#C67B5C", scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
                   <i className={`fas ${item.icon} text-sm`} />
@@ -234,7 +234,7 @@ export default function Home() {
       {/* ============ A LA UNE ============ */}
       {featured.length > 0 && (
         <section>
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
             <Reveal className="grid md:grid-cols-12 gap-8 mb-12 items-end">
               <div className="md:col-span-7">
                 <div className="section-marker mb-6"><span>01 — Notre carte</span></div>
@@ -255,7 +255,7 @@ export default function Home() {
                 <Reveal key={item.id} delay={i * 90}>
                   <motion.article
                     className="info-card notch-corner h-full flex flex-col"
-                    whileHover={{ y: -8, borderColor: "rgba(200,150,62,0.5)" }}
+                    whileHover={{ y: -8, borderColor: "rgba(198,123,92,0.5)" }}
                     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="relative h-36 md:h-72 overflow-hidden">
@@ -264,11 +264,11 @@ export default function Home() {
                           whileHover={{ scale: 1.08 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
                           <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
                         </div>
                       )}
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #141414, transparent)" }} />
+                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #EDE6D3, transparent)" }} />
                       <div className="absolute top-3 md:top-4 left-3 md:left-4 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(i + 1).padStart(2, "0")}</div>
                       <div className="absolute top-3 md:top-4 right-3 md:right-4 px-2 py-1 bg-black/60 backdrop-blur-sm font-mono text-[10px] text-ink tracking-[0.15em]">{item.category}</div>
                     </div>
@@ -314,7 +314,7 @@ export default function Home() {
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.name} />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
+                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
                                 <span className="font-serif text-2xl text-gold/40">{item.name?.[0]}</span>
                               </div>
                             )}
@@ -359,7 +359,7 @@ export default function Home() {
 
       {/* ============ AVIS (carrousel) ============ */}
       <section className="border-t border-line overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 mb-10 lg:mb-16 pt-14 lg:pt-28">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10 lg:mb-16 pt-12 lg:pt-20">
           <Reveal className="grid md:grid-cols-12 gap-8 items-end">
             <div className="md:col-span-7">
               <div className="section-marker mb-6"><span>02 — Avis</span></div>
@@ -418,7 +418,7 @@ export default function Home() {
       {/* ============ GALERIE ============ */}
       {galleryHome.length > 0 && (
         <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
             <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
               <div className="md:col-span-7">
                 <div className="section-marker mb-6"><span>03 — Ambiance</span></div>
@@ -436,7 +436,7 @@ export default function Home() {
                 <Reveal key={img.id} delay={(i % 3) * 100}>
                   <motion.div
                     className="info-card overflow-hidden aspect-[4/5] group cursor-pointer"
-                    whileHover={{ borderColor: "#D2491F" }}
+                    whileHover={{ borderColor: "#C67B5C" }}
                     transition={{ duration: 0.3 }}
                   >
                     <motion.img
@@ -457,8 +457,8 @@ export default function Home() {
 
       {/* ============ EVENEMENTS ============ */}
       {events.length > 0 && (
-        <section className="border-t border-line" style={{ background: "#050505" }}>
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
+        <section className="border-t border-line bg-bgdarker">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
             <Reveal className="mb-10 lg:mb-16">
               <div className="section-marker mb-6"><span>04 — Evenements</span></div>
               <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">A ne pas <span className="text-tomato">manquer.</span></h2>
@@ -468,7 +468,7 @@ export default function Home() {
                 <Reveal key={e.id} delay={i * 90}>
                   <motion.div
                     className="info-card overflow-hidden flex flex-row h-full group"
-                    whileHover={{ borderColor: "#D2491F", y: -4 }}
+                    whileHover={{ borderColor: "#C67B5C", y: -4 }}
                     transition={{ duration: 0.35 }}
                   >
                     {e.image_url && (
@@ -499,7 +499,7 @@ export default function Home() {
       {/* ============ BLOG ============ */}
       {posts.length > 0 && (
         <section className="border-t border-line">
-          <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
             <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
               <div className="md:col-span-7">
                 <div className="section-marker mb-6"><span>05 — Actualites</span></div>
@@ -541,8 +541,8 @@ export default function Home() {
       )}
 
       {/* ============ RESERVATION & INFOS ============ */}
-      <section className="border-t border-line" style={{ background: "#050505" }}>
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-14 lg:py-28">
+      <section className="border-t border-line bg-bgdarker">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
           <Reveal className="mb-10 lg:mb-16">
             <div className="section-marker mb-6"><span>06 — Reservation</span></div>
             <h2 className="font-serif text-6xl md:text-7xl leading-[0.9]">
@@ -569,7 +569,7 @@ export default function Home() {
                       transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.2 }}
                       className="w-10 h-10 bg-tomato flex items-center justify-center shrink-0"
                     >
-                      <i className="fas fa-check text-black text-sm" />
+                      <i className="fas fa-check text-white text-sm" />
                     </motion.div>
                     <div>
                       <div className="font-heading text-sm tracking-[0.1em] uppercase">Demande recue</div>
@@ -617,7 +617,7 @@ export default function Home() {
                     <motion.button
                       type="submit"
                       disabled={resStatus === "loading"}
-                      className="pulse-btn bg-tomato text-black py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60"
+                      className="pulse-btn bg-tomato text-white py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                     >
@@ -677,7 +677,7 @@ export default function Home() {
                   referrerPolicy="no-referrer-when-downgrade"
                   src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
                   className="w-full h-full border-0"
-                  style={{ filter: "grayscale(100%) contrast(1.2) brightness(0.7)" }}
+                  style={{ filter: "contrast(1.05) brightness(0.95)" }}
                 />
               </Reveal>
             </div>

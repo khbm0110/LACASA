@@ -40,7 +40,7 @@ export default function Menu() {
   const shownItems = items.filter((i) => i.category === activeCat)
 
   return (
-    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-20">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,7 @@ export default function Menu() {
                       <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   ) : (
-                    <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
+                    <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
                       <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
                       <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>

@@ -67,7 +67,7 @@ export default function Reviews() {
           <motion.div
             key={r.id}
             variants={item}
-            whileHover={{ borderColor: "rgba(200,150,62,0.4)", y: -3 }}
+            whileHover={{ borderColor: "rgba(198,123,92,0.4)", y: -3 }}
             className="bg-bgsoft border border-line rounded-2xl p-5"
           >
             <p className="text-gold text-sm mb-2">{"★ ".repeat(r.rating)}{"☆ ".repeat(5 - r.rating)}</p>

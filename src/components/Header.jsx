@@ -60,8 +60,8 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-bg/70 border-b border-line">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 md:px-8 py-4">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-bg/80 border-b border-line">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 md:px-8 py-4">
         <div className="flex items-center">
           <button className="md:hidden text-ink relative w-8 h-8 flex flex-col items-center justify-center gap-1.5" onClick={() => setOpen(!open)} aria-label="Menu">
             <motion.span
@@ -89,7 +89,7 @@ export default function Header() {
         >
           <Link to="/" className="flex items-center gap-2 font-serif font-semibold text-lg whitespace-nowrap">
             <motion.span
-              className="w-8 h-8 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#0E0C0A]"
+              className="w-8 h-8 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-white"
               whileHover={{ rotate: 12, scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -149,7 +149,7 @@ export default function Header() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.04 }}
                       >
-                        <Link to={l.to} className="px-3 py-2 rounded-lg text-sm text-inkdim hover:bg-white/5 hover:text-ink transition-colors">
+                        <Link to={l.to} className="px-3 py-2 rounded-lg text-sm text-inkdim hover:bg-black/5 hover:text-ink transition-colors">
                           {l.label}
                         </Link>
                       </motion.div>
@@ -186,11 +186,11 @@ export default function Header() {
           >
             <Link
               to="/reserver"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] shadow-lg shadow-tomato/20 inline-block"
+              className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-white shadow-lg shadow-tomato/20 inline-block"
             >
               <motion.span
                 className="flex items-center"
-                whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(200,150,62,0.4)" }}
+                whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(198,123,92,0.4)" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
               >
@@ -237,7 +237,7 @@ export default function Header() {
                   <Link
                     to={link.to}
                     onClick={() => setOpen(false)}
-                    className="block py-2.5 px-2 text-inkdim hover:text-ink hover:bg-white/5 rounded-lg transition-colors"
+                    className="block py-2.5 px-2 text-inkdim hover:text-ink hover:bg-black/5 rounded-lg transition-colors"
                   >
                     {link.label}
                   </Link>

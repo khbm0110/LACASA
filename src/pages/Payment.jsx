@@ -102,7 +102,7 @@ export default function Payment() {
         {error && <p className="text-xs text-red-400">{error}</p>}
 
         <button disabled={status === "loading"}
-          className="mt-1 px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-60">
+          className="mt-1 px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60">
           {status === "loading" ? "Verification..." : `Payer ${order.total} MAD`}
         </button>
         <p className="text-[11px] text-inkdim text-center">

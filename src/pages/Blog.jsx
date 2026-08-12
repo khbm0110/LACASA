@@ -17,7 +17,7 @@ export default function Blog() {
   }, [])
 
   return (
-    <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-20">
       <h1 className="font-serif text-4xl mb-10">Blog & Actualites</h1>
 
       {/* Meme carte que le bloc "Blog" de l accueil, pour une experience

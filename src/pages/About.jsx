@@ -57,7 +57,7 @@ export default function About() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          whileHover={{ borderColor: "#D2491F" }}
+          whileHover={{ borderColor: "#C67B5C" }}
         >
           <iframe
             title="Carte"

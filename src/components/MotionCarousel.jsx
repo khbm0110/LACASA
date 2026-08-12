@@ -75,7 +75,7 @@ export default function MotionCarousel({ items, renderItem, autoPlayMs = 3500 })
           <motion.button
             type="button" aria-label="Precedent" onClick={() => scrollBy(-1)}
             className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition"
-            whileHover={{ scale: 1.15, borderColor: "#D2491F" }}
+            whileHover={{ scale: 1.15, borderColor: "#C67B5C" }}
             whileTap={{ scale: 0.9 }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -83,7 +83,7 @@ export default function MotionCarousel({ items, renderItem, autoPlayMs = 3500 })
           <motion.button
             type="button" aria-label="Suivant" onClick={() => scrollBy(1)}
             className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-inkdim hover:text-ink hover:border-tomato transition"
-            whileHover={{ scale: 1.15, borderColor: "#D2491F" }}
+            whileHover={{ scale: 1.15, borderColor: "#C67B5C" }}
             whileTap={{ scale: 0.9 }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>

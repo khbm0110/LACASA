@@ -32,7 +32,7 @@ export default function Gallery() {
   const filtered = category === "Toutes" ? images : images.filter((i) => (i.category || "Restaurant") === category)
 
   return (
-    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+    <section className="max-w-7xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Galerie</h1>
         <p className="text-inkdim mb-8">Un apercu du restaurant, des plats et des soirees.</p>
@@ -73,7 +73,7 @@ export default function Gallery() {
                   transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
                   onClick={() => setLightboxIndex(i)}
                   className="rounded-2xl overflow-hidden border border-line aspect-square group cursor-zoom-in"
-                  whileHover={{ y: -6, borderColor: "#D2491F" }}
+                  whileHover={{ y: -6, borderColor: "#C67B5C" }}
                 >
                   <motion.img
                     src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
@@ -108,7 +108,7 @@ export default function Gallery() {
               &times;
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#D2491F" }}
+              whileHover={{ scale: 1.1, borderColor: "#C67B5C" }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + filtered.length) % filtered.length) }}
               className="absolute left-4 md:left-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"
@@ -127,7 +127,7 @@ export default function Gallery() {
               className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl"
             />
             <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#D2491F" }}
+              whileHover={{ scale: 1.1, borderColor: "#C67B5C" }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % filtered.length) }}
               className="absolute right-4 md:right-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"

@@ -122,7 +122,7 @@ export default function Delivery() {
   }
 
   return (
-    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+    <section className="max-w-7xl mx-auto px-6 md:px-8 py-20">
       <h1 className="font-serif text-4xl mb-2">{t("delivery_page.title")}</h1>
       <p className="text-inkdim mb-2">
         {t("delivery_page.subtitle", { min: MIN_ORDER, threshold: FREE_DELIVERY_THRESHOLD })}
@@ -177,7 +177,7 @@ export default function Delivery() {
                   <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
                 ) : (
                   <div className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center"
-                    style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
+                    style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
                     <span className="font-serif text-xl text-gold/40">{item.name?.[0]}</span>
                   </div>
                 )}
@@ -259,7 +259,7 @@ export default function Delivery() {
           <button
             onClick={submitOrder}
             disabled={!canOrder || status === "loading"}
-            className="w-full px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50"
+            className="w-full px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-50"
           >
             {status === "loading" ? t("delivery_page.submitting") : `${t("delivery_page.submit")} - ${total} MAD`}
           </button>
