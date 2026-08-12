@@ -71,7 +71,7 @@ export default function EventsManager() {
         <label className="flex items-center gap-2 text-sm text-inkdim">
           <input type="checkbox" checked={form.is_offer} onChange={update("is_offer")} /> Offre permanente
         </label>
-        <button className="sm:col-span-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+        <button className="sm:col-span-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
           Publier
         </button>
       </form>

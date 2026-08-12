@@ -89,7 +89,7 @@ export default function Header() {
         >
           <Link to="/" className="flex items-center gap-2 font-serif font-semibold text-lg whitespace-nowrap">
             <motion.span
-              className="w-8 h-8 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#1a0d05]"
+              className="w-8 h-8 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#0E0C0A]"
               whileHover={{ rotate: 12, scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -186,11 +186,11 @@ export default function Header() {
           >
             <Link
               to="/reserver"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] shadow-lg shadow-tomato/30 inline-block"
+              className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] shadow-lg shadow-tomato/20 inline-block"
             >
               <motion.span
                 className="flex items-center"
-                whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(210,73,31,0.4)" }}
+                whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(200,150,62,0.4)" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
               >

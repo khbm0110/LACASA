@@ -57,7 +57,7 @@ export default function Translations() {
         {fileName && <p className="text-xs text-inkdim mb-4">Fichier charge : {fileName}</p>}
 
         <button onClick={upload} disabled={!fileContent || status === "saving"}
-          className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
+          className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
           {status === "saving" ? "Envoi..." : "Enregistrer la traduction"}
         </button>
 

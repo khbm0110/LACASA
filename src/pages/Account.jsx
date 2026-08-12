@@ -50,7 +50,7 @@ function AuthForms({ signIn, signUp }) {
           className="bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
         {error && <p className="text-red-400 text-xs">{error}</p>}
         <button disabled={loading}
-          className="mt-2 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
+          className="mt-2 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-60">
           {loading ? "..." : mode === "login" ? "Se connecter" : "Creer mon compte"}
         </button>
       </form>

@@ -9,7 +9,7 @@ body { -webkit-font-smoothing: antialiased; }
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s ease; }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
-  /* Coins decoratifs (angles fins) pour cadrer un bloc — ex: reservation, cartes infos */
+  /* === Frame corners with gold accent === */
   .frame-corners { position: relative; }
   .frame-corners::before,
   .frame-corners::after {
@@ -20,19 +20,17 @@ body { -webkit-font-smoothing: antialiased; }
     pointer-events: none;
   }
   .frame-corners::before {
-    top: -1px;
-    left: -1px;
+    top: -1px; left: -1px;
     border-top: 2px solid theme('colors.gold');
     border-left: 2px solid theme('colors.gold');
   }
   .frame-corners::after {
-    bottom: -1px;
-    right: -1px;
+    bottom: -1px; right: -1px;
     border-bottom: 2px solid theme('colors.gold');
     border-right: 2px solid theme('colors.gold');
   }
 
-  /* Champ de formulaire minimaliste (ligne du bas uniquement) */
+  /* === Minimalist form field === */
   .form-underline {
     width: 100%;
     background: transparent;
@@ -47,95 +45,74 @@ body { -webkit-font-smoothing: antialiased; }
   .form-underline:focus { border-color: theme('colors.tomato'); }
   .form-underline::placeholder { color: theme('colors.inkdim'); }
 
-  /* Carte qui se retourne (plats "A la une") */
+  /* === Flip card === */
   .flip-card { perspective: 1400px; }
   .flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: relative; width: 100%; height: 100%;
     transition: transform .8s cubic-bezier(.4,.2,.2,1);
     transform-style: preserve-3d;
   }
   .flip-card:hover .flip-card-inner,
   .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
   .flip-face {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    overflow: hidden;
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden;
   }
   .flip-back { transform: rotateY(180deg); }
 
-  /* ===== Grain overlay (texture papier/pellicule sur tout le site) ===== */
+  /* === Warm grain overlay === */
   .grain {
-    position: fixed;
-    inset: -10%;
-    pointer-events: none;
-    z-index: 200;
-    opacity: 0.06;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='250'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-    mix-blend-mode: overlay;
+    position: fixed; inset: -10%; pointer-events: none; z-index: 200; opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='250'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
     will-change: transform;
   }
 
-  /* ===== Coins "notch" (angles fins en L) sur une carte ===== */
+  /* === Notch corners === */
   .notch-corner { position: relative; }
   .notch-corner::before,
   .notch-corner::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border: 1px solid theme('colors.tomato');
-    pointer-events: none;
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border: 1px solid theme('colors.tomato'); pointer-events: none;
   }
   .notch-corner::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
   .notch-corner::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-  /* ===== Ligne de scan (grain video subtil sur le hero) ===== */
+  /* === Scan line === */
   .scan-line {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px);
-    pointer-events: none;
-    z-index: 2;
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none; z-index: 2;
   }
 
-  /* ===== Point REC clignotant (indicateur "en direct") ===== */
+  /* === REC blink === */
   @keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   .rec-dot { animation: rec-blink 1.5s ease-in-out infinite; }
 
-  /* ===== Bouton avec halo pulsant (CTA principal) ===== */
+  /* === CTA pulse - AMBER GOLD === */
   @keyframes pulse-cta {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(210,73,31,0.65), 0 0 40px rgba(210,73,31,0.3); }
-    50% { box-shadow: 0 0 0 18px rgba(210,73,31,0), 0 0 40px rgba(210,73,31,0.3); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200,150,62,0.65), 0 0 40px rgba(200,150,62,0.2); }
+    50% { box-shadow: 0 0 0 18px rgba(200,150,62,0), 0 0 40px rgba(200,150,62,0.2); }
   }
   .pulse-btn { animation: pulse-cta 2.4s ease-out infinite; }
 
-  /* ===== Carte "programme" (A la une) : legere elevation au survol ===== */
+  /* === Program card hover === */
   .program-card { transition: transform .5s cubic-bezier(.22,1,.36,1); }
   .program-card:hover { transform: translateY(-8px); }
   .program-card .program-img { transition: transform .8s cubic-bezier(.22,1,.36,1); }
   .program-card:hover .program-img { transform: scale(1.08); }
 
-  /* ===== Texte "contour" (mot cle en relief) ===== */
+  /* === Text stroke === */
   .text-stroke { -webkit-text-stroke: 1.5px theme('colors.silverdim'); color: transparent; }
 
-  /* ===== Repere de section (petit trait + libelle avant un titre) ===== */
+  /* === Section marker === */
   .section-marker {
-    display: inline-flex;
-    align-items: center;
-    gap: .75rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .75rem;
-    letter-spacing: .2em;
-    color: theme('colors.tomato');
-    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: .75rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .75rem;
+    letter-spacing: .2em; color: theme('colors.tomato'); text-transform: uppercase;
   }
   .section-marker::before { content: ''; width: 32px; height: 1px; background: theme('colors.tomato'); }
 
-  /* ===== Reel du hero (fondu entre les photos de fond) ===== */
+  /* === Hero reel === */
   .reel-frame { position: absolute; inset: 0; opacity: 0; transition: opacity 2s ease-in-out; }
   .reel-frame.active { opacity: 1; }
   .reel-frame img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
@@ -144,54 +121,48 @@ body { -webkit-font-smoothing: antialiased; }
     0% { transform: scale(1.06) translate(0, 0); }
     100% { transform: scale(1.2) translate(-3%, -3%); }
   }
+  /* WARM hero overlay - golden/amber tones instead of cold */
   .hero-overlay {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 28%, rgba(10,10,10,0.55) 65%, rgba(10,10,10,0.98) 100%),
-      linear-gradient(90deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 50%, rgba(10,10,10,0.5) 100%),
-      radial-gradient(ellipse at 25% 60%, rgba(210,73,31,0.15) 0%, transparent 55%);
+      linear-gradient(180deg, rgba(14,12,10,0.92) 0%, rgba(14,12,10,0.4) 28%, rgba(14,12,10,0.5) 65%, rgba(14,12,10,0.98) 100%),
+      linear-gradient(90deg, rgba(14,12,10,0.85) 0%, rgba(14,12,10,0.15) 50%, rgba(14,12,10,0.45) 100%),
+      radial-gradient(ellipse at 25% 60%, rgba(200,150,62,0.12) 0%, transparent 55%);
   }
 
-  /* ===== Barre de progression du reel ===== */
+  /* === Progress bar === */
   .progress-bar { height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; }
   .progress-bar-fill { height: 100%; background: theme('colors.tomato'); transition: width .1s linear; }
 
-  /* ===== Lien souligne au survol ===== */
+  /* === Link underline === */
   .link-underline { position: relative; display: inline-block; }
   .link-underline::after {
-    content: '';
-    position: absolute;
-    left: 0; bottom: -3px;
-    width: 0; height: 1px;
-    background: theme('colors.tomato');
-    transition: width .4s ease;
+    content: ''; position: absolute; left: 0; bottom: -3px; width: 0; height: 1px;
+    background: theme('colors.tomato'); transition: width .4s ease;
   }
   .link-underline:hover::after { width: 100%; }
 
-  /* ===== Carte info (fond + bordure + survol) ===== */
+  /* === Info card === */
   .info-card {
-    background: theme('colors.bgsoft');
-    border: 1px solid theme('colors.line');
-    transition: border-color .4s, background .4s;
+    background: theme('colors.bgsoft'); border: 1px solid theme('colors.line');
+    transition: border-color .4s, background .4s, box-shadow .4s;
   }
-  .info-card:hover { border-color: theme('colors.tomatodim'); background: theme('colors.bgsofthover'); }
+  .info-card:hover { border-color: theme('colors.tomatodim'); background: theme('colors.bgsofthover'); box-shadow: 0 8px 30px rgba(200,150,62,0.06); }
 
-  /* ===== Image d'un plat (flip-card) : leger noir & blanc qui s'attenue au survol ===== */
+  /* === Dish image - warm tone === */
   .dish-img-wrap { position: relative; height: 70%; overflow: hidden; }
   .dish-img-wrap img {
     width: 100%; height: 100%; object-fit: cover;
-    filter: grayscale(60%) contrast(1.3) brightness(0.8);
+    filter: sepia(20%) contrast(1.15) brightness(0.85);
     transition: filter .6s, transform .8s;
   }
   .flip-card:hover .dish-img-wrap img,
-  .flip-card.flipped .dish-img-wrap img { filter: grayscale(40%) contrast(1.35) brightness(0.85); }
+  .flip-card.flipped .dish-img-wrap img { filter: sepia(10%) contrast(1.2) brightness(0.9); }
 
-  /* ===== Cadre de reservation avec coins accentues ===== */
+  /* === Booking frame === */
   .booking-frame {
-    background: linear-gradient(135deg, rgba(210,73,31,0.04) 0%, transparent 50%, rgba(210,73,31,0.02) 100%);
-    border: 1px solid theme('colors.line');
-    position: relative;
+    background: linear-gradient(135deg, rgba(200,150,62,0.04) 0%, transparent 50%, rgba(184,92,58,0.02) 100%);
+    border: 1px solid theme('colors.line'); position: relative;
   }
   .booking-frame::before {
     content: ''; position: absolute; top: 0; left: 0; width: 60px; height: 60px;
@@ -202,45 +173,31 @@ body { -webkit-font-smoothing: antialiased; }
     border-bottom: 2px solid theme('colors.tomato'); border-right: 2px solid theme('colors.tomato');
   }
 
-  /* ===== Champ de formulaire (ligne du bas uniquement) ===== */
+  /* === Form input === */
   .form-input {
     background: transparent; border: none;
     border-bottom: 1px solid theme('colors.linelight');
-    color: theme('colors.paper');
-    padding: .85rem 0;
-    font-family: 'Oswald', sans-serif;
-    font-size: 1.15rem;
-    width: 100%;
-    transition: border-color .3s;
-    letter-spacing: .04em;
+    color: theme('colors.paper'); padding: .85rem 0;
+    font-family: 'DM Sans', sans-serif; font-size: 1.15rem; width: 100%;
+    transition: border-color .3s; letter-spacing: .04em;
   }
   .form-input:focus { outline: none; border-color: theme('colors.tomato'); }
   .form-input::placeholder { color: theme('colors.muted'); text-transform: uppercase; letter-spacing: .15em; font-size: .85rem; }
 
-  /* ===== Pastilles "nombre de convives" ===== */
+  /* === Guest pills === */
   .guest-pill {
-    cursor: pointer;
-    padding: .55rem 1.1rem;
-    border: 1px solid theme('colors.linelight');
-    background: transparent;
-    color: theme('colors.inkdim');
-    font-family: 'Oswald', sans-serif;
-    font-size: .85rem;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    transition: all .3s;
+    cursor: pointer; padding: .55rem 1.1rem;
+    border: 1px solid theme('colors.linelight'); background: transparent;
+    color: theme('colors.inkdim'); font-family: 'DM Sans', sans-serif;
+    font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; transition: all .3s;
   }
   .guest-pill:hover { border-color: theme('colors.silverdim'); color: theme('colors.paper'); }
-  .guest-pill.active { background: theme('colors.tomato'); border-color: theme('colors.tomato'); color: #000; font-weight: 600; }
+  .guest-pill.active { background: theme('colors.tomato'); border-color: theme('colors.tomato'); color: #0E0C0A; font-weight: 600; }
 
-  /* ===== Carte "avis client" du carrousel =====
-     Largeur geree par le wrapper MotionCarousel (w-[78%] sm:w-[42%]
-     md:w-[31%]) - cette classe ne fixe que l'apparence. */
+  /* === Story card (reviews) === */
   .story-card {
-    height: 100%;
-    background: theme('colors.bgsoft');
-    border: 1px solid theme('colors.line');
-    transition: border-color .4s, transform .4s;
+    height: 100%; background: theme('colors.bgsoft'); border: 1px solid theme('colors.line');
+    transition: border-color .4s, transform .4s, box-shadow .4s;
   }
-  .story-card:hover { border-color: theme('colors.tomato'); }
+  .story-card:hover { border-color: theme('colors.tomato'); box-shadow: 0 4px 20px rgba(200,150,62,0.08); }
 }

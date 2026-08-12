@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
+import { motion } from "framer-motion"
 import MotionCarousel from "../components/MotionCarousel.jsx"
 import Reveal from "../components/Reveal.jsx"
 
@@ -12,9 +13,6 @@ const DOCK = [
   { to: "/a-propos", icon: "fa-location-dot", title: "Nous trouver", sub: "Rue d'Oran" }
 ]
 
-// Avis affiches tant que la table google_reviews (alimentee par la
-// synchronisation Google Places, voir supabase/functions) n est pas
-// encore remplie - a remplacer par vos vrais avis.
 const FALLBACK_REVIEWS = [
   { id: "r1", author_name: "Client Google", rating: 5, text: "Le poisson recommande par le serveur etait parfait." },
   { id: "r2", author_name: "Client Google", rating: 4, text: "Bel endroit, l emince de boeuf est particulierement reussi." },
@@ -26,6 +24,15 @@ const FALLBACK_REVIEWS = [
 
 function Stars({ rating }) {
   return <>{"★".repeat(rating)}{"☆".repeat(5 - rating)}</>
+}
+
+const heroStagger = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.3 } }
+}
+const heroItem = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] } }
 }
 
 export default function Home() {
@@ -66,12 +73,12 @@ export default function Home() {
       if (data) setEvents(data)
     }
     async function loadPosts() {
-      const { data } = await supabase.from("blog_posts").select("*").eq("published", true).order("published_at", { ascending: false }).limit(3)
+      const { data } = await supabase.from("blog_posts").select("id, slug, title, excerpt, cover_image, published_at").eq("published", true).order("published_at", { ascending: false }).limit(3)
       if (data) setPosts(data)
     }
     async function loadHeroDishes() {
-      const { data } = await supabase.from("hero_dishes").select("*").order("sort_order")
-      if (data) setHeroDishes(data)
+      const { data } = await supabase.from("menu_items").select("id, name, image_url").eq("is_hero", true).limit(6)
+      if (data && data.length > 0) setHeroDishes(data.map(d => ({ id: d.id, url: d.image_url, label: d.name })))
     }
     loadFeatured()
     loadInfo()
@@ -91,8 +98,6 @@ export default function Home() {
     setResStatus(error ? "error" : "success")
   }
 
-  // Reel du hero : fondu automatique entre les photos toutes les 5s, avec
-  // une barre de progression (meme logique que le gabarit fourni).
   const [activeFrame, setActiveFrame] = useState(0)
   const [reelProgress, setReelProgress] = useState(0)
   const heroImages = heroDishes.length > 0
@@ -115,7 +120,6 @@ export default function Home() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [heroImages.length])
 
   const reviewsCount = info?.home_reviews_count || 6
@@ -133,7 +137,7 @@ export default function Home() {
               </div>
             ))
           ) : (
-            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }} />
           )}
         </div>
         <div className="hero-overlay" />
@@ -141,60 +145,91 @@ export default function Home() {
 
         <div className="relative z-10 h-full max-w-6xl mx-auto px-6 lg:px-10 flex flex-col justify-end pb-16 md:pb-20 pt-32">
           {heroImages.length > 1 && (
-            <div className="hidden md:flex items-center gap-3 absolute top-28 right-6 lg:right-10 font-mono text-[11px] text-inkdim">
+            <motion.div
+              className="hidden md:flex items-center gap-3 absolute top-28 right-6 lg:right-10 font-mono text-[11px] text-inkdim"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+            >
               <span className="rec-dot w-2 h-2 bg-tomato rounded-full inline-block" />
               <span className="tracking-[0.2em]">GALERIE &middot; LIVE</span>
-            </div>
+            </motion.div>
           )}
 
-          <div className="max-w-3xl">
-            <div className="section-marker mb-6"><span>Trattoria &amp; Livraison</span></div>
-            <h1 className="font-serif leading-[0.85] mb-8 text-[14vw] md:text-[10vw] lg:text-[8.5vw]">
+          <motion.div className="max-w-3xl" variants={heroStagger} initial="hidden" animate="visible">
+            <motion.div variants={heroItem} className="section-marker mb-6"><span>Trattoria &amp; Livraison</span></motion.div>
+            <motion.h1 variants={heroItem} className="font-serif leading-[0.85] mb-8 text-[14vw] md:text-[10vw] lg:text-[8.5vw]">
               LA CASA<br /><span className="text-tomato">DI CARTA</span>
-            </h1>
-            <p className="max-w-md text-inkdim text-lg leading-relaxed">
+            </motion.h1>
+            <motion.p variants={heroItem} className="max-w-md text-inkdim text-lg leading-relaxed">
               Pizza au feu de bois, specialites italo-marocaines et couscous du vendredi. Un cadre chaleureux au coeur de Rabat.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="mt-12 flex flex-wrap items-end justify-between gap-8">
+          <motion.div
+            className="mt-12 flex flex-wrap items-end justify-between gap-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.7 }}
+          >
             <div className="flex items-center gap-4 flex-wrap">
-              <Link to="/reserver" className="pulse-btn bg-tomato text-black px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
-                <span>Reserver</span><i className="fas fa-arrow-right text-xs" />
-              </Link>
-              <Link to="/livraison" className="px-6 py-3.5 font-heading text-xs tracking-[0.2em] uppercase text-inkdim border border-linelight hover:border-tomato hover:text-ink transition flex items-center gap-3 whitespace-nowrap">
-                <span>Livraison</span><i className="fas fa-motorcycle text-xs text-tomato" />
-              </Link>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Link to="/reserver" className="pulse-btn bg-tomato text-black px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
+                  <span>Reserver</span><i className="fas fa-arrow-right text-xs" />
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04, borderColor: "#D2491F" }} whileTap={{ scale: 0.97 }}>
+                <Link to="/livraison" className="px-6 py-3.5 font-heading text-xs tracking-[0.2em] uppercase text-inkdim border border-linelight transition flex items-center gap-3 whitespace-nowrap">
+                  <span>Livraison</span><i className="fas fa-motorcycle text-xs text-tomato" />
+                </Link>
+              </motion.div>
             </div>
             {heroImages.length > 1 && (
               <div className="flex items-center gap-6 max-w-xs w-full">
                 <div className="font-mono text-[10px] text-muted tracking-[0.2em] whitespace-nowrap">
                   {String(activeFrame + 1).padStart(2, "0")} / {String(heroImages.length).padStart(2, "0")}
                 </div>
-                <div className="progress-bar flex-1"><div className="progress-bar-fill" style={{ width: `${reelProgress}%` }} /></div>
+                <div className="progress-bar flex-1">
+                  <div className="progress-bar-fill" style={{ width: `${reelProgress}%` }} />
+                </div>
                 <div className="font-mono text-[10px] text-tomato tracking-[0.2em] whitespace-nowrap">GALERIE</div>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ============ QUICK DOCK ============ */}
-      <div className="px-6 lg:px-10 relative z-10 -mt-6">
+      <motion.div
+        className="px-6 lg:px-10 relative z-10 -mt-6"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
+      >
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-sm p-3">
-          {DOCK.map((item) => (
-            <Link key={item.to} to={item.to} className="flex items-center gap-4 p-4 hover:bg-white/5 transition rounded-sm">
-              <div className="w-10 h-10 border border-linelight flex items-center justify-center shrink-0">
-                <i className={`fas ${item.icon} text-sm`} />
-              </div>
-              <div>
-                <b className="font-heading text-sm tracking-[0.1em] block">{item.title}</b>
-                <span className="font-mono text-xs text-muted">{item.sub}</span>
-              </div>
-            </Link>
+          {DOCK.map((item, i) => (
+            <motion.div
+              key={item.to}
+              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+              transition={{ duration: 0.2 }}
+            >
+              <Link to={item.to} className="flex items-center gap-4 p-4">
+                <motion.div
+                  className="w-10 h-10 border border-linelight flex items-center justify-center shrink-0"
+                  whileHover={{ borderColor: "#D2491F", scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                >
+                  <i className={`fas ${item.icon} text-sm`} />
+                </motion.div>
+                <div>
+                  <b className="font-heading text-sm tracking-[0.1em] block">{item.title}</b>
+                  <span className="font-mono text-xs text-muted">{item.sub}</span>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* ============ A LA UNE ============ */}
       {featured.length > 0 && (
@@ -215,16 +250,21 @@ export default function Home() {
               </div>
             </Reveal>
 
-            {/* 3 premiers plats : carte statique (survol = zoom + elevation) */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {featured.slice(0, 3).map((item, i) => (
                 <Reveal key={item.id} delay={i * 90}>
-                  <article className="program-card info-card notch-corner h-full flex flex-col">
+                  <motion.article
+                    className="info-card notch-corner h-full flex flex-col"
+                    whileHover={{ y: -8, borderColor: "rgba(200,150,62,0.5)" }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  >
                     <div className="relative h-36 md:h-72 overflow-hidden">
                       {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="program-img w-full h-full object-cover" />
+                        <motion.img src={item.image_url} alt={item.name} className="w-full h-full object-cover"
+                          whileHover={{ scale: 1.08 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
                           <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
                         </div>
                       )}
@@ -250,17 +290,18 @@ export default function Home() {
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-linelight">
                         <span className="hidden md:inline font-mono text-[10px] text-muted tracking-[0.15em]">SUR COMMANDE</span>
-                        <Link to="/menu" className="font-heading text-xs md:text-sm tracking-[0.15em] uppercase flex items-center gap-2">
-                          Commander <i className="fas fa-arrow-right text-tomato text-xs" />
-                        </Link>
+                        <motion.div whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
+                          <Link to="/menu" className="font-heading text-xs md:text-sm tracking-[0.15em] uppercase flex items-center gap-2">
+                            Commander <i className="fas fa-arrow-right text-tomato text-xs" />
+                          </Link>
+                        </motion.div>
                       </div>
                     </div>
-                  </article>
+                  </motion.article>
                 </Reveal>
               ))}
             </div>
 
-            {/* Plats suivants : cartes retournables */}
             {featured.length > 3 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-6">
                 {featured.slice(3).map((item, i) => (
@@ -273,7 +314,7 @@ export default function Home() {
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.name} />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
                                 <span className="font-serif text-2xl text-gold/40">{item.name?.[0]}</span>
                               </div>
                             )}
@@ -326,7 +367,15 @@ export default function Home() {
             </div>
             <div className="md:col-span-4 md:col-start-9">
               <div className="flex items-center gap-4 mb-3">
-                <span className="font-serif text-5xl">{info?.google_rating ?? "4.5"}</span>
+                <motion.span
+                  className="font-serif text-5xl"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                >
+                  {info?.google_rating ?? "4.5"}
+                </motion.span>
                 <div>
                   <p className="text-gold text-sm"><Stars rating={Math.round(info?.google_rating || 4)} /></p>
                   <p className="font-mono text-muted text-xs">{info?.google_review_count ?? shownReviews.length} avis Google</p>
@@ -385,10 +434,20 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {galleryHome.map((img, i) => (
                 <Reveal key={img.id} delay={(i % 3) * 100}>
-                  <div className="info-card overflow-hidden aspect-[4/5] group">
-                    <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  </div>
+                  <motion.div
+                    className="info-card overflow-hidden aspect-[4/5] group cursor-pointer"
+                    whileHover={{ borderColor: "#D2491F" }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <motion.img
+                      src={img.url}
+                      alt={img.caption || "La Casa Di Carta"}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </motion.div>
                 </Reveal>
               ))}
             </div>
@@ -407,10 +466,16 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-6">
               {events.map((e, i) => (
                 <Reveal key={e.id} delay={i * 90}>
-                  <div className="info-card overflow-hidden flex flex-row h-full group">
+                  <motion.div
+                    className="info-card overflow-hidden flex flex-row h-full group"
+                    whileHover={{ borderColor: "#D2491F", y: -4 }}
+                    transition={{ duration: 0.35 }}
+                  >
                     {e.image_url && (
                       <div className="w-32 md:w-48 shrink-0 overflow-hidden">
-                        <img src={e.image_url} alt={e.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <motion.img src={e.image_url} alt={e.title} className="w-full h-full object-cover"
+                          whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }}
+                        />
                       </div>
                     )}
                     <div className="p-4 md:p-6 flex-1">
@@ -423,7 +488,7 @@ export default function Home() {
                       <h3 className="font-serif text-xl md:text-2xl mb-2">{e.title}</h3>
                       <p className="text-inkdim text-sm leading-relaxed">{e.description}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 </Reveal>
               ))}
             </div>
@@ -449,21 +514,25 @@ export default function Home() {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
               {posts.map((p, i) => (
                 <Reveal key={p.id} delay={i * 90}>
-                  <Link to={`/blog/${p.slug}`} className="info-card block overflow-hidden group h-full">
-                    {p.cover_image && (
-                      <div className="h-48 overflow-hidden">
-                        <img src={p.cover_image} alt={p.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.35 }}>
+                    <Link to={`/blog/${p.slug}`} className="info-card block overflow-hidden group h-full">
+                      {p.cover_image && (
+                        <div className="h-48 overflow-hidden">
+                          <motion.img src={p.cover_image} alt={p.title}
+                            className="w-full h-full object-cover"
+                            whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }}
+                          />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <p className="font-mono text-xs text-tomato mb-2">
+                          {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
+                        </p>
+                        <h3 className="font-serif text-2xl mb-2">{p.title}</h3>
+                        <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
                       </div>
-                    )}
-                    <div className="p-6">
-                      <p className="font-mono text-xs text-tomato mb-2">
-                        {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
-                      </p>
-                      <h3 className="font-serif text-2xl mb-2">{p.title}</h3>
-                      <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
-                    </div>
-                  </Link>
+                    </Link>
+                  </motion.div>
                 </Reveal>
               ))}
             </div>
@@ -482,7 +551,6 @@ export default function Home() {
           </Reveal>
 
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Formulaire */}
             <Reveal className="lg:col-span-7">
               <div className="booking-frame p-8 md:p-12">
                 <div className="font-mono text-[11px] text-tomato tracking-[0.2em] uppercase mb-3">// Reservation rapide</div>
@@ -490,15 +558,24 @@ export default function Home() {
                 <p className="text-inkdim text-sm mb-8">Confirmation par telephone. Aucune avance requise.</p>
 
                 {resStatus === "success" ? (
-                  <div className="flex items-center gap-4 p-6 border border-tomato/30">
-                    <div className="w-10 h-10 bg-tomato flex items-center justify-center shrink-0">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-4 p-6 border border-tomato/30"
+                  >
+                    <motion.div
+                      initial={{ scale: 0, rotate: -90 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.2 }}
+                      className="w-10 h-10 bg-tomato flex items-center justify-center shrink-0"
+                    >
                       <i className="fas fa-check text-black text-sm" />
-                    </div>
+                    </motion.div>
                     <div>
                       <div className="font-heading text-sm tracking-[0.1em] uppercase">Demande recue</div>
                       <div className="text-inkdim text-xs mt-1">Nous vous appelons pour confirmer.</div>
                     </div>
-                  </div>
+                  </motion.div>
                 ) : (
                   <form onSubmit={submitReservation} className="flex flex-col gap-6">
                     <div className="grid md:grid-cols-2 gap-6">
@@ -525,25 +602,34 @@ export default function Home() {
                       <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase block mb-3">Convives</label>
                       <div className="flex flex-wrap gap-2">
                         {[2, 4, 6, 8].map((n) => (
-                          <button type="button" key={n} onClick={() => setReservation((r) => ({ ...r, guests: n }))}
-                            className={`guest-pill ${reservation.guests === n ? "active" : ""}`}>
+                          <motion.button
+                            type="button" key={n}
+                            onClick={() => setReservation((r) => ({ ...r, guests: n }))}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`guest-pill ${reservation.guests === n ? "active" : ""}`}
+                          >
                             {n === 8 ? "8+" : n}
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
                     </div>
-                    <button type="submit" disabled={resStatus === "loading"}
-                      className="pulse-btn bg-tomato text-black py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60">
+                    <motion.button
+                      type="submit"
+                      disabled={resStatus === "loading"}
+                      className="pulse-btn bg-tomato text-black py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60"
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                    >
                       <span>{resStatus === "loading" ? "ENVOI..." : "RESERVER MA TABLE"}</span>
                       <i className="fas fa-arrow-right" />
-                    </button>
+                    </motion.button>
                     {resStatus === "error" && <p className="text-xs text-red-400">Verifiez la configuration Supabase.</p>}
                   </form>
                 )}
               </div>
             </Reveal>
 
-            {/* Infos pratiques */}
             <div className="lg:col-span-5 flex flex-col gap-6">
               <Reveal className="info-card p-7">
                 <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Adresse</div>
@@ -573,11 +659,14 @@ export default function Home() {
               <Reveal delay={200} className="info-card p-7">
                 <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Contact</div>
                 <h4 className="font-serif text-2xl mb-3">NOUS APPELER</h4>
-                <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
-                  className="flex items-center gap-3 text-ink hover:text-tomato transition-colors">
+                <motion.a
+                  href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
+                  className="flex items-center gap-3 text-ink hover:text-tomato transition-colors"
+                  whileHover={{ x: 3 }}
+                >
                   <i className="fas fa-phone text-tomato w-4" />
                   <span className="font-mono">{info?.phone || "+212 5 37 26 26 58"}</span>
-                </a>
+                </motion.a>
                 <p className="font-mono text-inkdim text-xs mt-2">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
               </Reveal>
 

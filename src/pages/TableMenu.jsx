@@ -90,7 +90,7 @@ export default function TableMenu() {
               <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
             ) : (
               <div className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center"
-                style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
                 <span className="font-serif text-xl text-gold/40">{item.name?.[0]}</span>
               </div>
             )}
@@ -116,7 +116,7 @@ export default function TableMenu() {
             <p className="font-serif text-2xl">{total} MAD</p>
           </div>
           <button onClick={submit} disabled={total === 0 || status === "loading"}
-            className="px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
+            className="px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
             {status === "loading" ? "Envoi..." : "Envoyer la commande"}
           </button>
         </div>

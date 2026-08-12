@@ -70,7 +70,7 @@ export default function GalleryManager() {
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <input placeholder="Categorie" value={form.category} onChange={update("category")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
-        <button className="sm:col-span-4 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+        <button className="sm:col-span-4 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
           Ajouter la photo
         </button>
       </form>

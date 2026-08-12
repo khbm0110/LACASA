@@ -125,7 +125,7 @@ export default function Combos() {
         </div>
 
         <div className="flex gap-3 pt-3 border-t border-line">
-          <button disabled={busy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
+          <button disabled={busy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
             {busy ? "Enregistrement..." : editingId ? "Mettre a jour" : "Creer la formule"}
           </button>
           {editingId && (

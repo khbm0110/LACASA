@@ -81,7 +81,7 @@ export default function BlogManager() {
           <input type="checkbox" checked={form.published} onChange={update("published")} /> Publie (visible sur le site)
         </label>
         <div className="flex gap-3">
-          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
             {editingId ? "Mettre a jour" : "Enregistrer"}
           </button>
           {editingId && (

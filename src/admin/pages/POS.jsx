@@ -433,7 +433,7 @@ export default function POS() {
           <input required type="number" step="0.01" placeholder="Fond de caisse (MAD)" autoFocus value={openingCashInput}
             onChange={(e) => setOpeningCashInput(e.target.value)}
             className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm text-center outline-none focus:border-tomato" />
-          <button disabled={shiftBusy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
+          <button disabled={shiftBusy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
             {shiftBusy ? "Ouverture..." : "Ouvrir la caisse"}
           </button>
         </form>
@@ -480,7 +480,7 @@ export default function POS() {
             <button
               onClick={() => setActiveCategory(FORMULES_TAB)}
               className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
-                activeCategory === FORMULES_TAB ? "bg-gold border-gold text-[#1a0d05]" : "border-line text-inkdim hover:text-ink hover:border-gold"
+                activeCategory === FORMULES_TAB ? "bg-gold border-gold text-[#0E0C0A]" : "border-line text-inkdim hover:text-ink hover:border-gold"
               }`}
             >
               Formules
@@ -757,7 +757,7 @@ export default function POS() {
                 busy || !payMode || (payMode === "split" && splitRemaining !== 0) ||
                 (mode === "new" ? cart.length === 0 : !settleOrder)
               }
-              className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50"
             >
               {busy ? "Encaissement..." : "Encaisser"}
             </button>
@@ -792,7 +792,7 @@ export default function POS() {
               </div>
             ))}
             <div className="flex gap-3 pt-2">
-              <button onClick={confirmPicker} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+              <button onClick={confirmPicker} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
                 Ajouter au ticket
               </button>
               <button onClick={() => setPickerItem(null)} className="px-4 py-2.5 rounded-xl text-sm border border-line">Annuler</button>
@@ -829,7 +829,7 @@ export default function POS() {
                 <input placeholder="Notes (optionnel)" value={closingNotes} onChange={(e) => setClosingNotes(e.target.value)}
                   className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
                 <div className="flex gap-3">
-                  <button disabled={shiftBusy} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
+                  <button disabled={shiftBusy} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
                     {shiftBusy ? "Fermeture..." : "Confirmer la fermeture"}
                   </button>
                   <button type="button" onClick={() => setClosingOpen(false)} className="px-4 py-2.5 rounded-xl text-sm border border-line">Annuler</button>
@@ -848,7 +848,7 @@ export default function POS() {
               <p className="text-inkdim text-xs">
                 {closeResult.diff === 0 ? "Caisse equilibree." : "Ecart constate - verifiez le comptage ou notez la raison dans le suivi des caisses."}
               </p>
-              <button onClick={() => setClosingOpen(false)} className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+              <button onClick={() => setClosingOpen(false)} className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
                 Fermer
               </button>
             </>

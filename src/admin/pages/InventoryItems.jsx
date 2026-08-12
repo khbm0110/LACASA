@@ -108,7 +108,7 @@ export default function InventoryItems() {
         <input type="number" step="0.01" placeholder="Cout par unite (MAD)" value={form.cost_per_unit} onChange={update("cost_per_unit")}
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <div className="sm:col-span-2 flex gap-3">
-          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
             {editingId ? "Mettre a jour" : "Ajouter l article"}
           </button>
           {editingId && (
@@ -173,7 +173,7 @@ export default function InventoryItems() {
             <input placeholder="Motif (optionnel)" value={adjustReason} onChange={(e) => setAdjustReason(e.target.value)}
               className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
             <div className="flex gap-3 mt-2">
-              <button className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+              <button className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
                 Enregistrer
               </button>
               <button type="button" onClick={() => setAdjustingId(null)} className="px-4 py-2.5 rounded-xl text-sm border border-line">

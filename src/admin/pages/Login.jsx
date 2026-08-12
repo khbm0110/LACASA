@@ -28,7 +28,7 @@ export default function Login() {
         <input required type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)}
           className="w-full mb-4 bg-bg border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato" />
         {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
-        <button className="w-full px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
+        <button className="w-full px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
           Se connecter
         </button>
       </form>

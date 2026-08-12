@@ -2,13 +2,8 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
 import { useSEO } from "../lib/useSEO"
-import Reveal from "../components/Reveal.jsx"
+import { motion, AnimatePresence } from "framer-motion"
 
-// NOTE traduction : les noms/descriptions des plats viennent de la base de
-// donnees (menu_items) et sont donc dans une seule langue (celle saisie
-// dans l admin) - seuls les libelles de l interface sont traduits ici.
-// Pour des fiches plats multilingues, il faudrait des colonnes JSONB comme
-// pour site_content (evolution possible plus tard).
 const FALLBACK = [
   { id: "f1", category: "Pizzas", name: "Margherita", price: 55, description: "Tomate San Marzano, mozzarella, basilic." },
   { id: "f2", category: "Pizzas", name: "Diavola", price: 65, description: "Salami piquant, mozzarella, piment frais." },
@@ -42,58 +37,80 @@ export default function Menu() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items])
 
-  // Filtre reel : seul le plat de la categorie active est affiche
-  // (auparavant tout le monde etait affiche et les boutons ne faisaient
-  // que defiler la page - source de la confusion "toutes les assiettes
-  // s'affichent").
   const shownItems = items.filter((i) => i.category === activeCat)
 
   return (
     <section className="max-w-6xl mx-auto px-6 lg:px-10 py-20">
-      <Reveal>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <h1 className="font-serif text-4xl md:text-5xl mb-2">{t("menu_page.title")}</h1>
         <p className="text-inkdim mb-8">{loading ? t("menu_page.loading") : t("menu_page.note")}</p>
-      </Reveal>
+      </motion.div>
 
-      {/* Filtre par categorie - boutons qui filtrent reellement la liste,
-          en colonnes multiples (flex-wrap) plutot qu'une seule ligne
-          defilante trop longue sur les petits ecrans */}
+      {/* Category filter with layout animation */}
       {categories.length > 1 && (
-        <Reveal className="flex flex-wrap gap-2 mb-10">
-          {categories.map((cat) => (
-            <button
+        <motion.div
+          layout
+          className="flex flex-wrap gap-2 mb-10"
+        >
+          {categories.map((cat, i) => (
+            <motion.button
               key={cat}
               onClick={() => setActiveCat(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition-colors ${
                 activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
               }`}
             >
               {cat}
-            </button>
+            </motion.button>
           ))}
-        </Reveal>
+        </motion.div>
       )}
 
-      {/* Grille de cartes retournables - meme traitement que "A la une" sur
-          l'accueil, pour une experience visuelle coherente partout ou les
-          photos du menu apparaissent */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        {shownItems.map((item, ii) => (
-          <Reveal key={item.id} delay={Math.min(ii, 6) * 70}>
-            <div className="flip-card h-64 md:h-80"
+      {/* Menu grid with layout animation for filtering */}
+      <motion.div layout className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <AnimatePresence mode="popLayout">
+          {shownItems.map((item, ii) => (
+            <motion.div
+              key={item.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{
+                layout: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 },
+                scale: { duration: 0.3 }
+              }}
+              className="flip-card h-64 md:h-80"
               onClick={(e) => {
                 if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped")
-              }}>
+              }}
+            >
               <div className="flip-card-inner">
-                {/* Face avant : photo + prix */}
+                {/* Front face */}
                 <div className="flip-face bg-bgsoft border border-line notch-corner flex flex-col">
                   {item.image_url ? (
                     <div className="relative h-36 md:h-56 overflow-hidden">
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <motion.img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.6 }}
+                      />
                       <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
                   ) : (
-                    <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#2A1810,#1A1210 60%)" }}>
+                    <div className="relative h-36 md:h-56 flex items-center justify-center" style={{ background: "linear-gradient(155deg,#1F1810,#151010 60%)" }}>
                       <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
                       <div className="absolute top-3 left-3 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(ii + 1).padStart(2, "0")}</div>
                     </div>
@@ -104,29 +121,45 @@ export default function Menu() {
                       <h3 className="font-serif text-base md:text-xl leading-tight">{item.name}</h3>
                     </div>
                     <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-line mt-2 md:mt-3">
-                      <p className="font-mono text-gold text-sm md:text-base">{item.price} MAD</p>
+                      <motion.p
+                        className="font-mono text-gold text-sm md:text-base"
+                        whileHover={{ scale: 1.05, color: "#FF7A3D" }}
+                      >
+                        {item.price} MAD
+                      </motion.p>
                       <span className="hidden md:inline font-mono text-[10px] text-inkdim uppercase tracking-widest">Survoler &rarr;</span>
                     </div>
                   </div>
                 </div>
-                {/* Face arriere : description */}
+                {/* Back face */}
                 <div className="flip-face flip-back bg-bgsoft border border-tomato/50 rounded-2xl p-4 md:p-7 flex flex-col">
                   <p className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gold mb-2 md:mb-3">/ {item.category}</p>
                   <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-4">{item.name}</h3>
                   <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
                     {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
                   </p>
-                  <p className="font-mono text-gold text-sm md:text-lg pt-2 md:pt-4 border-t border-line mt-2 md:mt-4">{item.price} MAD</p>
+                  <motion.p
+                    className="font-mono text-gold text-sm md:text-lg pt-2 md:pt-4 border-t border-line mt-2 md:mt-4"
+                    whileHover={{ color: "#FF7A3D" }}
+                  >
+                    {item.price} MAD
+                  </motion.p>
                 </div>
               </div>
-            </div>
-          </Reveal>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
         {shownItems.length === 0 && (
-          <p className="text-inkdim text-sm col-span-full">{t("menu_page.note")}</p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-inkdim text-sm col-span-full"
+          >
+            {t("menu_page.note")}
+          </motion.p>
         )}
-      </div>
+      </motion.div>
     </section>
   )
 }
