@@ -22,13 +22,13 @@ export default function Contact() {
     setStatus(error ? "error" : "success")
   }
 
-  const inputClass = "bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato transition-colors"
+  const inputClass = "bg-white border border-white/[0.06] rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato transition-colors"
 
   return (
     <section className="max-w-xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Contact</h1>
-        <p className="text-inkSoft mb-10">
+        <p className="text-pale/70 mb-10">
           Une question, un evenement prive, un groupe ? Ecrivez-nous, nous repondons rapidement.
         </p>
       </motion.div>
@@ -53,7 +53,7 @@ export default function Contact() {
               </svg>
             </motion.div>
             <p className="font-serif text-2xl mb-2">Message envoye !</p>
-            <p className="text-inkSoft">Nous vous repondons des que possible.</p>
+            <p className="text-pale/70">Nous vous repondons des que possible.</p>
           </motion.div>
         ) : (
           <motion.form

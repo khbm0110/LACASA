@@ -72,31 +72,31 @@ export default function Payment() {
     navigate(`/suivi/${id}?paiement=succes`, { replace: true })
   }
 
-  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkSoft">Chargement...</div>
-  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-inkSoft">Commande introuvable.</div>
+  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-pale/70">Chargement...</div>
+  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-pale/70">Commande introuvable.</div>
 
   return (
     <section className="max-w-md mx-auto px-6 py-20">
-      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Paiement securise</p>
+      <p className="font-mono text-[11px] uppercase tracking-widest text-goldBright mb-2">Paiement securise</p>
       <h1 className="font-serif text-3xl mb-1">{order.total} MAD</h1>
-      <p className="text-inkSoft text-sm mb-8">
+      <p className="text-pale/70 text-sm mb-8">
         Le paiement est requis pour confirmer votre commande en livraison.
       </p>
 
-      <form onSubmit={submit} className="bg-white border border-border rounded-2xl p-5 grid gap-3">
+      <form onSubmit={submit} className="bg-white border border-white/[0.06] rounded-2xl p-5 grid gap-3">
         <div className="grid grid-cols-2 gap-3">
           <input required placeholder="Prenom" value={form.firstName} onChange={update("firstName")}
-            className="bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <input required placeholder="Nom" value={form.lastName} onChange={update("lastName")}
-            className="bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         </div>
         <input required placeholder="Numero de carte" inputMode="numeric" value={form.pan} onChange={update("pan")}
-          className="bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+          className="bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         <div className="grid grid-cols-2 gap-3">
           <input required placeholder="MM/AA" value={form.expiry} onChange={update("expiry")}
-            className="bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <input required placeholder="CVV" inputMode="numeric" maxLength={3} value={form.cvv} onChange={update("cvv")}
-            className="bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
         </div>
 
         {error && <p className="text-xs text-red-400">{error}</p>}
@@ -105,7 +105,7 @@ export default function Payment() {
           className="mt-1 px-5 py-3  text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60">
           {status === "loading" ? "Verification..." : `Payer ${order.total} MAD`}
         </button>
-        <p className="text-[11px] text-inkSoft text-center">
+        <p className="text-[11px] text-pale/70 text-center">
           Paiement traite par ChariBaaS. Vos donnees bancaires ne sont jamais stockees sur notre site.
         </p>
       </form>

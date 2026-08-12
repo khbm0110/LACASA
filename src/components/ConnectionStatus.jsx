@@ -7,5 +7,5 @@ export default function ConnectionStatus() {
     return ()=>{window.removeEventListener("online",a);window.removeEventListener("offline",b)}
   }, [])
   if (online) return null
-  return <div className="fixed top-0 inset-x-0 z-[100] bg-ink text-white text-sm text-center py-2.5 font-medium">Hors ligne — reconnexion automatique.</div>
+  return <div className="fixed top-0 inset-x-0 z-[100] bg-danger text-white text-sm text-center py-2.5 font-medium backdrop-blur-sm">Hors ligne — reconnexion automatique.</div>
 }

@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "framer-motion"
 
@@ -14,7 +14,18 @@ const LANGS = ["fr", "ar", "es", "en"]
 
 export default function Header() {
   const { t, i18n } = useTranslation()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const isHome = location.pathname === "/"
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  useEffect(() => { setOpen(false) }, [location.pathname])
 
   const changeLang = (lng) => {
     i18n.changeLanguage(lng)
@@ -22,19 +33,24 @@ export default function Header() {
     document.documentElement.lang = lng
   }
 
+  const navBg = !isHome || scrolled
+    ? "bg-void/80 backdrop-blur-xl border-b border-white/[0.04]"
+    : "bg-transparent border-b border-transparent"
+
+  const textColor = !isHome || scrolled ? "text-ivory" : "text-white"
+
   return (
-    <header className="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm">
-      <div className="ed-divider-full" />
-      <div className="max-w-wide mx-auto px-5 md:px-10 flex items-center justify-between h-16">
+    <header className={`sticky top-0 z-50 transition-all duration-500 ${navBg}`}>
+      <div className="max-w-wide mx-auto px-5 md:px-10 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <Link to="/" className="font-display text-xl tracking-tight text-ink">
-          La Casa <span className="italic text-gold">Di Carta</span>
+        <Link to="/" className={`font-display text-lg md:text-xl tracking-tight ${textColor} transition-colors duration-500`}>
+          La Casa <span className="italic text-goldBright">Di Carta</span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {NAV.map((l) => (
-            <Link key={l.to} to={l.to} className="ed-nav-link">
+            <Link key={l.to} to={l.to} className="nav-link">
               {t(l.key) || l.label}
             </Link>
           ))}
@@ -42,14 +58,16 @@ export default function Header() {
 
         {/* Right */}
         <div className="flex items-center gap-5">
-          {/* Lang */}
-          <div className="hidden md:flex items-center gap-1.5">
+          {/* Lang Switcher */}
+          <div className="hidden md:flex items-center gap-1">
             {LANGS.map((l) => (
               <button
                 key={l}
                 onClick={() => changeLang(l)}
-                className={`text-[10px] font-medium tracking-wider cursor-pointer transition-colors duration-200 ${
-                  i18n.language === l ? "text-ink" : "text-inkFaint hover:text-inkMuted"
+                className={`text-[10px] font-mono font-medium tracking-widest cursor-pointer transition-all duration-300 px-1.5 py-0.5 rounded ${
+                  i18n.language === l
+                    ? "text-goldBright"
+                    : "text-smoke/50 hover:text-ivory/60"
                 }`}
               >
                 {l.toUpperCase()}
@@ -58,80 +76,92 @@ export default function Header() {
           </div>
 
           {/* CTA */}
-          <Link to="/reserver" className="ed-cta hidden md:inline-flex">
+          <Link to="/reserver" className="btn-gold hidden md:inline-flex text-[11px] px-6 py-3">
             {t("nav.book")}
           </Link>
 
-          {/* Mobile toggle */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden w-8 h-8 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
+            className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 cursor-pointer relative z-50"
             aria-label="Menu"
           >
             <motion.span
-              className="block w-6 h-px bg-ink origin-center"
-              animate={open ? { rotate: 45, y: 3.5 } : { rotate: 0, y: 0 }}
-              transition={{ duration: 0.25 }}
+              className="block w-6 h-px bg-ivory origin-center"
+              animate={open ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             />
             <motion.span
-              className="block w-4 h-px bg-ink"
-              animate={open ? { opacity: 0 } : { opacity: 1 }}
+              className="block w-4 h-px bg-ivory"
+              animate={open ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
             />
             <motion.span
-              className="block w-6 h-px bg-ink origin-center"
-              animate={open ? { rotate: -45, y: -3.5 } : { rotate: 0, y: 0 }}
-              transition={{ duration: 0.25 }}
+              className="block w-6 h-px bg-ivory origin-center"
+              animate={open ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — Full-screen overlay */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="md:hidden overflow-hidden bg-bg border-t border-border"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-void/95 backdrop-blur-2xl lg:hidden"
           >
-            <div className="px-5 py-8 flex flex-col gap-5">
+            <div className="flex flex-col justify-center items-center h-full gap-8">
               {NAV.map((l, i) => (
                 <motion.div
                   key={l.to}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <Link
                     to={l.to}
                     onClick={() => setOpen(false)}
-                    className="font-display text-2xl text-ink hover:text-gold transition-colors"
+                    className="font-display text-3xl text-ivory hover:text-goldBright transition-colors duration-300"
                   >
                     {t(l.key) || l.label}
                   </Link>
                 </motion.div>
               ))}
-              <div className="flex gap-3 pt-5 mt-3 border-t border-border">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="flex gap-4 mt-6"
+              >
                 {LANGS.map((l) => (
                   <button
                     key={l}
                     onClick={() => changeLang(l)}
-                    className={`text-xs font-medium tracking-wider cursor-pointer ${
-                      i18n.language === l ? "text-ink" : "text-inkFaint"
+                    className={`text-xs font-mono tracking-widest cursor-pointer transition-colors ${
+                      i18n.language === l ? "text-goldBright" : "text-smoke/40"
                     }`}
                   >{l.toUpperCase()}</button>
                 ))}
-              </div>
-              <Link to="/reserver" onClick={() => setOpen(false)} className="ed-cta justify-center mt-2">
-                {t("nav.book")}
-              </Link>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Link to="/reserver" onClick={() => setOpen(false)} className="btn-gold mt-4">
+                  {t("nav.book")}
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="ed-divider-full" />
     </header>
   )
 }

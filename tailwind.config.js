@@ -3,39 +3,68 @@ export default {
   theme: {
     extend: {
       colors: {
-        // === Luxury Editorial — Black + Gold on Warm White ===
-        bg:         '#FAFAF9',
-        bgAlt:      '#F5F5F4',
-        surface:    '#FFFFFF',
-        ink:        '#0C0A09',
-        inkSoft:    '#44403C',
-        inkMuted:   '#78716C',
-        inkFaint:   '#A8A29E',
+        // === Cinematic Dark + Gold ===
+        void:       '#0C0A09',
+        abyss:      '#1C1917',
+        surface:    '#292524',
+        surfaceHi:  '#44403C',
+        ghost:      '#78716C',
+        smoke:      '#A8A29E',
+        ash:        '#D6D3D1',
+        pale:       '#E8ECF0',
         gold:       '#A16207',
-        goldLight:  '#CA8A04',
-        goldPale:   '#FEF3C7',
-        border:     '#E7E5E4',
-        borderSoft: '#D6D3D1',
+        goldBright: '#CA8A04',
+        goldGlow:   '#F59E0B',
+        goldMist:   'rgba(161,98,7,0.15)',
+        goldMist2:  'rgba(202,138,4,0.08)',
+        ivory:      '#FAFAF9',
+        danger:     '#DC2626',
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        serif:   ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        body:    ['"Montserrat"', 'system-ui', 'sans-serif'],
-        sans:    ['"Montserrat"', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display SC"', 'Georgia', 'serif'],
+        heading: ['"Playfair Display SC"', 'Georgia', 'serif'],
+        body:    ['"Karla"', 'system-ui', 'sans-serif'],
+        sans:    ['"Karla"', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
       fontSize: {
-        'display': ['clamp(3.5rem, 10vw, 9rem)', { lineHeight: '0.9', letterSpacing: '-0.03em', fontWeight: '300' }],
-        'heading': ['clamp(2rem, 5vw, 4.5rem)', { lineHeight: '1', letterSpacing: '-0.02em' }],
-        'sub':     ['clamp(1.25rem, 2vw, 1.75rem)', { lineHeight: '1.3', letterSpacing: '0.01em' }],
+        'hero':    ['clamp(3rem, 9vw, 8rem)', { lineHeight: '0.9', letterSpacing: '-0.03em', fontWeight: '400' }],
+        'display': ['clamp(2.5rem, 6vw, 5.5rem)', { lineHeight: '0.95', letterSpacing: '-0.02em' }],
+        'h2':      ['clamp(1.75rem, 4vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
+        'sub':     ['clamp(1.1rem, 2vw, 1.5rem)', { lineHeight: '1.4' }],
       },
       spacing: {
-        'section': 'clamp(5rem, 12vw, 10rem)',
-        'gap':     'clamp(1.5rem, 4vw, 3rem)',
+        'section': 'clamp(6rem, 14vw, 12rem)',
+        'gap':     'clamp(2rem, 5vw, 4rem)',
       },
       maxWidth: {
-        'prose': '42rem',
+        'prose': '40rem',
         'wide':  '90rem',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
+      animation: {
+        'float':      'float 6s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'shimmer':    'shimmer 2s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%':      { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%':      { opacity: '0.8' },
+        },
+        shimmer: {
+          '0%':   { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+      backdropBlur: {
+        'xs': '2px',
       },
     }
   },

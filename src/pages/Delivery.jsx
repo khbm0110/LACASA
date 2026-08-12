@@ -124,17 +124,17 @@ export default function Delivery() {
   return (
     <section className="max-w-wide mx-auto px-6 md:px-8 py-20">
       <h1 className="font-serif text-4xl mb-2">{t("delivery_page.title")}</h1>
-      <p className="text-inkSoft mb-2">
+      <p className="text-pale/70 mb-2">
         {t("delivery_page.subtitle", { min: MIN_ORDER, threshold: FREE_DELIVERY_THRESHOLD })}
       </p>
       {!user && (
-        <p className="text-inkSoft text-sm mb-8">
-          <Link to="/compte" className="text-gold underline">{t("delivery_page.login_hint")}</Link>
+        <p className="text-pale/70 text-sm mb-8">
+          <Link to="/compte" className="text-goldBright underline">{t("delivery_page.login_hint")}</Link>
         </p>
       )}
 
       {delivery_enabled === false && (
-        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 mb-8">
+        <p className="text-sm text-goldBright bg-gold/10 border border-gold/30/30 rounded-xl px-4 py-3 mb-8">
           La livraison est temporairement en pause. Vous pouvez consulter le menu, mais la
           commande n est pas disponible pour le moment - reessayez plus tard ou appelez-nous.
         </p>
@@ -151,7 +151,7 @@ export default function Delivery() {
               placeholder={t("delivery_page.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-[180px] bg-white border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato"
+              className="flex-1 min-w-[180px] bg-white border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato"
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function Delivery() {
                 key={cat}
                 onClick={() => setActiveCat(cat)}
                 className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition ${
-                  activeCat === cat ? "bg-gold border-tomato text-white" : "border-border text-inkSoft hover:text-ink hover:border-tomato"
+                  activeCat === cat ? "bg-gold border-tomato text-white" : "border-white/[0.06] text-pale/70 hover:text-ivory hover:border-tomato"
                 }`}
               >
                 {cat}
@@ -170,9 +170,9 @@ export default function Delivery() {
           </div>
 
           <div className="grid gap-3">
-            {loading && <p className="text-inkSoft text-sm">{t("menu_page.loading")}</p>}
+            {loading && <p className="text-pale/70 text-sm">{t("menu_page.loading")}</p>}
             {filtered.map((item) => (
-              <div key={item.id} className="bg-white border border-border rounded-2xl p-3 flex items-center gap-4">
+              <div key={item.id} className="bg-white border border-white/[0.06] rounded-2xl p-3 flex items-center gap-4">
                 {item.image_url ? (
                   <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
                 ) : (
@@ -183,32 +183,32 @@ export default function Delivery() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-serif text-lg truncate">{item.name}</p>
-                  {item.description && <p className="text-inkSoft text-xs mt-1 line-clamp-2">{item.description}</p>}
-                  <p className="font-mono text-gold text-sm mt-1">{item.price} MAD</p>
+                  {item.description && <p className="text-pale/70 text-xs mt-1 line-clamp-2">{item.description}</p>}
+                  <p className="font-mono text-goldBright text-sm mt-1">{item.price} MAD</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <button onClick={() => removeFromCart(item.id)} disabled={!cart[item.id]}
-                    className="w-8 h-8  border border-border disabled:opacity-30">-</button>
+                    className="w-8 h-8  border border-white/[0.06] disabled:opacity-30">-</button>
                   <span className="w-5 text-center">{cart[item.id] || 0}</span>
                   <button onClick={() => addToCart(item.id)} disabled={delivery_enabled === false}
-                    className="w-8 h-8  border border-border disabled:opacity-30">+</button>
+                    className="w-8 h-8  border border-white/[0.06] disabled:opacity-30">+</button>
                 </div>
               </div>
             ))}
             {!loading && filtered.length === 0 && (
-              <p className="text-inkSoft text-sm">{t("menu_page.note")}</p>
+              <p className="text-pale/70 text-sm">{t("menu_page.note")}</p>
             )}
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl p-5 h-fit sticky top-24">
+        <div className="bg-white border border-white/[0.06] rounded-2xl p-5 h-fit sticky top-24">
           {cartLines.length === 0 ? (
-            <p className="text-inkSoft text-sm mb-4">{t("delivery_page.empty_cart")}</p>
+            <p className="text-pale/70 text-sm mb-4">{t("delivery_page.empty_cart")}</p>
           ) : (
             <div className="grid gap-2 mb-4">
               {cartLines.map((i) => (
                 <div key={i.id} className="flex justify-between text-sm">
-                  <span className="text-inkSoft truncate pr-2">{cart[i.id]} x {i.name}</span>
+                  <span className="text-pale/70 truncate pr-2">{cart[i.id]} x {i.name}</span>
                   <span className="font-mono whitespace-nowrap">{cart[i.id] * i.price} MAD</span>
                 </div>
               ))}
@@ -217,17 +217,17 @@ export default function Delivery() {
 
           <div className="flex gap-2 mb-3">
             <input placeholder={t("delivery_page.promo_placeholder")} value={promoInput} onChange={(e) => setPromoInput(e.target.value)}
-              className="flex-1 bg-bg border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-tomato" />
-            <button onClick={applyPromo} className="px-3 py-2 rounded-xl text-xs border border-border">{t("delivery_page.apply")}</button>
+              className="flex-1 bg-void border border-white/[0.06] rounded-xl px-3 py-2 text-sm outline-none focus:border-tomato" />
+            <button onClick={applyPromo} className="px-3 py-2 rounded-xl text-xs border border-white/[0.06]">{t("delivery_page.apply")}</button>
           </div>
           {promoError && <p className="text-xs text-red-400 mb-2">{promoError}</p>}
-          {promo && <p className="text-xs text-gold mb-2">Code {promo.code}</p>}
+          {promo && <p className="text-xs text-goldBright mb-2">Code {promo.code}</p>}
 
-          <div className="border-t border-border pt-3 mb-4 grid gap-1.5 text-sm">
-            <div className="flex justify-between text-inkSoft">
+          <div className="border-t border-white/[0.06] pt-3 mb-4 grid gap-1.5 text-sm">
+            <div className="flex justify-between text-pale/70">
               <span>{t("delivery_page.subtotal")}</span><span>{subtotal} MAD</span>
             </div>
-            <div className="flex justify-between text-inkSoft">
+            <div className="flex justify-between text-pale/70">
               <span>{t("delivery_page.delivery_fee")}</span><span>{deliveryFee === 0 ? t("delivery_page.free") : `${deliveryFee} MAD`}</span>
             </div>
             {discount > 0 && (
@@ -241,20 +241,20 @@ export default function Delivery() {
           </div>
 
           {belowMin && (
-            <p className="text-xs text-gold mb-3">
+            <p className="text-xs text-goldBright mb-3">
               {t("delivery_page.min_order_hint", { amount: MIN_ORDER - subtotal })}
             </p>
           )}
           {user && total > 0 && (
-            <p className="text-xs text-inkSoft mb-3">{t("delivery_page.points_note", { points: pointsEarned })}</p>
+            <p className="text-xs text-pale/70 mb-3">{t("delivery_page.points_note", { points: pointsEarned })}</p>
           )}
 
           <input placeholder={t("delivery_page.address_placeholder")} value={address} onChange={(e) => setAddress(e.target.value)}
-            className="w-full mb-3 bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="w-full mb-3 bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <input placeholder={t("delivery_page.phone_placeholder")} value={phone} onChange={(e) => setPhone(e.target.value)}
-            className="w-full mb-3 bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="w-full mb-3 bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <textarea placeholder={t("delivery_page.notes_placeholder")} value={notes} onChange={(e) => setNotes(e.target.value)}
-            rows={2} className="w-full mb-4 bg-bg border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            rows={2} className="w-full mb-4 bg-void border border-white/[0.06] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
 
           <button
             onClick={submitOrder}

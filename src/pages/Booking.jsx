@@ -73,13 +73,13 @@ export default function Booking() {
     setStatus(error ? "error" : "success")
   }
 
-  const inputClass = "bg-white border border-border rounded-xl px-4 py-3 outline-none focus:border-tomato transition-colors"
+  const inputClass = "bg-white border border-white/[0.06] rounded-xl px-4 py-3 outline-none focus:border-tomato transition-colors"
 
   return (
     <section className="max-w-2xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">{t("booking_page.title")}</h1>
-        <p className="text-inkSoft mb-10">{t("booking_page.subtitle")}</p>
+        <p className="text-pale/70 mb-10">{t("booking_page.subtitle")}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -102,7 +102,7 @@ export default function Booking() {
               </svg>
             </motion.div>
             <p className="font-serif text-2xl mb-2">{t("booking_page.success_title")}</p>
-            <p className="text-inkSoft">{t("booking_page.success_text")}</p>
+            <p className="text-pale/70">{t("booking_page.success_text")}</p>
           </motion.div>
         ) : reservations_enabled === false ? (
           <motion.p
@@ -110,7 +110,7 @@ export default function Booking() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3"
+            className="text-sm text-goldBright bg-gold/10 border border-gold/30/30 rounded-xl px-4 py-3"
           >
             Les reservations en ligne sont temporairement en pause. Appelez-nous directement pour reserver une table.
           </motion.p>

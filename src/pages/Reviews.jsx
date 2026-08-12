@@ -58,7 +58,7 @@ export default function Reviews() {
         </motion.span>
         <div>
           <p className="text-gold">{"★ ".repeat(Math.round(info?.google_rating || 0))}</p>
-          <p className="text-inkSoft text-sm">Base sur {info?.google_review_count ?? reviews.length} avis</p>
+          <p className="text-pale/70 text-sm">Base sur {info?.google_review_count ?? reviews.length} avis</p>
         </div>
       </motion.div>
 
@@ -68,11 +68,11 @@ export default function Reviews() {
             key={r.id}
             variants={item}
             whileHover={{ borderColor: "rgba(161,98,7,0.4)", y: -3 }}
-            className="bg-white border border-border rounded-2xl p-5"
+            className="bg-white border border-white/[0.06] rounded-2xl p-5"
           >
-            <p className="text-gold text-sm mb-2">{"★ ".repeat(r.rating)}{"☆ ".repeat(5 - r.rating)}</p>
-            <p className="text-sm text-inkSoft">{r.text}</p>
-            <p className="text-xs text-inkSoft mt-3 opacity-70">{r.author_name}</p>
+            <p className="text-goldBright text-sm mb-2">{"★ ".repeat(r.rating)}{"☆ ".repeat(5 - r.rating)}</p>
+            <p className="text-sm text-pale/70">{r.text}</p>
+            <p className="text-xs text-pale/70 mt-3 opacity-70">{r.author_name}</p>
           </motion.div>
         ))}
       </motion.div>

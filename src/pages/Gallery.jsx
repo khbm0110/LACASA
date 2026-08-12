@@ -35,11 +35,11 @@ export default function Gallery() {
     <section className="max-w-wide mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Galerie</h1>
-        <p className="text-inkSoft mb-8">Un apercu du restaurant, des plats et des soirees.</p>
+        <p className="text-pale/70 mb-8">Un apercu du restaurant, des plats et des soirees.</p>
       </motion.div>
 
       {images.length === 0 ? (
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-inkSoft text-sm">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-pale/70 text-sm">
           Aucune photo pour le moment - ajoutez-en depuis Admin &gt; Galerie photo.
         </motion.p>
       ) : (
@@ -55,7 +55,7 @@ export default function Gallery() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition-colors ${
-                  category === c ? "bg-gold border-tomato text-white" : "border-border text-inkSoft hover:text-ink hover:border-tomato"
+                  category === c ? "bg-gold border-tomato text-white" : "border-white/[0.06] text-pale/70 hover:text-ivory hover:border-tomato"
                 }`}>
                 {c}
               </motion.button>
@@ -72,7 +72,7 @@ export default function Gallery() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
                   onClick={() => setLightboxIndex(i)}
-                  className="rounded-2xl overflow-hidden border border-border aspect-square group cursor-zoom-in"
+                  className="rounded-2xl overflow-hidden border border-white/[0.06] aspect-square group cursor-zoom-in"
                   whileHover={{ y: -6, borderColor: "#A16207" }}
                 >
                   <motion.img

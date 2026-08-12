@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabaseClient"
 export default function Account() {
   const { user, profile, signIn, signUp, signOut } = useAuth()
 
-  if (user === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkSoft">Chargement...</div>
+  if (user === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-pale/70">Chargement...</div>
   if (!user) return <AuthForms signIn={signIn} signUp={signUp} />
   return <Dashboard user={user} profile={profile} signOut={signOut} />
 }
@@ -31,7 +31,7 @@ function AuthForms({ signIn, signUp }) {
   return (
     <section className="max-w-md mx-auto px-6 py-24">
       <h1 className="font-serif text-3xl mb-1">{mode === "login" ? "Se connecter" : "Creer un compte"}</h1>
-      <p className="text-inkSoft text-sm mb-8">
+      <p className="text-pale/70 text-sm mb-8">
         Suivez vos commandes, cumulez des points de fidelite, reservez plus vite.
       </p>
 
@@ -39,15 +39,15 @@ function AuthForms({ signIn, signUp }) {
         {mode === "signup" && (
           <>
             <input placeholder="Nom complet" value={form.name} onChange={update("name")}
-              className="bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+              className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
             <input placeholder="Telephone" value={form.phone} onChange={update("phone")}
-              className="bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+              className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
           </>
         )}
         <input required type="email" placeholder="Email" value={form.email} onChange={update("email")}
-          className="bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+          className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
         <input required type="password" placeholder="Mot de passe" value={form.password} onChange={update("password")}
-          className="bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
+          className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato" />
         {error && <p className="text-red-400 text-xs">{error}</p>}
         <button disabled={loading}
           className="mt-2 px-6 py-3  text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#2C1810] disabled:opacity-60">
@@ -55,7 +55,7 @@ function AuthForms({ signIn, signUp }) {
         </button>
       </form>
 
-      <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm text-inkSoft mt-6 underline">
+      <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm text-pale/70 mt-6 underline">
         {mode === "login" ? "Pas encore de compte ? Inscrivez-vous" : "Deja un compte ? Connectez-vous"}
       </button>
     </section>
@@ -83,39 +83,39 @@ function Dashboard({ user, profile, signOut }) {
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="font-serif text-3xl">{profile?.name || "Mon compte"}</h1>
-          <p className="text-inkSoft text-sm">{user.email}</p>
+          <p className="text-pale/70 text-sm">{user.email}</p>
         </div>
-        <button onClick={signOut} className="text-sm text-inkSoft underline">Se deconnecter</button>
+        <button onClick={signOut} className="text-sm text-pale/70 underline">Se deconnecter</button>
       </div>
 
-      <div className="bg-gradient-to-br from-bgsoft to-[#241b14] border border-border rounded-2xl p-6 mb-10 flex items-center justify-between">
+      <div className="bg-gradient-to-br from-bgsoft to-[#241b14] border border-white/[0.06] rounded-2xl p-6 mb-10 flex items-center justify-between">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-1">Points de fidelite</p>
+          <p className="font-mono text-[11px] uppercase tracking-widest text-goldBright mb-1">Points de fidelite</p>
           <p className="font-serif text-4xl">{profile?.loyalty_points ?? 0} pts</p>
         </div>
-        <p className="text-inkSoft text-sm max-w-[16ch] text-right">1 point tous les 10 MAD depenses, credites a la livraison.</p>
+        <p className="text-pale/70 text-sm max-w-[16ch] text-right">1 point tous les 10 MAD depenses, credites a la livraison.</p>
       </div>
 
       <h2 className="font-serif text-xl mb-4">Mes commandes</h2>
       <div className="grid gap-2 mb-10">
         {orders.map((o) => (
-          <Link key={o.id} to={`/suivi/${o.id}`} className="bg-white border border-border rounded-xl px-4 py-3 flex justify-between text-sm hover:border-tomato transition">
+          <Link key={o.id} to={`/suivi/${o.id}`} className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 flex justify-between text-sm hover:border-tomato transition">
             <span>{o.order_type === "dine_in" ? "Sur place" : "Livraison"} - {o.total} MAD</span>
-            <span className="text-inkSoft">{o.status}</span>
+            <span className="text-pale/70">{o.status}</span>
           </Link>
         ))}
-        {orders.length === 0 && <p className="text-inkSoft text-sm">Aucune commande pour le moment.</p>}
+        {orders.length === 0 && <p className="text-pale/70 text-sm">Aucune commande pour le moment.</p>}
       </div>
 
       <h2 className="font-serif text-xl mb-4">Mes reservations</h2>
       <div className="grid gap-2">
         {reservations.map((r) => (
-          <div key={r.id} className="bg-white border border-border rounded-xl px-4 py-3 flex justify-between text-sm">
+          <div key={r.id} className="bg-white border border-white/[0.06] rounded-xl px-4 py-3 flex justify-between text-sm">
             <span>{r.date} a {r.time} - {r.guests} pers.</span>
-            <span className="text-inkSoft">{r.status}</span>
+            <span className="text-pale/70">{r.status}</span>
           </div>
         ))}
-        {reservations.length === 0 && <p className="text-inkSoft text-sm">Aucune reservation pour le moment.</p>}
+        {reservations.length === 0 && <p className="text-pale/70 text-sm">Aucune reservation pour le moment.</p>}
       </div>
     </section>
   )

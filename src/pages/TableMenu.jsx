@@ -57,8 +57,8 @@ export default function TableMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-ink px-6 py-10 max-w-2xl mx-auto pb-28">
-      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">
+    <div className="min-h-screen bg-void text-ivory px-6 py-10 max-w-2xl mx-auto pb-28">
+      <p className="font-mono text-[11px] uppercase tracking-widest text-goldBright mb-2">
         {table ? `Table ${table.number}` : "Chargement de la table..."}
       </p>
       <h1 className="font-serif text-3xl mb-6">Commander a table</h1>
@@ -74,7 +74,7 @@ export default function TableMenu() {
               key={cat}
               onClick={() => setActiveCat(cat)}
               className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition ${
-                activeCat === cat ? "bg-gold border-tomato text-white" : "border-border text-inkSoft hover:text-ink hover:border-tomato"
+                activeCat === cat ? "bg-gold border-tomato text-white" : "border-white/[0.06] text-pale/70 hover:text-ivory hover:border-tomato"
               }`}
             >
               {cat}
@@ -85,7 +85,7 @@ export default function TableMenu() {
 
       <div className="grid gap-3 mb-8">
         {shown.map((item) => (
-          <div key={item.id} className="bg-white border border-border rounded-2xl p-3 flex items-center gap-4">
+          <div key={item.id} className="bg-white border border-white/[0.06] rounded-2xl p-3 flex items-center gap-4">
             {item.image_url ? (
               <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
             ) : (
@@ -96,23 +96,23 @@ export default function TableMenu() {
             )}
             <div className="min-w-0 flex-1">
               <p className="font-serif text-lg truncate">{item.name}</p>
-              <p className="font-mono text-gold text-sm">{item.price} MAD</p>
+              <p className="font-mono text-goldBright text-sm">{item.price} MAD</p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <button onClick={() => remove(item.id)} disabled={!cart[item.id]}
-                className="w-8 h-8  border border-border disabled:opacity-30">-</button>
+                className="w-8 h-8  border border-white/[0.06] disabled:opacity-30">-</button>
               <span className="w-5 text-center">{cart[item.id] || 0}</span>
-              <button onClick={() => add(item.id)} className="w-8 h-8  border border-border">+</button>
+              <button onClick={() => add(item.id)} className="w-8 h-8  border border-white/[0.06]">+</button>
             </div>
           </div>
         ))}
-        {shown.length === 0 && <p className="text-inkSoft text-sm text-center py-10">Aucun plat dans cette categorie.</p>}
+        {shown.length === 0 && <p className="text-pale/70 text-sm text-center py-10">Aucun plat dans cette categorie.</p>}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-white/[0.06] p-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <p className="text-inkSoft text-xs">{cartCount} article(s)</p>
+            <p className="text-pale/70 text-xs">{cartCount} article(s)</p>
             <p className="font-serif text-2xl">{total} MAD</p>
           </div>
           <button onClick={submit} disabled={total === 0 || status === "loading"}
