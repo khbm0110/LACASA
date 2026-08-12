@@ -22,13 +22,13 @@ export default function Contact() {
     setStatus(error ? "error" : "success")
   }
 
-  const inputClass = "bg-bgsoft border border-line rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato transition-colors"
+  const inputClass = "bg-white border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-tomato transition-colors"
 
   return (
     <section className="max-w-xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">Contact</h1>
-        <p className="text-inkdim mb-10">
+        <p className="text-barklight mb-10">
           Une question, un evenement prive, un groupe ? Ecrivez-nous, nous repondons rapidement.
         </p>
       </motion.div>
@@ -40,20 +40,20 @@ export default function Contact() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-bgsoft border border-tomato/30 rounded-2xl p-8 text-center"
+            className="bg-white border border-tomato/30 rounded-2xl p-8 text-center"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-              className="w-16 h-16 bg-tomato rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-16 h-16 bg-terracotta rounded-full flex items-center justify-center mx-auto mb-4"
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </motion.div>
             <p className="font-serif text-2xl mb-2">Message envoye !</p>
-            <p className="text-inkdim">Nous vous repondons des que possible.</p>
+            <p className="text-barklight">Nous vous repondons des que possible.</p>
           </motion.div>
         ) : (
           <motion.form

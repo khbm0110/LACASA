@@ -73,13 +73,13 @@ export default function Booking() {
     setStatus(error ? "error" : "success")
   }
 
-  const inputClass = "bg-bgsoft border border-line rounded-xl px-4 py-3 outline-none focus:border-tomato transition-colors"
+  const inputClass = "bg-white border border-border rounded-xl px-4 py-3 outline-none focus:border-tomato transition-colors"
 
   return (
     <section className="max-w-2xl mx-auto px-6 md:px-8 py-20">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-4xl mb-2">{t("booking_page.title")}</h1>
-        <p className="text-inkdim mb-10">{t("booking_page.subtitle")}</p>
+        <p className="text-barklight mb-10">{t("booking_page.subtitle")}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -89,20 +89,20 @@ export default function Booking() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-bgsoft border border-tomato/30 rounded-2xl p-8 text-center"
+            className="bg-white border border-tomato/30 rounded-2xl p-8 text-center"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-              className="w-16 h-16 bg-tomato rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-16 h-16 bg-terracotta rounded-full flex items-center justify-center mx-auto mb-4"
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </motion.div>
             <p className="font-serif text-2xl mb-2">{t("booking_page.success_title")}</p>
-            <p className="text-inkdim">{t("booking_page.success_text")}</p>
+            <p className="text-barklight">{t("booking_page.success_text")}</p>
           </motion.div>
         ) : reservations_enabled === false ? (
           <motion.p
@@ -110,7 +110,7 @@ export default function Booking() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3"
+            className="text-sm text-clay bg-gold/10 border border-gold/30 rounded-xl px-4 py-3"
           >
             Les reservations en ligne sont temporairement en pause. Appelez-nous directement pour reserver une table.
           </motion.p>
@@ -156,7 +156,7 @@ export default function Booking() {
               </motion.div>
             )}
             {form.date && form.time && busyTableIds.length > 0 && (
-              <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-gold">
+              <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-clay">
                 Certaines tables sont deja reservees a proximite de cet horaire - choisissez-en une autre ou laissez "peu importe la table".
               </motion.p>
             )}

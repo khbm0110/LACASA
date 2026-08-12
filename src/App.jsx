@@ -52,23 +52,16 @@ import SalesHistory from "./admin/pages/SalesHistory.jsx"
 import Shifts from "./admin/pages/Shifts.jsx"
 import Reports from "./admin/pages/Reports.jsx"
 
-// Page transition animation variants
 const pageVariants = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 16 },
   enter: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -15 }
+  exit: { opacity: 0, y: -10 }
 }
-const pageTransition = { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: 0.4 }
+const pageTransition = { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: 0.35 }
 
 function PageWrapper({ children }) {
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="enter"
-      exit="exit"
-      transition={pageTransition}
-    >
+    <motion.div variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
       {children}
     </motion.div>
   )
@@ -84,8 +77,8 @@ export default function App() {
         <Route
           path="/"
           element={
-            <div className="min-h-screen bg-bg text-ink">
-              <div className="grain" aria-hidden="true" />
+            <div className="min-h-screen bg-cream text-bark font-body">
+              <div className="grain-overlay" aria-hidden="true" />
               <Header />
               <PageWrapper><Home /></PageWrapper>
               <Footer />
@@ -148,8 +141,8 @@ export default function App() {
 
 function PublicPage({ children }) {
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <div className="grain" aria-hidden="true" />
+    <div className="min-h-screen bg-cream text-bark font-body">
+      <div className="grain-overlay" aria-hidden="true" />
       <Header />
       {children}
       <Footer />

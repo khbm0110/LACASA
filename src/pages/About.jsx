@@ -35,7 +35,7 @@ export default function About() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-serif text-4xl mb-2">{t("about.title")}</h1>
-        <p className="text-inkdim mb-10">{t("about.subtitle")}</p>
+        <p className="text-barklight mb-10">{t("about.subtitle")}</p>
       </motion.div>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -43,7 +43,7 @@ export default function About() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="bg-bgsoft border border-line rounded-2xl p-8"
+          className="bg-white border border-border rounded-2xl p-8"
         >
           <Row label={t("about.address")} value={info?.address || "Rue d'Oran, Rabat"} />
           <Row label={t("about.phone")} value={info?.phone || "+212 5 37 26 26 58"} />
@@ -53,7 +53,7 @@ export default function About() {
         </motion.div>
 
         <motion.div
-          className="rounded-2xl overflow-hidden border border-line aspect-[4/3.6]"
+          className="rounded-2xl overflow-hidden border border-border aspect-[4/3.6]"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.3 }}
@@ -76,9 +76,9 @@ function Row({ label, value, last }) {
   return (
     <motion.div
       variants={staggerItem}
-      className={`flex justify-between py-3.5 text-sm ${last ? "" : "border-b border-line"}`}
+      className={`flex justify-between py-3.5 text-sm ${last ? "" : "border-b border-border"}`}
     >
-      <span className="font-mono text-[11px] uppercase tracking-widest text-inkdim">{label}</span>
+      <span className="font-mono text-[11px] uppercase tracking-widest text-barklight">{label}</span>
       <motion.span
         className="font-medium"
         whileHover={{ color: "#FF7A3D" }}

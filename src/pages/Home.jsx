@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import { useAuth } from "../lib/AuthContext.jsx"
-import { motion } from "framer-motion"
-import MotionCarousel from "../components/MotionCarousel.jsx"
+import { motion, useInView } from "framer-motion"
 import Reveal from "../components/Reveal.jsx"
-
-const DOCK = [
-  { to: "/reserver", icon: "fa-utensils", title: "Reserver", sub: "Table rapide" },
-  { to: "/livraison", icon: "fa-motorcycle", title: "Livraison", sub: "En 20 min" },
-  { to: "/menu", icon: "fa-book-open", title: "Notre carte", sub: "Pizzas & plats" },
-  { to: "/a-propos", icon: "fa-location-dot", title: "Nous trouver", sub: "Rue d'Oran" }
-]
 
 const FALLBACK_REVIEWS = [
   { id: "r1", author_name: "Client Google", rating: 5, text: "Le poisson recommande par le serveur etait parfait." },
@@ -22,75 +14,58 @@ const FALLBACK_REVIEWS = [
   { id: "r6", author_name: "Client Google", rating: 4, text: "Tres bon rapport qualite prix pour le quartier." }
 ]
 
+const QUICK_LINKS = [
+  { to: "/reserver", icon: "fa-solid fa-calendar-check", label: "Reserver", sub: "Votre table" },
+  { to: "/livraison", icon: "fa-solid fa-motorcycle", label: "Livraison", sub: "En 20 min" },
+  { to: "/menu", icon: "fa-solid fa-utensils", label: "La Carte", sub: "Nos plats" },
+  { to: "/a-propos", icon: "fa-solid fa-map-location-dot", label: "Nous trouver", sub: "Rue d'Oran" }
+]
+
 function Stars({ rating }) {
-  return <>{"★".repeat(rating)}{"☆".repeat(5 - rating)}</>
+  return <span className="text-terracotta text-sm tracking-wide">{"\u2605".repeat(rating)}{"\u2606".repeat(5 - rating)}</span>
 }
 
-const heroStagger = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.3 } }
-}
-const heroItem = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] } }
+function FadeIn({ children, delay = 0, className = "" }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: "-60px" })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 28 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: delay * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
 }
 
 export default function Home() {
   const { user } = useAuth()
   const [featured, setFeatured] = useState([])
-  const [heroDishes, setHeroDishes] = useState([])
   const [info, setInfo] = useState(null)
   const [reviews, setReviews] = useState(FALLBACK_REVIEWS)
   const [galleryHome, setGalleryHome] = useState([])
   const [events, setEvents] = useState([])
   const [posts, setPosts] = useState([])
+  const [heroDishes, setHeroDishes] = useState([])
+  const [activeHero, setActiveHero] = useState(0)
+
   const [reservation, setReservation] = useState({ name: "", phone: "", date: "", time: "", guests: 2 })
-  const [resStatus, setResStatus] = useState(null)
+  const [resStatus, setResStatus] = useState("idle")
 
   useEffect(() => {
-    async function loadFeatured() {
-      const { data, error } = await supabase
-        .from("menu_items")
-        .select("id, name, price, category, image_url, description")
-        .eq("is_featured", true)
-        .limit(6)
-      if (!error && data) setFeatured(data)
-    }
-    async function loadInfo() {
-      const { data } = await supabase.from("restaurant_info").select("*").eq("id", 1).single()
-      if (data) setInfo(data)
-    }
-    async function loadReviews() {
-      const { data } = await supabase.from("google_reviews").select("*").order("time", { ascending: false }).limit(20)
-      if (data && data.length > 0) setReviews(data)
-    }
-    async function loadGalleryHome() {
-      const { data } = await supabase.from("gallery_images").select("*").eq("show_on_home", true).order("sort_order").limit(6)
-      if (data) setGalleryHome(data)
-    }
-    async function loadEvents() {
-      const { data } = await supabase.from("events").select("*").eq("active", true).order("event_date", { ascending: true }).limit(4)
-      if (data) setEvents(data)
-    }
-    async function loadPosts() {
-      const { data } = await supabase.from("blog_posts").select("id, slug, title, excerpt, cover_image, published_at").eq("published", true).order("published_at", { ascending: false }).limit(3)
-      if (data) setPosts(data)
-    }
-    async function loadHeroDishes() {
-      const { data } = await supabase.from("menu_items").select("id, name, image_url").eq("is_hero", true).limit(6)
-      if (data && data.length > 0) setHeroDishes(data.map(d => ({ id: d.id, url: d.image_url, label: d.name })))
-    }
-    loadFeatured()
-    loadInfo()
-    loadReviews()
-    loadGalleryHome()
-    loadEvents()
-    loadPosts()
-    loadHeroDishes()
+    supabase.from("menu_items").select("id, name, price, category, image_url, description").eq("is_featured", true).limit(6).then(({ data }) => { if (data) setFeatured(data) })
+    supabase.from("restaurant_info").select("*").eq("id", 1).single().then(({ data }) => { if (data) setInfo(data) })
+    supabase.from("google_reviews").select("*").order("time", { ascending: false }).limit(20).then(({ data }) => { if (data?.length) setReviews(data) })
+    supabase.from("gallery_images").select("*").eq("show_on_home", true).order("sort_order").limit(6).then(({ data }) => { if (data) setGalleryHome(data) })
+    supabase.from("events").select("*").eq("active", true).order("event_date", { ascending: true }).limit(4).then(({ data }) => { if (data) setEvents(data) })
+    supabase.from("blog_posts").select("id, slug, title, excerpt, cover_image, published_at").eq("published", true).order("published_at", { ascending: false }).limit(3).then(({ data }) => { if (data) setPosts(data) })
+    supabase.from("menu_items").select("id, name, image_url").eq("is_hero", true).limit(6).then(({ data }) => { if (data?.length) setHeroDishes(data.map(d => ({ id: d.id, url: d.image_url, label: d.name }))) })
   }, [])
 
   const updateReservation = (key) => (e) => setReservation((f) => ({ ...f, [key]: e.target.value }))
-
   const submitReservation = async (e) => {
     e.preventDefault()
     setResStatus("loading")
@@ -98,398 +73,262 @@ export default function Home() {
     setResStatus(error ? "error" : "success")
   }
 
-  const [activeFrame, setActiveFrame] = useState(0)
-  const [reelProgress, setReelProgress] = useState(0)
+  // Hero auto-rotate
   const heroImages = heroDishes.length > 0
     ? heroDishes
     : galleryHome.slice(0, 5).map((g) => ({ id: g.id, url: g.url, label: g.caption }))
 
   useEffect(() => {
     if (heroImages.length <= 1) return
-    const frameDuration = 5000
-    let start = performance.now()
-    let raf
-    function tick(ts) {
-      const elapsed = ts - start
-      setReelProgress(Math.min((elapsed / frameDuration) * 100, 100))
-      if (elapsed >= frameDuration) {
-        setActiveFrame((f) => (f + 1) % heroImages.length)
-        start = ts
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    const timer = setInterval(() => setActiveHero((i) => (i + 1) % heroImages.length), 5000)
+    return () => clearInterval(timer)
   }, [heroImages.length])
 
-  const reviewsCount = info?.home_reviews_count || 6
-  const shownReviews = reviews.slice(0, reviewsCount)
+  const shownReviews = reviews.slice(0, info?.home_reviews_count || 6)
 
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative h-screen min-h-[760px] w-full overflow-hidden">
-        <div className="absolute inset-0">
-          {heroImages.length > 0 ? (
-            heroImages.map((img, i) => (
-              <div key={img.id} className={`reel-frame ${i === activeFrame ? "active" : ""}`}>
-                <img src={img.url} alt={img.label || "La Casa Di Carta"} />
-              </div>
-            ))
-          ) : (
-            <div className="absolute inset-0" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }} />
-          )}
-        </div>
-        <div className="hero-overlay" />
-        <div className="scan-line" />
-
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col justify-end pb-16 md:pb-20 pt-32">
-          {heroImages.length > 1 && (
-            <motion.div
-              className="hidden md:flex items-center gap-3 absolute top-28 right-6 lg:right-10 font-mono text-[11px] text-inkdim"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1, duration: 0.6 }}
+      <section className="hero-section">
+        {/* Background Images */}
+        {heroImages.length > 0 ? (
+          heroImages.map((img, i) => (
+            <div
+              key={img.id}
+              className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${i === activeHero ? "opacity-100" : "opacity-0"}`}
             >
-              <span className="rec-dot w-2 h-2 bg-tomato rounded-full inline-block" />
-              <span className="tracking-[0.2em]">GALERIE &middot; LIVE</span>
-            </motion.div>
-          )}
-
-          <motion.div className="max-w-3xl" variants={heroStagger} initial="hidden" animate="visible">
-            <motion.div variants={heroItem} className="section-marker mb-6"><span>Trattoria &amp; Livraison</span></motion.div>
-            <motion.h1 variants={heroItem} className="font-serif leading-[0.85] mb-8 text-[14vw] md:text-[10vw] lg:text-[8.5vw]">
-              LA CASA<br /><span className="text-tomato">DI CARTA</span>
-            </motion.h1>
-            <motion.p variants={heroItem} className="max-w-md text-inkdim text-lg leading-relaxed">
-              Pizza au feu de bois, specialites italo-marocaines et couscous du vendredi. Un cadre chaleureux au coeur de Rabat.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            className="mt-12 flex flex-wrap items-end justify-between gap-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.7 }}
-          >
-            <div className="flex items-center gap-4 flex-wrap">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Link to="/reserver" className="pulse-btn bg-tomato text-white px-8 py-3.5 font-heading text-sm tracking-[0.2em] uppercase flex items-center gap-3 whitespace-nowrap">
-                  <span>Reserver</span><i className="fas fa-arrow-right text-xs" />
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.04, borderColor: "#C67B5C" }} whileTap={{ scale: 0.97 }}>
-                <Link to="/livraison" className="px-6 py-3.5 font-heading text-xs tracking-[0.2em] uppercase text-inkdim border border-linelight transition flex items-center gap-3 whitespace-nowrap">
-                  <span>Livraison</span><i className="fas fa-motorcycle text-xs text-tomato" />
-                </Link>
-              </motion.div>
+              <img src={img.url} alt={img.label || ""} className="hero-bg-img" />
             </div>
-            {heroImages.length > 1 && (
-              <div className="flex items-center gap-6 max-w-xs w-full">
-                <div className="font-mono text-[10px] text-muted tracking-[0.2em] whitespace-nowrap">
-                  {String(activeFrame + 1).padStart(2, "0")} / {String(heroImages.length).padStart(2, "0")}
-                </div>
-                <div className="progress-bar flex-1">
-                  <div className="progress-bar-fill" style={{ width: `${reelProgress}%` }} />
-                </div>
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] whitespace-nowrap">GALERIE</div>
-              </div>
-            )}
+          ))
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-sandlight via-cream to-sandlight" />
+        )}
+        <div className="hero-gradient" />
+
+        {/* Hero Content */}
+        <div className="relative z-10 min-h-[100vh] min-h-[100dvh] flex flex-col justify-end pb-20 md:pb-28 section-full">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-3xl"
+          >
+            <p className="section-label mb-5">Trattoria & Livraison</p>
+            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-bark mb-6">
+              La Casa<br />
+              <span className="text-terracotta italic">Di Carta</span>
+            </h1>
+            <p className="text-barklight text-base md:text-lg max-w-md leading-relaxed mb-10">
+              Pizza au feu de bois, specialites italo-marocaines et couscous du vendredi. Un cadre chaleureux au coeur de Rabat.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/reserver" className="btn-primary">
+                Reserver une table
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
+              <Link to="/livraison" className="btn-outline">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
+                Livraison
+              </Link>
+            </div>
           </motion.div>
+
+          {/* Hero Dots */}
+          {heroImages.length > 1 && (
+            <div className="flex items-center gap-2 mt-10">
+              {heroImages.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveHero(i)}
+                  className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
+                    i === activeHero ? "w-8 bg-terracotta" : "w-1.5 bg-bark/20 hover:bg-bark/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ============ QUICK DOCK ============ */}
-      <motion.div
-        className="px-4 md:px-8 relative z-10 -mt-6"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.1, duration: 0.6 }}
-      >
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 bg-bgsoft border border-line rounded-sm p-3">
-          {DOCK.map((item, i) => (
+      {/* ============ QUICK LINKS BAR ============ */}
+      <section className="relative -mt-10 z-20 section-full">
+        <div className="max-w-4xl mx-auto bg-white rounded-organicXl shadow-softXl border border-border/30 p-2 grid grid-cols-2 md:grid-cols-4 gap-1">
+          {QUICK_LINKS.map((item, i) => (
             <motion.div
               key={item.to}
-              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
             >
-              <Link to={item.to} className="flex items-center gap-4 p-4">
-                <motion.div
-                  className="w-10 h-10 border border-linelight flex items-center justify-center shrink-0"
-                  whileHover={{ borderColor: "#C67B5C", scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                >
-                  <i className={`fas ${item.icon} text-sm`} />
-                </motion.div>
+              <Link to={item.to} className="flex items-center gap-3 p-4 rounded-organic hover:bg-terracotta/5 transition-colors duration-200 group">
+                <span className="w-10 h-10 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta group-hover:bg-terracotta group-hover:text-white transition-all duration-300">
+                  <i className={`${item.icon} text-sm`} />
+                </span>
                 <div>
-                  <b className="font-heading text-sm tracking-[0.1em] block">{item.title}</b>
-                  <span className="font-mono text-xs text-muted">{item.sub}</span>
+                  <span className="font-semibold text-sm text-bark block">{item.label}</span>
+                  <span className="text-xs text-stonelight">{item.sub}</span>
                 </div>
               </Link>
             </motion.div>
           ))}
         </div>
-      </motion.div>
+      </section>
 
-      {/* ============ A LA UNE ============ */}
+      {/* ============ FEATURED DISHES ============ */}
       {featured.length > 0 && (
-        <section>
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-12 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>01 — Notre carte</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">
-                  A la une. <span className="text-stroke">Saveurs</span> du <span className="text-tomato">moment.</span>
+        <section className="py-20 md:py-28 section-full">
+          <FadeIn className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+              <div>
+                <p className="section-label mb-3">01 — Notre carte</p>
+                <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-bark leading-[0.95]">
+                  Saveurs du <span className="text-terracotta italic">moment</span>
                 </h2>
               </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <p className="text-inkdim mb-6">Nos plats signatures, prepares avec des ingredients frais et de saison. Chaque assiette raconte une histoire entre tradition italienne et heritage marocain.</p>
-                <Link to="/menu" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Voir tout le menu</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
-              </div>
-            </Reveal>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {featured.slice(0, 3).map((item, i) => (
-                <Reveal key={item.id} delay={i * 90}>
-                  <motion.article
-                    className="info-card notch-corner h-full flex flex-col"
-                    whileHover={{ y: -8, borderColor: "rgba(198,123,92,0.5)" }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <div className="relative h-36 md:h-72 overflow-hidden">
-                      {item.image_url ? (
-                        <motion.img src={item.image_url} alt={item.name} className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.08 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
-                          <span className="font-serif text-3xl text-gold/40">{item.name?.[0]}</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #EDE6D3, transparent)" }} />
-                      <div className="absolute top-3 md:top-4 left-3 md:left-4 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(i + 1).padStart(2, "0")}</div>
-                      <div className="absolute top-3 md:top-4 right-3 md:right-4 px-2 py-1 bg-black/60 backdrop-blur-sm font-mono text-[10px] text-ink tracking-[0.15em]">{item.category}</div>
-                    </div>
-                    <div className="p-3 md:p-6 flex-1 flex flex-col">
-                      <div className="mb-2 md:mb-4">
-                        <div className="grid grid-cols-2 gap-2 md:gap-4 mb-2 md:mb-4">
-                          <div>
-                            <div className="font-mono text-[9px] md:text-[10px] text-muted tracking-[0.2em] uppercase">Prix</div>
-                            <div className="font-heading text-xs md:text-base">{item.price} MAD</div>
-                          </div>
-                          <div>
-                            <div className="font-mono text-[9px] md:text-[10px] text-muted tracking-[0.2em] uppercase">Categorie</div>
-                            <div className="font-heading text-xs md:text-base truncate">{item.category}</div>
-                          </div>
-                        </div>
-                        <p className="hidden md:block text-inkdim text-sm leading-relaxed line-clamp-3">
-                          {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-linelight">
-                        <span className="hidden md:inline font-mono text-[10px] text-muted tracking-[0.15em]">SUR COMMANDE</span>
-                        <motion.div whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
-                          <Link to="/menu" className="font-heading text-xs md:text-sm tracking-[0.15em] uppercase flex items-center gap-2">
-                            Commander <i className="fas fa-arrow-right text-tomato text-xs" />
-                          </Link>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </motion.article>
-                </Reveal>
-              ))}
+              <Link to="/menu" className="btn-outline self-start md:self-auto">
+                Voir tout le menu
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
             </div>
+          </FadeIn>
 
-            {featured.length > 3 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-6">
-                {featured.slice(3).map((item, i) => (
-                  <Reveal key={item.id} delay={i * 90}>
-                    <div className="flip-card h-64 md:h-[420px]"
-                      onClick={(e) => { if (window.matchMedia("(hover: none)").matches) e.currentTarget.classList.toggle("flipped") }}>
-                      <div className="flip-card-inner">
-                        <div className="flip-face info-card flex flex-col">
-                          <div className="dish-img-wrap">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
-                                <span className="font-serif text-2xl text-gold/40">{item.name?.[0]}</span>
-                              </div>
-                            )}
-                            <div className="absolute top-3 md:top-4 left-3 md:left-4 font-mono text-[10px] text-tomato tracking-[0.2em]">/ {String(i + 4).padStart(2, "0")}</div>
-                            <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-3 md:right-4">
-                              <div className="font-mono text-[10px] text-silverdim tracking-[0.2em] uppercase">{item.category}</div>
-                            </div>
-                          </div>
-                          <div className="p-3 md:p-6 flex-1 flex flex-col justify-between">
-                            <div>
-                              <h3 className="font-serif text-lg md:text-3xl leading-tight">{item.name}</h3>
-                              <p className="font-heading text-muted text-[10px] md:text-xs mt-1 md:mt-2 tracking-[0.1em] uppercase">{item.category}</p>
-                            </div>
-                            <div className="flex items-center justify-between mt-2 md:mt-4 pt-2 md:pt-4 border-t border-linelight">
-                              <span className="font-mono text-[10px] text-muted tracking-[0.15em]">{item.price} MAD</span>
-                              <span className="hidden md:inline font-mono text-[10px] text-tomato tracking-[0.15em]">SURVOLER &rarr;</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flip-face flip-back info-card p-4 md:p-7 flex flex-col">
-                          <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2 md:mb-4">/ {item.name}</div>
-                          <h3 className="font-serif text-lg md:text-2xl mb-2 md:mb-5">Description</h3>
-                          <p className="text-inkdim text-xs md:text-sm leading-relaxed flex-1 line-clamp-4 md:line-clamp-none">
-                            {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
-                          </p>
-                          <div className="mt-auto pt-2 md:pt-5 border-t border-linelight">
-                            <div className="flex items-center justify-between">
-                              <div className="font-serif text-lg md:text-2xl text-tomato">{item.price} MAD</div>
-                              <Link to="/menu" className="font-mono text-[10px] tracking-[0.15em] uppercase text-tomato">Commander &rarr;</Link>
-                            </div>
-                          </div>
-                        </div>
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featured.map((item, i) => (
+              <FadeIn key={item.id} delay={i}>
+                <Link to="/menu" className="dish-card group block h-full">
+                  <div className="aspect-[4/3] overflow-hidden">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="dish-card-img" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-sandlight to-cream flex items-center justify-center">
+                        <span className="font-serif text-4xl text-terracotta/30">{item.name?.[0]}</span>
                       </div>
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="font-serif text-xl text-bark leading-tight">{item.name}</h3>
+                      <span className="font-semibold text-terracotta whitespace-nowrap">{item.price} MAD</span>
                     </div>
-                  </Reveal>
-                ))}
-              </div>
-            )}
+                    <p className="text-barklight text-sm leading-relaxed line-clamp-2 mb-3">
+                      {item.description || "Prepare avec des ingredients frais, selon la tradition de la maison."}
+                    </p>
+                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                      <span className="text-xs font-medium text-stonelight uppercase tracking-wider">{item.category}</span>
+                      <span className="text-xs font-semibold text-terracotta group-hover:translate-x-1 transition-transform duration-200 inline-flex items-center gap-1">
+                        Commander <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </FadeIn>
+            ))}
           </div>
         </section>
       )}
 
-      {/* ============ AVIS (carrousel) ============ */}
-      <section className="border-t border-line overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10 lg:mb-16 pt-12 lg:pt-20">
-          <Reveal className="grid md:grid-cols-12 gap-8 items-end">
-            <div className="md:col-span-7">
-              <div className="section-marker mb-6"><span>02 — Avis</span></div>
-              <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Ce qu en pensent <span className="text-tomato">nos clients.</span></h2>
-            </div>
-            <div className="md:col-span-4 md:col-start-9">
-              <div className="flex items-center gap-4 mb-3">
-                <motion.span
-                  className="font-serif text-5xl"
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                >
-                  {info?.google_rating ?? "4.5"}
-                </motion.span>
-                <div>
-                  <p className="text-gold text-sm"><Stars rating={Math.round(info?.google_rating || 4)} /></p>
-                  <p className="font-mono text-muted text-xs">{info?.google_review_count ?? shownReviews.length} avis Google</p>
+      {/* ============ REVIEWS ============ */}
+      <section className="py-20 md:py-28 bg-creamdark">
+        <div className="section-full">
+          <FadeIn className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <p className="section-label justify-center mb-3">02 — Avis</p>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-bark leading-[0.95] mb-4">
+                Ce qu'en pensent <span className="text-terracotta italic">nos clients</span>
+              </h2>
+              <div className="flex items-center justify-center gap-3">
+                <span className="font-serif text-4xl text-bark">{info?.google_rating ?? "4.5"}</span>
+                <div className="text-left">
+                  <Stars rating={Math.round(info?.google_rating || 4)} />
+                  <p className="text-xs text-stonelight mt-0.5">{info?.google_review_count ?? reviews.length} avis Google</p>
                 </div>
-              </div>
-              <div className="hidden md:flex items-center gap-3 font-mono text-[10px] text-muted tracking-[0.2em] uppercase">
-                <i className="fas fa-hand-pointer text-tomato" />
-                <span>Glisser &middot; Avancer automatique</span>
               </div>
             </div>
-          </Reveal>
-        </div>
-        <div className="pb-14 lg:pb-28">
-          <MotionCarousel
-            items={shownReviews}
-            renderItem={(r, i) => (
-              <div className="story-card p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-serif text-2xl">{r.author_name}</h3>
-                  <span className="font-mono text-[10px] text-muted tracking-[0.15em] whitespace-nowrap">AVIS / {String(i + 1).padStart(2, "0")}</span>
-                </div>
-                <p className="text-gold text-sm mb-3"><Stars rating={r.rating} /></p>
-                <p className="text-inkdim text-sm leading-relaxed mb-5 italic">&quot;{r.text}&quot;</p>
-                <div className="grid grid-cols-2 gap-2 pt-4 border-t border-linelight">
-                  <div>
-                    <div className="font-serif text-xl text-tomato">{r.rating}/5</div>
-                    <div className="font-mono text-[9px] text-muted tracking-[0.15em] uppercase">Note</div>
-                  </div>
-                  <div>
-                    <div className="font-serif text-xl">Google</div>
-                    <div className="font-mono text-[9px] text-muted tracking-[0.15em] uppercase">Source</div>
+          </FadeIn>
+
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {shownReviews.map((r, i) => (
+              <FadeIn key={r.id} delay={i}>
+                <div className="review-card h-full flex flex-col">
+                  <Stars rating={r.rating} />
+                  <p className="text-bark text-sm leading-relaxed mt-4 mb-5 flex-1 italic">
+                    &quot;{r.text}&quot;
+                  </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                    <span className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta font-serif font-bold text-sm">
+                      {r.author_name?.[0] || "?"}
+                    </span>
+                    <span className="font-medium text-sm text-bark">{r.author_name}</span>
                   </div>
                 </div>
-              </div>
-            )}
-          />
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ============ GALERIE ============ */}
+      {/* ============ GALLERY ============ */}
       {galleryHome.length > 0 && (
-        <section className="border-t border-line">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>03 — Ambiance</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Un apercu <span className="text-stroke">en images.</span></h2>
+        <section className="py-20 md:py-28 section-full">
+          <FadeIn className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+              <div>
+                <p className="section-label mb-3">03 — Ambiance</p>
+                <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-bark leading-[0.95]">
+                  Un apercu <span className="text-terracotta italic">en images</span>
+                </h2>
               </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <p className="text-inkdim mb-6">Decouvrez l atmosphere unique de La Casa Di Carta. Un cadre chaleureux ou chaque repas devient un moment d exception.</p>
-                <Link to="/galerie" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Toute la galerie</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {galleryHome.map((img, i) => (
-                <Reveal key={img.id} delay={(i % 3) * 100}>
-                  <motion.div
-                    className="info-card overflow-hidden aspect-[4/5] group cursor-pointer"
-                    whileHover={{ borderColor: "#C67B5C" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <motion.img
-                      src={img.url}
-                      alt={img.caption || "La Casa Di Carta"}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </motion.div>
-                </Reveal>
-              ))}
+              <Link to="/galerie" className="btn-outline self-start md:self-auto">
+                Toute la galerie
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
             </div>
+          </FadeIn>
+
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+            {galleryHome.map((img, i) => (
+              <FadeIn key={img.id} delay={i % 3}>
+                <div className={`gallery-item ${i === 0 ? "md:col-span-2 md:row-span-2 aspect-square" : "aspect-[4/5]"}`}>
+                  <img src={img.url} alt={img.caption || ""} loading="lazy" />
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </section>
       )}
 
-      {/* ============ EVENEMENTS ============ */}
+      {/* ============ EVENTS ============ */}
       {events.length > 0 && (
-        <section className="border-t border-line bg-bgdarker">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
-            <Reveal className="mb-10 lg:mb-16">
-              <div className="section-marker mb-6"><span>04 — Evenements</span></div>
-              <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">A ne pas <span className="text-tomato">manquer.</span></h2>
-            </Reveal>
-            <div className="grid md:grid-cols-2 gap-6">
+        <section className="py-20 md:py-28 bg-creamdark">
+          <div className="section-full">
+            <FadeIn className="max-w-6xl mx-auto mb-12">
+              <p className="section-label mb-3">04 — Evenements</p>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-bark leading-[0.95]">
+                A ne pas <span className="text-terracotta italic">manquer</span>
+              </h2>
+            </FadeIn>
+
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
               {events.map((e, i) => (
-                <Reveal key={e.id} delay={i * 90}>
-                  <motion.div
-                    className="info-card overflow-hidden flex flex-row h-full group"
-                    whileHover={{ borderColor: "#C67B5C", y: -4 }}
-                    transition={{ duration: 0.35 }}
-                  >
+                <FadeIn key={e.id} delay={i}>
+                  <div className="organic-card flex flex-row h-full overflow-hidden">
                     {e.image_url && (
-                      <div className="w-32 md:w-48 shrink-0 overflow-hidden">
-                        <motion.img src={e.image_url} alt={e.title} className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }}
-                        />
+                      <div className="w-36 md:w-44 shrink-0">
+                        <img src={e.image_url} alt={e.title} className="w-full h-full object-cover" />
                       </div>
                     )}
-                    <div className="p-4 md:p-6 flex-1">
+                    <div className="p-5 flex-1 flex flex-col justify-center">
                       {e.event_date && !e.is_offer && (
-                        <p className="font-mono text-xs text-tomato mb-2">
+                        <p className="text-xs font-medium text-terracotta mb-1.5">
                           {new Date(e.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
                         </p>
                       )}
-                      {e.is_offer && <p className="font-mono text-xs text-basil mb-2">Offre permanente</p>}
-                      <h3 className="font-serif text-xl md:text-2xl mb-2">{e.title}</h3>
-                      <p className="text-inkdim text-sm leading-relaxed">{e.description}</p>
+                      {e.is_offer && <p className="text-xs font-medium text-olive mb-1.5">Offre permanente</p>}
+                      <h3 className="font-serif text-lg text-bark mb-1.5">{e.title}</h3>
+                      <p className="text-barklight text-sm leading-relaxed line-clamp-2">{e.description}</p>
                     </div>
-                  </motion.div>
-                </Reveal>
+                  </div>
+                </FadeIn>
               ))}
             </div>
           </div>
@@ -498,188 +337,173 @@ export default function Home() {
 
       {/* ============ BLOG ============ */}
       {posts.length > 0 && (
-        <section className="border-t border-line">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
-            <Reveal className="grid md:grid-cols-12 gap-8 mb-10 lg:mb-16 items-end">
-              <div className="md:col-span-7">
-                <div className="section-marker mb-6"><span>05 — Actualites</span></div>
-                <h2 className="font-serif text-5xl md:text-6xl leading-[0.9]">Notre <span className="text-stroke">blog.</span></h2>
+        <section className="py-20 md:py-28 section-full">
+          <FadeIn className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+              <div>
+                <p className="section-label mb-3">05 — Actualites</p>
+                <h2 className="font-serif text-4xl md:text-5xl text-bark leading-[0.95]">
+                  Notre <span className="text-terracotta italic">blog</span>
+                </h2>
               </div>
-              <div className="md:col-span-4 md:col-start-9">
-                <Link to="/blog" className="font-heading link-underline text-sm tracking-[0.15em] uppercase text-inkdim flex items-center justify-between">
-                  <span>Tous les articles</span><i className="fas fa-arrow-right text-tomato" />
-                </Link>
-              </div>
-            </Reveal>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-              {posts.map((p, i) => (
-                <Reveal key={p.id} delay={i * 90}>
-                  <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.35 }}>
-                    <Link to={`/blog/${p.slug}`} className="info-card block overflow-hidden group h-full">
-                      {p.cover_image && (
-                        <div className="h-48 overflow-hidden">
-                          <motion.img src={p.cover_image} alt={p.title}
-                            className="w-full h-full object-cover"
-                            whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }}
-                          />
-                        </div>
-                      )}
-                      <div className="p-6">
-                        <p className="font-mono text-xs text-tomato mb-2">
-                          {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
-                        </p>
-                        <h3 className="font-serif text-2xl mb-2">{p.title}</h3>
-                        <p className="text-inkdim text-sm line-clamp-2">{p.excerpt}</p>
-                      </div>
-                    </Link>
-                  </motion.div>
-                </Reveal>
-              ))}
+              <Link to="/blog" className="btn-outline self-start md:self-auto">
+                Tous les articles
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
             </div>
+          </FadeIn>
+
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {posts.map((p, i) => (
+              <FadeIn key={p.id} delay={i}>
+                <Link to={`/blog/${p.slug}`} className="organic-card group overflow-hidden block h-full">
+                  {p.cover_image && (
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  )}
+                  <div className="p-5">
+                    <p className="text-xs text-terracotta font-medium mb-2">
+                      {p.published_at ? new Date(p.published_at).toLocaleDateString("fr-FR") : ""}
+                    </p>
+                    <h3 className="font-serif text-lg text-bark mb-2 leading-tight">{p.title}</h3>
+                    <p className="text-barklight text-sm line-clamp-2">{p.excerpt}</p>
+                  </div>
+                </Link>
+              </FadeIn>
+            ))}
           </div>
         </section>
       )}
 
-      {/* ============ RESERVATION & INFOS ============ */}
-      <section className="border-t border-line bg-bgdarker">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-20">
-          <Reveal className="mb-10 lg:mb-16">
-            <div className="section-marker mb-6"><span>06 — Reservation</span></div>
-            <h2 className="font-serif text-6xl md:text-7xl leading-[0.9]">
-              RESERVEZ. <span className="text-stroke">VENEZ</span> <span className="text-tomato">GOUTER.</span>
+      {/* ============ RESERVATION SECTION ============ */}
+      <section className="py-20 md:py-28 bg-creamdark">
+        <div className="section-full">
+          <FadeIn className="max-w-6xl mx-auto mb-12 text-center">
+            <p className="section-label justify-center mb-3">06 — Reservation</p>
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-bark leading-[0.95]">
+              Reservez. <span className="text-terracotta italic">Venez gouter.</span>
             </h2>
-          </Reveal>
+          </FadeIn>
 
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-            <Reveal className="lg:col-span-7">
-              <div className="booking-frame p-8 md:p-12">
-                <div className="font-mono text-[11px] text-tomato tracking-[0.2em] uppercase mb-3">// Reservation rapide</div>
-                <h3 className="font-serif text-3xl md:text-4xl mb-2">RESERVEZ VOTRE TABLE</h3>
-                <p className="text-inkdim text-sm mb-8">Confirmation par telephone. Aucune avance requise.</p>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-8">
+            {/* Form */}
+            <FadeIn className="lg:col-span-3">
+              <div className="bg-white rounded-organicXl shadow-softLg p-8 md:p-10">
+                <h3 className="font-serif text-2xl text-bark mb-1">Reservez votre table</h3>
+                <p className="text-barklight text-sm mb-8">Confirmation par telephone. Aucune avance requise.</p>
 
                 {resStatus === "success" ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-4 p-6 border border-tomato/30"
-                  >
-                    <motion.div
-                      initial={{ scale: 0, rotate: -90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.2 }}
-                      className="w-10 h-10 bg-tomato flex items-center justify-center shrink-0"
-                    >
-                      <i className="fas fa-check text-white text-sm" />
-                    </motion.div>
+                  <div className="flex items-center gap-4 p-5 bg-olive/10 rounded-organic border border-olive/20">
+                    <span className="w-10 h-10 rounded-full bg-olive flex items-center justify-center text-white">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    </span>
                     <div>
-                      <div className="font-heading text-sm tracking-[0.1em] uppercase">Demande recue</div>
-                      <div className="text-inkdim text-xs mt-1">Nous vous appelons pour confirmer.</div>
+                      <p className="font-semibold text-bark">Demande recue</p>
+                      <p className="text-barklight text-xs">Nous vous appelons pour confirmer.</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ) : (
-                  <form onSubmit={submitReservation} className="flex flex-col gap-6">
-                    <div className="grid md:grid-cols-2 gap-6">
+                  <form onSubmit={submitReservation} className="flex flex-col gap-5">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Nom complet</label>
-                        <input required placeholder="Votre nom" value={reservation.name} onChange={updateReservation("name")} className="form-input" />
+                        <label className="block text-xs font-medium text-barklight mb-1.5">Nom complet</label>
+                        <input required placeholder="Votre nom" value={reservation.name} onChange={updateReservation("name")} className="form-field" />
                       </div>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Telephone</label>
-                        <input required placeholder="+212 6 00 00 00 00" value={reservation.phone} onChange={updateReservation("phone")} className="form-input" />
+                        <label className="block text-xs font-medium text-barklight mb-1.5">Telephone</label>
+                        <input required placeholder="+212 6 00 00 00 00" value={reservation.phone} onChange={updateReservation("phone")} className="form-field" />
                       </div>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Date</label>
-                        <input required type="date" min={new Date().toISOString().split("T")[0]} value={reservation.date} onChange={updateReservation("date")} className="form-input" />
+                        <label className="block text-xs font-medium text-barklight mb-1.5">Date</label>
+                        <input required type="date" min={new Date().toISOString().split("T")[0]} value={reservation.date} onChange={updateReservation("date")} className="form-field" />
                       </div>
                       <div>
-                        <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Heure</label>
-                        <input required type="time" value={reservation.time} onChange={updateReservation("time")} className="form-input" />
+                        <label className="block text-xs font-medium text-barklight mb-1.5">Heure</label>
+                        <input required type="time" value={reservation.time} onChange={updateReservation("time")} className="form-field" />
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] text-muted tracking-[0.2em] uppercase block mb-3">Convives</label>
+                      <label className="block text-xs font-medium text-barklight mb-2">Nombre de convives</label>
                       <div className="flex flex-wrap gap-2">
                         {[2, 4, 6, 8].map((n) => (
-                          <motion.button
+                          <button
                             type="button" key={n}
                             onClick={() => setReservation((r) => ({ ...r, guests: n }))}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`guest-pill ${reservation.guests === n ? "active" : ""}`}
+                            className={`guest-chip ${reservation.guests === n ? "selected" : ""}`}
                           >
                             {n === 8 ? "8+" : n}
-                          </motion.button>
+                          </button>
                         ))}
                       </div>
                     </div>
-                    <motion.button
+                    <button
                       type="submit"
                       disabled={resStatus === "loading"}
-                      className="pulse-btn bg-tomato text-white py-5 font-serif text-2xl tracking-[0.1em] flex items-center justify-center gap-4 mt-2 disabled:opacity-60"
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
+                      className="btn-primary w-full justify-center py-4 text-base mt-2 disabled:opacity-60"
                     >
-                      <span>{resStatus === "loading" ? "ENVOI..." : "RESERVER MA TABLE"}</span>
-                      <i className="fas fa-arrow-right" />
-                    </motion.button>
-                    {resStatus === "error" && <p className="text-xs text-red-400">Verifiez la configuration Supabase.</p>}
+                      {resStatus === "loading" ? "Envoi..." : "Reserver ma table"}
+                    </button>
+                    {resStatus === "error" && <p className="text-xs text-red-500">Verifiez la configuration Supabase.</p>}
                   </form>
                 )}
               </div>
-            </Reveal>
+            </FadeIn>
 
-            <div className="lg:col-span-5 flex flex-col gap-6">
-              <Reveal className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Adresse</div>
-                <h4 className="font-serif text-2xl mb-3">NOUS TROUVER</h4>
-                <p className="text-inkdim text-sm leading-relaxed mb-4">{info?.address || "Rue d'Oran, Rabat"}</p>
-                <div className="flex items-center gap-3 font-mono text-[11px] text-silver">
-                  <i className="fas fa-location-dot text-tomato" />
-                  <span>RABAT, MAROC</span>
+            {/* Info Tiles */}
+            <div className="lg:col-span-2 flex flex-col gap-5">
+              <FadeIn delay={1} className="info-tile">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="w-9 h-9 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </span>
+                  <h4 className="font-serif text-lg text-bark">Nous trouver</h4>
                 </div>
-              </Reveal>
+                <p className="text-barklight text-sm mb-2">{info?.address || "Rue d'Oran, Rabat"}</p>
+                <p className="text-xs text-stonelight font-medium">RABAT, MAROC</p>
+              </FadeIn>
 
-              <Reveal delay={100} className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Horaires</div>
-                <h4 className="font-serif text-2xl mb-3">OUVERTURE</h4>
-                <div className="flex flex-col gap-2 text-sm">
-                  <div className="flex justify-between border-b border-linelight pb-2">
-                    <span className="text-inkdim">Lundi &mdash; Dimanche</span>
-                    <span className="font-mono text-silver">{info?.hours || "08:00 — 23:00"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-inkdim">Couscous</span>
-                    <span className="font-mono text-tomato">VENDREDI</span>
-                  </div>
+              <FadeIn delay={2} className="info-tile">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="w-9 h-9 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </span>
+                  <h4 className="font-serif text-lg text-bark">Ouverture</h4>
                 </div>
-              </Reveal>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-barklight">Lundi — Dimanche</span>
+                  <span className="font-medium text-bark">{info?.hours || "08:00 — 23:00"}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-barklight">Couscous special</span>
+                  <span className="font-semibold text-terracotta">VENDREDI</span>
+                </div>
+              </FadeIn>
 
-              <Reveal delay={200} className="info-card p-7">
-                <div className="font-mono text-[10px] text-tomato tracking-[0.2em] uppercase mb-2">/ Contact</div>
-                <h4 className="font-serif text-2xl mb-3">NOUS APPELER</h4>
-                <motion.a
-                  href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
-                  className="flex items-center gap-3 text-ink hover:text-tomato transition-colors"
-                  whileHover={{ x: 3 }}
-                >
-                  <i className="fas fa-phone text-tomato w-4" />
-                  <span className="font-mono">{info?.phone || "+212 5 37 26 26 58"}</span>
-                </motion.a>
-                <p className="font-mono text-inkdim text-xs mt-2">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
-              </Reveal>
+              <FadeIn delay={3} className="info-tile">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="w-9 h-9 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                  </span>
+                  <h4 className="font-serif text-lg text-bark">Nous appeler</h4>
+                </div>
+                <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`} className="text-bark hover:text-terracotta transition-colors font-medium">
+                  {info?.phone || "+212 5 37 26 26 58"}
+                </a>
+                <p className="text-xs text-stonelight mt-1">Prix moyen : {info?.avg_price || "150 - 250 MAD"}</p>
+              </FadeIn>
 
-              <Reveal delay={300} className="notch-corner overflow-hidden border border-line h-56">
+              <FadeIn delay={4} className="map-frame h-48">
                 <iframe
                   title="Carte"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   src="https://www.google.com/maps?q=La+Casa+Di+Carta,Rue+d'Oran,Rabat,Morocco&output=embed"
                   className="w-full h-full border-0"
-                  style={{ filter: "contrast(1.05) brightness(0.95)" }}
                 />
-              </Reveal>
+              </FadeIn>
             </div>
           </div>
         </div>

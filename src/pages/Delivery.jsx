@@ -124,17 +124,17 @@ export default function Delivery() {
   return (
     <section className="max-w-7xl mx-auto px-6 md:px-8 py-20">
       <h1 className="font-serif text-4xl mb-2">{t("delivery_page.title")}</h1>
-      <p className="text-inkdim mb-2">
+      <p className="text-barklight mb-2">
         {t("delivery_page.subtitle", { min: MIN_ORDER, threshold: FREE_DELIVERY_THRESHOLD })}
       </p>
       {!user && (
-        <p className="text-inkdim text-sm mb-8">
-          <Link to="/compte" className="text-gold underline">{t("delivery_page.login_hint")}</Link>
+        <p className="text-barklight text-sm mb-8">
+          <Link to="/compte" className="text-clay underline">{t("delivery_page.login_hint")}</Link>
         </p>
       )}
 
       {delivery_enabled === false && (
-        <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 mb-8">
+        <p className="text-sm text-clay bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 mb-8">
           La livraison est temporairement en pause. Vous pouvez consulter le menu, mais la
           commande n est pas disponible pour le moment - reessayez plus tard ou appelez-nous.
         </p>
@@ -151,7 +151,7 @@ export default function Delivery() {
               placeholder={t("delivery_page.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-[180px] bg-bgsoft border border-line rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato"
+              className="flex-1 min-w-[180px] bg-white border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-tomato"
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function Delivery() {
                 key={cat}
                 onClick={() => setActiveCat(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
-                  activeCat === cat ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
+                  activeCat === cat ? "bg-terracotta border-tomato text-white" : "border-border text-barklight hover:text-bark hover:border-tomato"
                 }`}
               >
                 {cat}
@@ -170,45 +170,45 @@ export default function Delivery() {
           </div>
 
           <div className="grid gap-3">
-            {loading && <p className="text-inkdim text-sm">{t("menu_page.loading")}</p>}
+            {loading && <p className="text-barklight text-sm">{t("menu_page.loading")}</p>}
             {filtered.map((item) => (
-              <div key={item.id} className="bg-bgsoft border border-line rounded-2xl p-3 flex items-center gap-4">
+              <div key={item.id} className="bg-white border border-border rounded-2xl p-3 flex items-center gap-4">
                 {item.image_url ? (
                   <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
                 ) : (
                   <div className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center"
                     style={{ background: "linear-gradient(155deg,#E8DCC8,#D4C4A8 60%)" }}>
-                    <span className="font-serif text-xl text-gold/40">{item.name?.[0]}</span>
+                    <span className="font-serif text-xl text-clay/40">{item.name?.[0]}</span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-serif text-lg truncate">{item.name}</p>
-                  {item.description && <p className="text-inkdim text-xs mt-1 line-clamp-2">{item.description}</p>}
-                  <p className="font-mono text-gold text-sm mt-1">{item.price} MAD</p>
+                  {item.description && <p className="text-barklight text-xs mt-1 line-clamp-2">{item.description}</p>}
+                  <p className="font-mono text-clay text-sm mt-1">{item.price} MAD</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <button onClick={() => removeFromCart(item.id)} disabled={!cart[item.id]}
-                    className="w-8 h-8 rounded-full border border-line disabled:opacity-30">-</button>
+                    className="w-8 h-8 rounded-full border border-border disabled:opacity-30">-</button>
                   <span className="w-5 text-center">{cart[item.id] || 0}</span>
                   <button onClick={() => addToCart(item.id)} disabled={delivery_enabled === false}
-                    className="w-8 h-8 rounded-full border border-line disabled:opacity-30">+</button>
+                    className="w-8 h-8 rounded-full border border-border disabled:opacity-30">+</button>
                 </div>
               </div>
             ))}
             {!loading && filtered.length === 0 && (
-              <p className="text-inkdim text-sm">{t("menu_page.note")}</p>
+              <p className="text-barklight text-sm">{t("menu_page.note")}</p>
             )}
           </div>
         </div>
 
-        <div className="bg-bgsoft border border-line rounded-2xl p-5 h-fit sticky top-24">
+        <div className="bg-white border border-border rounded-2xl p-5 h-fit sticky top-24">
           {cartLines.length === 0 ? (
-            <p className="text-inkdim text-sm mb-4">{t("delivery_page.empty_cart")}</p>
+            <p className="text-barklight text-sm mb-4">{t("delivery_page.empty_cart")}</p>
           ) : (
             <div className="grid gap-2 mb-4">
               {cartLines.map((i) => (
                 <div key={i.id} className="flex justify-between text-sm">
-                  <span className="text-inkdim truncate pr-2">{cart[i.id]} x {i.name}</span>
+                  <span className="text-barklight truncate pr-2">{cart[i.id]} x {i.name}</span>
                   <span className="font-mono whitespace-nowrap">{cart[i.id] * i.price} MAD</span>
                 </div>
               ))}
@@ -217,21 +217,21 @@ export default function Delivery() {
 
           <div className="flex gap-2 mb-3">
             <input placeholder={t("delivery_page.promo_placeholder")} value={promoInput} onChange={(e) => setPromoInput(e.target.value)}
-              className="flex-1 bg-bg border border-line rounded-xl px-3 py-2 text-sm outline-none focus:border-tomato" />
-            <button onClick={applyPromo} className="px-3 py-2 rounded-xl text-xs border border-line">{t("delivery_page.apply")}</button>
+              className="flex-1 bg-cream border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-tomato" />
+            <button onClick={applyPromo} className="px-3 py-2 rounded-xl text-xs border border-border">{t("delivery_page.apply")}</button>
           </div>
           {promoError && <p className="text-xs text-red-400 mb-2">{promoError}</p>}
-          {promo && <p className="text-xs text-basil mb-2">Code {promo.code}</p>}
+          {promo && <p className="text-xs text-olive mb-2">Code {promo.code}</p>}
 
-          <div className="border-t border-line pt-3 mb-4 grid gap-1.5 text-sm">
-            <div className="flex justify-between text-inkdim">
+          <div className="border-t border-border pt-3 mb-4 grid gap-1.5 text-sm">
+            <div className="flex justify-between text-barklight">
               <span>{t("delivery_page.subtotal")}</span><span>{subtotal} MAD</span>
             </div>
-            <div className="flex justify-between text-inkdim">
+            <div className="flex justify-between text-barklight">
               <span>{t("delivery_page.delivery_fee")}</span><span>{deliveryFee === 0 ? t("delivery_page.free") : `${deliveryFee} MAD`}</span>
             </div>
             {discount > 0 && (
-              <div className="flex justify-between text-basil">
+              <div className="flex justify-between text-olive">
                 <span>{t("delivery_page.discount")}</span><span>-{discount} MAD</span>
               </div>
             )}
@@ -241,20 +241,20 @@ export default function Delivery() {
           </div>
 
           {belowMin && (
-            <p className="text-xs text-gold mb-3">
+            <p className="text-xs text-clay mb-3">
               {t("delivery_page.min_order_hint", { amount: MIN_ORDER - subtotal })}
             </p>
           )}
           {user && total > 0 && (
-            <p className="text-xs text-inkdim mb-3">{t("delivery_page.points_note", { points: pointsEarned })}</p>
+            <p className="text-xs text-barklight mb-3">{t("delivery_page.points_note", { points: pointsEarned })}</p>
           )}
 
           <input placeholder={t("delivery_page.address_placeholder")} value={address} onChange={(e) => setAddress(e.target.value)}
-            className="w-full mb-3 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="w-full mb-3 bg-cream border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <input placeholder={t("delivery_page.phone_placeholder")} value={phone} onChange={(e) => setPhone(e.target.value)}
-            className="w-full mb-3 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            className="w-full mb-3 bg-cream border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
           <textarea placeholder={t("delivery_page.notes_placeholder")} value={notes} onChange={(e) => setNotes(e.target.value)}
-            rows={2} className="w-full mb-4 bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
+            rows={2} className="w-full mb-4 bg-cream border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
 
           <button
             onClick={submitOrder}

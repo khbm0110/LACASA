@@ -1,72 +1,60 @@
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { supabase } from "../lib/supabaseClient"
-import { motion } from "framer-motion"
-
-const footerStagger = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
-}
-
-const footerItem = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-}
+import { motion, useInView } from "framer-motion"
+import { useRef } from "react"
 
 export default function Footer() {
   const { t } = useTranslation()
   const [info, setInfo] = useState(null)
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: "-40px" })
 
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase.from("restaurant_info").select("address, phone").eq("id", 1).single()
-      if (data) setInfo(data)
-    }
-    load()
+    supabase.from("restaurant_info").select("address, phone").eq("id", 1).single().then(({ data }) => { if (data) setInfo(data) })
   }, [])
 
   return (
-    <motion.footer
-      className="mt-16 border-t border-line py-12 px-4 md:px-8"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={footerStagger}
-    >
-      <motion.div variants={footerItem} className="max-w-7xl mx-auto flex flex-wrap justify-between gap-10 pb-8">
-        <motion.h2
-          className="font-serif text-3xl max-w-[9ch]"
-          whileHover={{ color: "#C67B5C" }}
-          transition={{ duration: 0.3 }}
-        >
-          {t("footer.tagline")}
-        </motion.h2>
-        <div className="flex gap-14 flex-wrap">
-          <motion.div variants={footerItem}>
-            <h4 className="font-mono text-[11px] uppercase tracking-widest text-tomato mb-3">{t("footer.contact")}</h4>
-            <motion.a
-              href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`}
-              className="block text-inkdim text-sm mb-2 hover:text-ink transition-colors"
-              whileHover={{ x: 3 }}
-            >
+    <footer ref={ref} className="border-t border-border bg-cream py-14">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+        className="section-full max-w-6xl mx-auto"
+      >
+        <div className="grid md:grid-cols-3 gap-10 mb-10">
+          {/* Brand */}
+          <div>
+            <h2 className="font-serif text-2xl text-bark mb-3">
+              La Casa <span className="text-terracotta italic">Di Carta</span>
+            </h2>
+            <p className="text-barklight text-sm leading-relaxed">
+              {t("footer.tagline")}
+            </p>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-semibold text-sm text-bark uppercase tracking-wider mb-4">Contact</h4>
+            <a href={`tel:${(info?.phone || "+212537262658").replace(/\s/g, "")}`} className="block text-barklight text-sm hover:text-terracotta transition-colors mb-1">
               {info?.phone || "+212 5 37 26 26 58"}
-            </motion.a>
-            <p className="text-inkdim text-sm">{info?.address || "Rue d'Oran, Rabat"}</p>
-          </motion.div>
-          <motion.div variants={footerItem}>
-            <h4 className="font-mono text-[11px] uppercase tracking-widest text-tomato mb-3">{t("footer.hours_label")}</h4>
-            <p className="text-inkdim text-sm">{t("footer.days")}</p>
-            <p className="text-inkdim text-sm">{t("footer.hours_value")}</p>
-          </motion.div>
+            </a>
+            <p className="text-barklight text-sm">{info?.address || "Rue d'Oran, Rabat"}</p>
+          </div>
+
+          {/* Hours */}
+          <div>
+            <h4 className="font-semibold text-sm text-bark uppercase tracking-wider mb-4">Horaires</h4>
+            <p className="text-barklight text-sm">{t("footer.days")}</p>
+            <p className="text-barklight text-sm">{t("footer.hours_value")}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-8 border-t border-border text-xs text-stonelight">
+          <span>{t("footer.copyright")}</span>
+          <span>{t("footer.note")}</span>
         </div>
       </motion.div>
-      <motion.div
-        variants={footerItem}
-        className="max-w-7xl mx-auto flex justify-between border-t border-line pt-6 text-xs text-inkdim flex-wrap gap-2"
-      >
-        <span>{t("footer.copyright")}</span>
-        <span>{t("footer.note")}</span>
-      </motion.div>
-    </motion.footer>
+    </footer>
   )
 }
