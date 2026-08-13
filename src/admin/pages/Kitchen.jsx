@@ -147,7 +147,7 @@ export default function Kitchen() {
                   <p className="font-mono text-gold text-sm mb-3">{o.total} MAD</p>
                   {col.key === "ready" ? (
                     <button onClick={() => markServedOrSend(o)}
-                      className="w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+                      className="w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
                       {o.order_type === "delivery" ? "Envoyer en livraison" : "Marquer servie"}
                     </button>
                   ) : (

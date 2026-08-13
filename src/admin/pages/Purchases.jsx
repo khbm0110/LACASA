@@ -141,7 +141,7 @@ export default function Purchases() {
 
         <div className="flex items-center justify-between pt-3 border-t border-line">
           <span className="text-sm text-inkdim">Total estime : <span className="text-gold font-mono">{total.toFixed(2)} MAD</span></span>
-          <button disabled={busy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
+          <button disabled={busy} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
             {busy ? "Creation..." : "Creer le bon d achat"}
           </button>
         </div>

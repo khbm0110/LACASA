@@ -116,7 +116,7 @@ export default function Modifiers() {
           <input type="checkbox" checked={!!groupForm.required} onChange={updateGroupField("required")} /> Obligatoire
         </label>
         <div className="sm:col-span-2 flex gap-3">
-          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
             {editingGroupId ? "Mettre a jour" : "Ajouter le groupe"}
           </button>
           {editingGroupId && (

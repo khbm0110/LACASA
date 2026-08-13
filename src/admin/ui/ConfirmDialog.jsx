@@ -49,7 +49,7 @@ export function ConfirmProvider({ children }) {
               <button
                 onClick={() => close(true)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                  dialog.danger ? "bg-red-500 text-white hover:bg-red-600" : "bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]"
+                  dialog.danger ? "bg-red-500 text-white hover:bg-red-600" : "bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]"
                 }`}
               >
                 {dialog.confirmLabel}

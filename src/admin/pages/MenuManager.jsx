@@ -72,7 +72,7 @@ export default function MenuManager() {
           <input type="checkbox" checked={!!form.available_for_delivery} onChange={update("available_for_delivery")} /> Disponible en livraison
         </label>
         <div className="sm:col-span-2 flex gap-3">
-          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+          <button className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
             {editingId ? "Mettre a jour" : "Ajouter au menu"}
           </button>
           {editingId && (

@@ -42,13 +42,13 @@ export default function OrderTracking() {
     return () => { cancelled = true; clearInterval(interval) }
   }, [id])
 
-  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-pale/70">Chargement...</div>
-  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-pale/70">Commande introuvable.</div>
+  if (order === undefined) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Chargement...</div>
+  if (!order) return <div className="max-w-md mx-auto px-6 py-24 text-inkdim">Commande introuvable.</div>
   if (order.status === "cancelled") {
     return (
       <div className="max-w-md mx-auto px-6 py-24 text-center">
         <p className="font-serif text-2xl mb-2">Commande annulee</p>
-        <p className="text-pale/70 text-sm">Contactez-nous si vous avez une question : +212 5 37 26 26 58</p>
+        <p className="text-inkdim text-sm">Contactez-nous si vous avez une question : +212 5 37 26 26 58</p>
       </div>
     )
   }
@@ -60,18 +60,18 @@ export default function OrderTracking() {
 
   return (
     <section className="max-w-md mx-auto px-6 py-20">
-      <p className="font-mono text-[11px] uppercase tracking-widest text-goldBright mb-2">Suivi de commande</p>
+      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Suivi de commande</p>
       <h1 className="font-serif text-3xl mb-4">{order.total} MAD</h1>
 
       {isDelivery && (
         <div className="mb-8">
           {order.payment_status === "paid" && (
-            <p className="text-sm text-goldBright bg-basil/10 border border-basil/30 rounded-xl px-4 py-3">
+            <p className="text-sm text-basil bg-basil/10 border border-basil/30 rounded-xl px-4 py-3">
               Paiement confirme{paymentJustSucceeded ? " - merci !" : ""}. Votre commande part en cuisine.
             </p>
           )}
           {order.payment_status === "pending" && (
-            <p className="text-sm text-goldBright bg-gold/10 border border-gold/30/30 rounded-xl px-4 py-3">
+            <p className="text-sm text-gold bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
               Paiement en cours de verification...
             </p>
           )}
@@ -87,20 +87,20 @@ export default function OrderTracking() {
         {steps.map((s, i) => (
           <div key={s.keys[0]} className="flex items-center gap-3">
             <div className="flex flex-col items-center">
-              <div className={`w-4 h-4  ${i <= currentIndex ? "bg-gold" : "bg-line"}`} />
-              {i < steps.length - 1 && <div className={`w-0.5 h-8 ${i < currentIndex ? "bg-gold" : "bg-line"}`} />}
+              <div className={`w-4 h-4 rounded-full ${i <= currentIndex ? "bg-tomato" : "bg-line"}`} />
+              {i < steps.length - 1 && <div className={`w-0.5 h-8 ${i < currentIndex ? "bg-tomato" : "bg-line"}`} />}
             </div>
-            <p className={`text-sm pb-8 ${i <= currentIndex ? "text-ivory" : "text-pale/70"}`}>{s.label}</p>
+            <p className={`text-sm pb-8 ${i <= currentIndex ? "text-ink" : "text-inkdim"}`}>{s.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white border border-white/[0.06] rounded-2xl p-5">
-        <p className="font-mono text-[11px] uppercase tracking-widest text-pale/70 mb-3">Details</p>
+      <div className="bg-bgsoft border border-line rounded-2xl p-5">
+        <p className="font-mono text-[11px] uppercase tracking-widest text-inkdim mb-3">Details</p>
         <ul className="text-sm grid gap-1">
           {(order.items || []).map((it, idx) => (
             <li key={idx} className="flex justify-between">
-              <span className="text-pale/70">{it.qty} x {it.name}</span>
+              <span className="text-inkdim">{it.qty} x {it.name}</span>
               <span>{it.qty * it.price} MAD</span>
             </li>
           ))}

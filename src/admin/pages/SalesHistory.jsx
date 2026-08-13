@@ -126,7 +126,7 @@ export default function SalesHistory() {
             <input placeholder="Motif (optionnel)" value={refundReason} onChange={(e) => setRefundReason(e.target.value)}
               className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato" />
             <div className="flex gap-3 mt-1">
-              <button disabled={busy} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
+              <button disabled={busy} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
                 {busy ? "Enregistrement..." : "Confirmer le remboursement"}
               </button>
               <button type="button" onClick={() => setRefundingOrder(null)} className="px-4 py-2.5 rounded-xl text-sm border border-line">Annuler</button>

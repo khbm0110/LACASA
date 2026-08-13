@@ -176,7 +176,7 @@ function AdminLayoutInner() {
             <IconMenuLines size={22} />
           </button>
           <Link to="/admin" className="flex items-center gap-2.5 min-w-0">
-            <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#0E0C0A] shrink-0">
+            <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-tomatoglow to-tomato flex items-center justify-center text-sm font-bold text-[#1a0d05] shrink-0">
               C
             </span>
             <span className="min-w-0 hidden sm:block">

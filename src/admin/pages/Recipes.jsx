@@ -95,7 +95,7 @@ export default function Recipes() {
 
         <div className="pt-5 mt-5 border-t border-line">
           <button onClick={save} disabled={saving || !selectedMenuId}
-            className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-50">
+            className="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-50">
             {saving ? "Enregistrement..." : "Enregistrer la recette"}
           </button>
         </div>

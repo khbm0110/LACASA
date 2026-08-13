@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabaseClient"
 import { useSEO } from "../lib/useSEO"
-import { motion, AnimatePresence } from "framer-motion"
 
 export default function Gallery() {
   useSEO({ title: "Galerie photo", description: "Photos du restaurant, des plats et de l'ambiance de La Casa Di Carta a Rabat." })
@@ -17,6 +16,7 @@ export default function Gallery() {
     load()
   }, [])
 
+  // Fermer avec Echap, naviguer avec les fleches quand le lightbox est ouvert
   useEffect(() => {
     if (lightboxIndex === null) return
     function onKey(e) {
@@ -26,126 +26,80 @@ export default function Gallery() {
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightboxIndex])
 
   const categories = ["Toutes", ...new Set(images.map((i) => i.category || "Restaurant"))]
   const filtered = category === "Toutes" ? images : images.filter((i) => (i.category || "Restaurant") === category)
 
   return (
-    <section className="max-w-wide mx-auto px-6 md:px-8 py-20">
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <h1 className="font-serif text-4xl mb-2">Galerie</h1>
-        <p className="text-pale/70 mb-8">Un apercu du restaurant, des plats et des soirees.</p>
-      </motion.div>
+    <section className="max-w-6xl mx-auto px-6 md:px-8 py-20">
+      <h1 className="font-serif text-4xl mb-2">Galerie</h1>
+      <p className="text-inkdim mb-8">Un apercu du restaurant, des plats et des soirees.</p>
 
       {images.length === 0 ? (
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-pale/70 text-sm">
+        <p className="text-inkdim text-sm">
           Aucune photo pour le moment - ajoutez-en depuis Admin &gt; Galerie photo.
-        </motion.p>
+        </p>
       ) : (
         <>
           <div className="flex gap-2 mb-6 flex-wrap">
-            {categories.map((c, i) => (
-              <motion.button
-                key={c}
-                onClick={() => { setCategory(c); }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-4 py-2  text-sm font-mono uppercase tracking-wide border transition-colors ${
-                  category === c ? "bg-gold border-tomato text-white" : "border-white/[0.06] text-pale/70 hover:text-ivory hover:border-tomato"
+            {categories.map((c) => (
+              <button key={c} onClick={() => { setCategory(c); }}
+                className={`px-4 py-2 rounded-full text-sm font-mono uppercase tracking-wide border transition ${
+                  category === c ? "bg-tomato border-tomato text-paper" : "border-line text-inkdim hover:text-ink hover:border-tomato"
                 }`}>
                 {c}
-              </motion.button>
+              </button>
             ))}
           </div>
-          <motion.div layout className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((img, i) => (
-                <motion.button
-                  key={img.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
-                  onClick={() => setLightboxIndex(i)}
-                  className="rounded-2xl overflow-hidden border border-white/[0.06] aspect-square group cursor-zoom-in"
-                  whileHover={{ y: -6, borderColor: "#A16207" }}
-                >
-                  <motion.img
-                    src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }}
-                  />
-                </motion.button>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {filtered.map((img, i) => (
+              <button key={img.id} onClick={() => setLightboxIndex(i)}
+                className="rounded-2xl overflow-hidden border border-line aspect-square group cursor-zoom-in hover:border-tomato hover:-translate-y-1.5 transition-all duration-300">
+                <img src={img.url} alt={img.caption || "La Casa Di Carta"} loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              </button>
+            ))}
+          </div>
         </>
       )}
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && filtered[lightboxIndex] && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-6"
-            onClick={() => setLightboxIndex(null)}
+      {/* Lightbox : agrandir la photo, naviguer au clavier ou avec les fleches */}
+      {lightboxIndex !== null && filtered[lightboxIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button onClick={() => setLightboxIndex(null)}
+            className="absolute top-6 right-6 w-10 h-10 rounded-full border border-white/20 text-white text-xl">
+            &times;
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + filtered.length) % filtered.length) }}
+            className="absolute left-4 md:left-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"
           >
-            <motion.button
-              initial={{ scale: 0, rotate: 90 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0, rotate: -90 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              onClick={() => setLightboxIndex(null)}
-              className="absolute top-6 right-6 w-10 h-10  border border-white/20 text-white text-xl"
-            >
-              &times;
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#A16207" }}
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + filtered.length) % filtered.length) }}
-              className="absolute left-4 md:left-8 w-11 h-11  border border-white/20 text-white flex items-center justify-center"
-            >
-              &larr;
-            </motion.button>
-            <motion.img
-              key={lightboxIndex}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-              src={filtered[lightboxIndex].url}
-              alt={filtered[lightboxIndex].caption || "La Casa Di Carta"}
-              onClick={(e) => e.stopPropagation()}
-              className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl"
-            />
-            <motion.button
-              whileHover={{ scale: 1.1, borderColor: "#A16207" }}
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % filtered.length) }}
-              className="absolute right-4 md:right-8 w-11 h-11  border border-white/20 text-white flex items-center justify-center"
-            >
-              &rarr;
-            </motion.button>
-            {filtered[lightboxIndex].caption && (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm text-center px-4"
-              >
-                {filtered[lightboxIndex].caption}
-              </motion.p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            &larr;
+          </button>
+          <img
+            src={filtered[lightboxIndex].url}
+            alt={filtered[lightboxIndex].caption || "La Casa Di Carta"}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl"
+          />
+          <button
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % filtered.length) }}
+            className="absolute right-4 md:right-8 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center"
+          >
+            &rarr;
+          </button>
+          {filtered[lightboxIndex].caption && (
+            <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm text-center px-4">
+              {filtered[lightboxIndex].caption}
+            </p>
+          )}
+        </div>
+      )}
     </section>
   )
 }

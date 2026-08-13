@@ -142,7 +142,7 @@ export default function OrderConfirmation() {
             </ul>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => confirmOrder(o)}
-                className="px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+                className="px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
                 Confirmer - envoyer en cuisine
               </button>
               <button onClick={() => rejectOrder(o)} className="px-4 py-2 rounded-full text-xs border border-line text-red-400">
@@ -168,7 +168,7 @@ export default function OrderConfirmation() {
             </div>
             <div className="flex gap-2">
               <button onClick={() => confirmReservation(r.id)}
-                className="px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+                className="px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
                 Confirmer
               </button>
               <button onClick={() => rejectReservation(r.id)} className="px-4 py-2 rounded-full text-xs border border-line text-red-400">

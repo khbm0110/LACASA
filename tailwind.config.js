@@ -3,69 +3,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // === Cinematic Dark + Gold ===
-        void:       '#0C0A09',
-        abyss:      '#1C1917',
-        surface:    '#292524',
-        surfaceHi:  '#44403C',
-        ghost:      '#78716C',
-        smoke:      '#A8A29E',
-        ash:        '#D6D3D1',
-        pale:       '#E8ECF0',
-        gold:       '#A16207',
-        goldBright: '#CA8A04',
-        goldGlow:   '#F59E0B',
-        goldMist:   'rgba(161,98,7,0.15)',
-        goldMist2:  'rgba(202,138,4,0.08)',
-        ivory:      '#FAFAF9',
-        danger:     '#DC2626',
+        bg: '#0a0a0a',
+        bgdarker: '#050505',
+        bgsoft: '#141414',
+        bgsofthover: '#1a1a1a',
+        paper: '#f5f5f5',
+        ink: '#f5f5f5',
+        inkdim: '#c0c0c0',
+        muted: '#6a6a6a',
+        tomato: '#D2491F',
+        tomatoglow: '#FF7A3D',
+        tomatodim: '#923315',
+        gold: '#D4A84B',
+        silver: '#C8C8C8',
+        silverdim: '#5a5a5a',
+        basil: '#7C9A5C',
+        line: '#1f1f1f',
+        linelight: '#2a2a2a'
       },
       fontFamily: {
-        display: ['"Playfair Display SC"', 'Georgia', 'serif'],
-        heading: ['"Playfair Display SC"', 'Georgia', 'serif'],
-        body:    ['"Karla"', 'system-ui', 'sans-serif'],
-        sans:    ['"Karla"', 'system-ui', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', 'monospace'],
-      },
-      fontSize: {
-        'hero':    ['clamp(3rem, 9vw, 8rem)', { lineHeight: '0.9', letterSpacing: '-0.03em', fontWeight: '400' }],
-        'display': ['clamp(2.5rem, 6vw, 5.5rem)', { lineHeight: '0.95', letterSpacing: '-0.02em' }],
-        'h2':      ['clamp(1.75rem, 4vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
-        'sub':     ['clamp(1.1rem, 2vw, 1.5rem)', { lineHeight: '1.4' }],
-      },
-      spacing: {
-        'section': 'clamp(6rem, 14vw, 12rem)',
-        'gap':     'clamp(2rem, 5vw, 4rem)',
-      },
-      maxWidth: {
-        'prose': '40rem',
-        'wide':  '90rem',
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-      },
-      animation: {
-        'float':      'float 6s ease-in-out infinite',
-        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
-        'shimmer':    'shimmer 2s linear infinite',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%':      { transform: 'translateY(-10px)' },
-        },
-        'glow-pulse': {
-          '0%, 100%': { opacity: '0.4' },
-          '50%':      { opacity: '0.8' },
-        },
-        shimmer: {
-          '0%':   { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
-      },
-      backdropBlur: {
-        'xs': '2px',
-      },
+        // font-serif reste le nom de classe utilise dans tout le projet
+        // (titres) mais pointe maintenant vers Bebas Neue, comme le nouveau
+        // gabarit HTML - ainsi tous les titres du site basculent sans
+        // toucher chaque fichier un par un.
+        serif: ['"Bebas Neue"', 'sans-serif'],
+        display: ['"Bebas Neue"', 'sans-serif'],
+        heading: ['Oswald', 'sans-serif'],
+        sans: ['Archivo', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace']
+      }
     }
   },
   plugins: []

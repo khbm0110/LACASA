@@ -65,7 +65,7 @@ export default function StaffManager() {
           className="bg-bg border border-line rounded-xl px-3 py-2.5 text-sm">
           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
-        <button className="sm:col-span-3 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A]">
+        <button className="sm:col-span-3 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05]">
           Ajouter a l equipe
         </button>
         {error && <p className="sm:col-span-3 text-red-400 text-xs">{error}</p>}

@@ -144,7 +144,7 @@ export default function ContentEditor() {
       </div>
 
       <button onClick={saveAll} disabled={saving}
-        className="mt-6 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] disabled:opacity-60">
+        className="mt-6 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] disabled:opacity-60">
         {saving ? "Enregistrement..." : "Enregistrer"}
       </button>
 
@@ -196,7 +196,7 @@ export default function ContentEditor() {
               className="w-full bg-bg border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-tomato"
             />
           </div>
-          <button className="sm:col-span-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#0E0C0A] w-fit">
+          <button className="sm:col-span-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-tomatoglow to-tomato text-[#1a0d05] w-fit">
             Ajouter au Hero
           </button>
         </form>
